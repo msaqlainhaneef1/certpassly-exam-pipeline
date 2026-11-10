@@ -1,8 +1,12 @@
 ---
 name: certpassly-exam-pipeline
-description: Build site-ready CertPassly exam catalog pages and question-import files from official vendor sources and owner PDFs. Use when adding a vendor, certification or exam, importing a question bank, or running the exam pipeline. Scripts first; one batched AI author stage; no site-repo or GitHub on the run path.
+description: >-
+  Build site-ready CertPassly exam catalog pages and question-import files from
+  official vendor sources and owner PDFs. Use when adding a vendor,
+  certification or exam, importing a question bank, or running the exam
+  pipeline. Scripts first; one batched AI author stage; no site-repo or GitHub
+  on the run path.
 ---
-
 # CertPassly exam pipeline
 
 Scripts-first skill for draft, site-ready exam pages and question-import files. Official vendor sources plus owner PDFs in; workbook CSVs, simulator settings, page JSON and a validation report out.
@@ -77,7 +81,7 @@ Reusable blocks under `shared/` (site, vendor, certification, question-type). Te
 
 ## Tests
 
-`python -m unittest discover -s tests -v` (offline). The gold-package regression runs when `CERTPASSLY_GOLD` (or a local gold workspace) is present; those caches are not committed. A second dry run exercises a non-Microsoft exam path with a synthetic owner PDF and reports official-source gaps honestly.
+`python -m unittest discover -s tests -v` (offline). The gold-package regression runs when `CERTPASSLY_GOLD` (or a local gold workspace) is present; those caches are not committed. A second dry run exercises a non-default-vendor exam path with a synthetic owner PDF and reports official-source gaps honestly.
 
 ## Limits
 
