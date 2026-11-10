@@ -80,3 +80,8 @@ A weaker first pilot failed later meta-length checks, used typographic dashes, a
 ## Mid-run and future exams (rule)
 
 Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification slug, except `scripts/adapters/microsoft.py` (the official-page parser for that vendor). New vendors get an adapter module or use `adapters/generic.py`. New exams are selected with `--exam`, `--vendor`, `--all` or `--batch`.
+
+
+## CI lesson (v1.0.1)
+
+- A clean machine failed because `vision_util.py` imports `cv2` and `numpy` that were never declared. Every third-party import must be listed in `pyproject.toml` and `requirements.txt`. Enforced by the GitHub Actions run on a fresh runner.

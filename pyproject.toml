@@ -4,13 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "certpassly-exam-pipeline"
-version = "1.0.0"
+version = "1.0.1"
 description = "Scripts-first pipeline that builds CertPassly exam pages and question import files from official vendor sources and owner PDFs."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{name = "CertPassly"}]
-# Runtime is the Python 3.10+ standard library. System tools are listed in README.
-dependencies = []
+# Python deps for image-question analysis (extract stage). System tools are listed in README.
+dependencies = [
+  "numpy>=1.26",
+  "opencv-python-headless>=4.9",
+  "Pillow>=10.0",
+]
 
 [project.scripts]
 certpassly-pipeline = "certpassly_pipeline.run_pipeline:main"

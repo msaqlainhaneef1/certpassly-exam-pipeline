@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 (2026-11-11)
+
+- Declare numpy, opencv-python-headless and Pillow as dependencies. The extract stage imports them; 1.0.0 wrongly said stdlib only, which failed on clean CI runners.
+- Add GitHub Actions test workflow (Linux and Windows, Python 3.11 and 3.13).
+
 ## 1.0.0 (2026-11-11)
 
 First packaged release of the CertPassly exam pipeline skill.

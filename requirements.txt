@@ -1,5 +1,5 @@
 # Pinned runtime dependencies for the CertPassly exam pipeline.
-# The pipeline itself uses the Python 3.10+ standard library only.
+# Python 3.10+ plus these packages (used by the extract stage for image questions).
 # Install the package with: pip install -e .   (or pip install .)
 #
 # System tools (not installed by pip):
@@ -8,3 +8,7 @@
 #
 # If you later add a Python dependency, pin it on its own line, for example:
 # somepackage==1.2.3
+
+numpy>=1.26
+opencv-python-headless>=4.9
+Pillow>=10.0
