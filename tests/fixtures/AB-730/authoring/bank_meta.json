@@ -1,0 +1,55 @@
+{
+ "skill_rules": [
+  {
+   "pattern": "cowork",
+   "topic": "4.2",
+   "flags": "i"
+  },
+  {
+   "pattern": "\\bagent|researcher|analyst",
+   "topic": "4.1",
+   "flags": "i"
+  },
+  {
+   "pattern": "meeting|recap|transcri|teams",
+   "topic": "3.2",
+   "flags": "i"
+  },
+  {
+   "pattern": "powerpoint|excel|word document|copilot in word|outlook|presentation|report|proposal|summary of the sales|draft",
+   "topic": "3.1",
+   "flags": "i"
+  },
+  {
+   "pattern": "fictional|fabricat|overreliance|injection|sensitivity|purview|privacy|secur|train|deepfake|bias|ai-generated|content credentials|enterprise data protection|governance",
+   "topic": "1.2",
+   "flags": "i"
+  },
+  {
+   "pattern": "prompt",
+   "topic": "2.1",
+   "flags": "i"
+  },
+  {
+   "pattern": "conversation|chat|notebook|page|history|memor|custom instructions",
+   "topic": "2.2",
+   "flags": "i"
+  }
+ ],
+ "default_topic": "1.1",
+ "off_syllabus": {
+  "pattern": "creat\\w* an agent|agent in the Microsoft 365 Copilot app|Describe tab|Configure tab|add to the agent|share the agent|template",
+  "when_topic": "4.1",
+  "flag": "possibly off-syllabus: agent creation left the outline on 2026-10-20"
+ },
+ "exhibit_alts": {
+  "q012": "Chat exhibit: a user asks about Document1.docx and the assistant replies with a summary; a small shield icon appears next to the assistant name.",
+  "q059": "Exhibit: the assistant app home screen while signed in with a work account.",
+  "q074": "Exhibit: the assistant conversation list with an icon next to the Standings conversation.",
+  "default": "Exhibit image from the source question."
+ },
+ "cover_facts_conflict": "Cover says Passing Score 800 and Time Limit 120 min. Official study guide: 700 and 45 minutes. Settings use the official values; cover lines removed (CLEANUP-LOG).",
+ "skipped_files": [
+  "AB-730/VCE/AB-730 (92 Questions).vce: binary VCE container, not decrypted or parsed (owner rule). Same title as the PDF."
+ ]
+}

@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "drag_drop",
+ "title": "How to answer this question type",
+ "body_html": "<p>Drag each tile to its target. A target may take one or more tiles, as the item shows.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

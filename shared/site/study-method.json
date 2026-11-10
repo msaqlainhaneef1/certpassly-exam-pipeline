@@ -1,0 +1,10 @@
+{
+ "level": "site",
+ "key": "study-method",
+ "title": "A simple way to study",
+ "body_html": "<p>Start with the skill areas that carry the most official weight. Read the official task list, then practice each task in the real product, not only on a question sheet. After each practice session, write a short note on what you got wrong and which official page explains it. Finish with a timed sitting that uses the official time limit and pass mark, and with the vendor's own free practice if they offer one.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

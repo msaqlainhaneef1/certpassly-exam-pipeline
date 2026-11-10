@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "certpassly-exam-pipeline"
+version = "1.0.0"
+description = "Scripts-first pipeline that builds CertPassly exam pages and question import files from official vendor sources and owner PDFs."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "CertPassly"}]
+# Runtime is the Python 3.10+ standard library. System tools are listed in README.
+dependencies = []
+
+[project.scripts]
+certpassly-pipeline = "certpassly_pipeline.run_pipeline:main"
+
+[tool.setuptools]
+packages = ["certpassly_pipeline", "certpassly_pipeline.adapters"]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+certpassly_pipeline = "scripts"

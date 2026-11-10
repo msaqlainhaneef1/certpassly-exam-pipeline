@@ -1,0 +1,18 @@
+{
+  "site_format_version": "v1",
+  "note": "URL path patterns used by the CertPassly app. Slugs are lowercase. Canonical URL is base_url + path.",
+  "routes": {
+    "vendor": "/vendors/{vendor}",
+    "certification": "/certifications/{cert}",
+    "exam_hub": "/exams/{vendor}/{exam}",
+    "objectives": "/exams/{vendor}/{exam}/objectives",
+    "study_guide": "/exams/{vendor}/{exam}/study-guide",
+    "faq": "/exams/{vendor}/{exam}/faq",
+    "practice_test": "/exams/{vendor}/{exam}/practice-test"
+  },
+  "slug_rules": {
+    "lowercase": true,
+    "canonical": "base_url + path",
+    "exam_slug": "usually the exam code in lowercase"
+  }
+}

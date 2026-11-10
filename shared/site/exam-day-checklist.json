@@ -1,0 +1,10 @@
+{
+ "level": "site",
+ "key": "exam-day-checklist",
+ "title": "Before exam day",
+ "body_html": "<ul><li>Try the vendor's exam sandbox or demo, if they offer one, so the question screens are familiar.</li><li>Read the official identification and room rules for your delivery partner, and take the required ID.</li><li>If you need extra time or other help, request an accommodation on the official channel early.</li><li>Check the product names on the official outline. Vendors sometimes rename a product and still use the old name in a question.</li></ul>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

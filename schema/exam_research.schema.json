@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CertPassly per-exam research record (AI fills, scripts verify)",
+  "type": "object",
+  "required": ["exam_code","vendor_slug","researched_at","sources","facts","objectives","unknowns"],
+  "properties": {
+    "exam_code": {"type":"string"},
+    "vendor_slug": {"type":"string"},
+    "researched_at": {"type":"string","format":"date"},
+    "certification": {"type":"object","properties":{"name":{"type":"string"},"code":{"type":"string"},"level":{"type":"string"},"url":{"type":"string"},"source_id":{"type":"string"},"other_required_exams":{"type":"array","items":{"type":"string"}}}},
+    "exam_name": {"type":"object","properties":{"value":{"type":"string"},"source_id":{"type":"string"}}},
+    "sources": {"type":"array","minItems":1,"items":{"type":"object","required":["id","url","kind"],
+      "properties":{"id":{"type":"string"},"url":{"type":"string"},"kind":{"enum":["exam_page","study_guide","objectives_pdf","certification_page","policy_page","pricing_page","renewal_page"]},
+        "title":{"type":"string"},"as_of_date":{"type":"string","description":"Date the page states for its skills outline or last update; empty if not stated"},
+        "sha256":{"type":"string","description":"Filled by fetch script, never by AI"},"saved_path":{"type":"string","description":"Filled by fetch script"}}}},
+    "facts": {"type":"object","description":"Each fact is {value, source_id, quote} or {value:null, reason}",
+      "properties": {
+        "duration_minutes":{"$ref":"#/$defs/fact"},"passing_score":{"$ref":"#/$defs/fact"},"score_scale":{"$ref":"#/$defs/fact"},
+        "question_count":{"$ref":"#/$defs/fact"},"question_formats":{"$ref":"#/$defs/fact"},"languages":{"$ref":"#/$defs/fact"},
+        "price":{"$ref":"#/$defs/fact"},"delivery":{"$ref":"#/$defs/fact"},"prerequisites":{"$ref":"#/$defs/fact"},
+        "validity_and_renewal":{"$ref":"#/$defs/fact"},"retake_policy":{"$ref":"#/$defs/fact"},"status":{"$ref":"#/$defs/fact"},
+        "retirement_date":{"$ref":"#/$defs/fact"},"replaced_by":{"$ref":"#/$defs/fact"},"audience":{"$ref":"#/$defs/fact"}}},
+    "objectives": {"type":"object","required":["domains"],"properties":{"outline_as_of":{"type":"string"},"source_id":{"type":"string"},
+      "domains":{"type":"array","items":{"type":"object","required":["code","name"],"properties":{
+        "code":{"type":"string"},"name":{"type":"string"},"weight_min_pct":{"type":["number","null"]},"weight_max_pct":{"type":["number","null"]},
+        "topics":{"type":"array","items":{"type":"object","properties":{"code":{"type":"string"},"name":{"type":"string"},"subtopics":{"type":"array","items":{"type":"string"}}}}}}}}}},
+    "learning_resources": {"type":"array","items":{"type":"object","properties":{"title":{"type":"string"},"url":{"type":"string"},"free":{"type":"boolean"},"source_id":{"type":"string"}}}},
+    "serp": {"type":"object","description":"Step 4 summary: queries, page types, intent, PAA questions, gaps. Structure only, no competitor text.",
+      "properties":{"main_intent":{"type":"string"},"paa":{"type":"array","items":{"type":"string"}},"gaps":{"type":"array","items":{"type":"string"}}}},
+    "blurbs": {"type":"object","description":"Optional AI-written original text, only where the generator flags a thin or too-similar page. No em or en dashes.",
+      "properties":{"exam_hub_intro":{"type":"string"},"study_guide_intro":{"type":"string"},"certification_intro":{"type":"string"},"vendor_intro":{"type":"string"}}},
+    "unknowns": {"type":"array","items":{"type":"object","properties":{"field":{"type":"string"},"reason":{"type":"string"}}}}
+  },
+  "$defs": {"fact":{"type":"object","properties":{"value":{},"source_id":{"type":"string"},"quote":{"type":"string","maxLength":200},"reason":{"type":"string"}}}}
+}

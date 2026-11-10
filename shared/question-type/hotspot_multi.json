@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "hotspot_multi",
+ "title": "How to answer this question type",
+ "body_html": "<p>Select every area of the image that applies.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

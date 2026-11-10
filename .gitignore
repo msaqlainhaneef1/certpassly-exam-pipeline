@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Owner workspace data (never commit)
+out/
+sources/
+cache/
+downloads/
+drive-downloads/
+owner-data/
+owner_files/
+*.env
+.env
+.env.local
+run.log
+*.log
+
+# Secrets and keys
+secrets/
+*.pem
+*.key
+credentials.json
+client_secret*.json
+service-account*.json
+token.json
+
+# Generated packages and local installs
+*.zip
+!tests/fixtures/**/*.zip
+
+# Gold / large cached workspaces used by the optional regression
+tests/fixtures/workspaces/
+tests/fixtures/gold/
+tests/fixtures/owner-pdfs/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

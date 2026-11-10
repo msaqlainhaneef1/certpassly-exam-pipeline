@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "inline_dropdown",
+ "title": "How to answer this question type",
+ "body_html": "<p>Open the single drop-down in the sentence or answer area and pick the option that correctly completes it.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

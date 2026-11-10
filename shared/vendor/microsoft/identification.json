@@ -1,0 +1,10 @@
+{
+ "level": "vendor",
+ "key": "identification",
+ "title": "Identification and test-day rules",
+ "body_html": "<p>The delivery partner, not this site, sets the identification and room rules. Read those rules on the official booking or delivery-partner page before exam day, and bring the ID they ask for. If the exam is not offered in your language, check the official page for any extra-time rule and how to request it.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": "microsoft"
+}

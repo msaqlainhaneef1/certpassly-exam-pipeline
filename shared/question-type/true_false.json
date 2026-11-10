@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "true_false",
+ "title": "How to answer this question type",
+ "body_html": "<p>Decide whether the statement is true or false (or yes or no). There are exactly two options.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

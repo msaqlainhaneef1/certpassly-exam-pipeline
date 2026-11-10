@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "scenario_standalone",
+ "title": "How to answer this question type",
+ "body_html": "<p>Read the shared scenario, then answer the question that follows. Use only the facts in the scenario plus your knowledge of the product.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

@@ -1,0 +1,10 @@
+# Pinned runtime dependencies for the CertPassly exam pipeline.
+# The pipeline itself uses the Python 3.10+ standard library only.
+# Install the package with: pip install -e .   (or pip install .)
+#
+# System tools (not installed by pip):
+#   poppler: pdftohtml, pdftoppm, pdftotext  (required for extract)
+#   tesseract-ocr                             (optional, image-only questions)
+#
+# If you later add a Python dependency, pin it on its own line, for example:
+# somepackage==1.2.3

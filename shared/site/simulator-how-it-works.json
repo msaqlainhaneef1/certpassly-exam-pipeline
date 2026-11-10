@@ -1,0 +1,10 @@
+{
+ "level": "site",
+ "key": "simulator-how-it-works",
+ "title": "How practice tests on this site work",
+ "body_html": "<p>When a practice bank is published, timed mode uses the official time limit and the official pass mark for that exam. The question count is a site choice whenever the vendor does not publish one, and that is marked as a site choice in the settings. Questions are spread by the midpoint of each official skill-area weight, scaled so the shares add up to 100. Navigation options such as going back or flagging a question are site choices and are listed in the simulator settings. Until a bank has been reviewed, we do not sell access and the practice page says the bank is not ready.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

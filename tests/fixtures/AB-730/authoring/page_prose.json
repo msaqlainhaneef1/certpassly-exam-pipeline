@@ -1,0 +1,390 @@
+{
+ "note": "Cached author-stage output for the AB-730 regression. Scripts assemble pages from this file plus research JSON. Unique page prose only; tables may already be included in body_html when this was captured from the approved pilot.",
+ "exam_code": "AB-730",
+ "exam_hub": {
+  "title_candidates": [
+   "AB-730 Exam: AI Business Professional Facts | CertPassly"
+  ],
+  "desc_candidates": [
+   "AB-730 exam facts from Microsoft Learn: 45 minutes, pass mark 700, 13 languages and the 4 skill areas in the outline updated October 20, 2026."
+  ],
+  "h1": "AB-730 Exam: AI Business Professional",
+  "body_html": "<p>AB-730 is the exam for the Microsoft Certified: AI Business Professional credential. It checks how well you use Microsoft 365 Copilot, Copilot Cowork and prebuilt agents in everyday business work. You do not need to build AI apps or write code. Microsoft rates it at the beginner level.</p><h2>Key facts</h2><table><caption>AB-730 key facts from Microsoft Learn</caption><thead><tr><th scope=\"col\">Fact</th><th scope=\"col\">Official value</th></tr></thead><tbody><tr><td>Exam length</td><td>45 minutes (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)</td></tr><tr><td>Passing score</td><td>700 or higher (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">source</a>, checked November 11, 2026)</td></tr><tr><td>Price</td><td>not published by the vendor (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026) Microsoft sets the price by the country or region where you take the exam.</td></tr><tr><td>Languages</td><td>English, Arabic (Saudi Arabia), Chinese (Simplified), Chinese (Traditional), French, German, Indonesian (Indonesia), Italian, Korean, Japanese, Portuguese (Brazil), Russian, Spanish (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)</td></tr><tr><td>Format</td><td>Proctored exam that may include interactive components (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)</td></tr><tr><td>Number of questions</td><td>not published by the vendor</td></tr><tr><td>Level</td><td>Beginner (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)</td></tr><tr><td>Delivery</td><td>Scheduled through Pearson VUE (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)</td></tr></tbody></table><p>Microsoft does not publish a fixed number of questions, so we do not state one. You get 45 minutes, and you need 700 or more to pass.</p><h2>What the exam covers</h2><p>The skills outline was last changed on October 20, 2026. It has 4 skill areas:</p><ul><li>Understand generative AI fundamentals (25 to 30 percent)</li><li>Manage prompts and chats by using Microsoft 365 Copilot (20 to 25 percent)</li><li>Manage business content and collaboration by using Microsoft 365 Copilot (20 to 25 percent)</li><li>Drive business outcomes by using agents (20 to 25 percent)</li></ul><p>The largest area is \"Understand generative AI fundamentals\". See the <a href=\"https://certpassly.com/exams/microsoft/ab-730/objectives\">full skills list</a> for every task.</p><h2>What changed on October 20, 2026</h2><p>Microsoft removed the old skill area about creating your own Copilot agents. A new area, \"Drive business outcomes by using agents\", covers prebuilt agents and Copilot Cowork. Some older study material still shows the previous outline.</p><h2>Who should take it</h2><p>It suits people who already use Outlook, Word, Teams, PowerPoint and Excel at work and want to show they can use Copilot well. Microsoft expects you to know prompt basics, how context shapes answers, and common business tasks like drafting email or slides.</p><h2>Product name note</h2><p>Microsoft has renamed Microsoft 365 Copilot to Microsoft Copilot. Some exam questions may still use the old name.</p><h2>Booking and retakes</h2><p>You book the exam from the Microsoft Learn credential page, which schedules it through Pearson VUE. If you do not pass, you can retake it 24 hours after your first try. Later waits are longer. If the exam is not in your language, you can ask for 30 extra minutes.</p><nav class=\"exam-links\"><h2>More on AB-730</h2><ul><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/objectives\">AB-730 skills measured</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/study-guide\">AB-730 study guide</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/faq\">AB-730 FAQ</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/practice-test\">AB-730 practice test</a></li><li><a href=\"https://certpassly.com/certifications/ai-business-professional\">Microsoft Certified: AI Business Professional</a></li><li><a href=\"https://certpassly.com/vendors/microsoft\">All Microsoft exams on CertPassly</a></li></ul></nav>",
+  "tables": {
+   "key_facts": [
+    [
+     "Exam length",
+     "45 minutes (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)"
+    ],
+    [
+     "Passing score",
+     "700 or higher (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">source</a>, checked November 11, 2026)"
+    ],
+    [
+     "Price",
+     "not published by the vendor (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026) Microsoft sets the price by the country or region where you take the exam."
+    ],
+    [
+     "Languages",
+     "English, Arabic (Saudi Arabia), Chinese (Simplified), Chinese (Traditional), French, German, Indonesian (Indonesia), Italian, Korean, Japanese, Portuguese (Brazil), Russian, Spanish (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)"
+    ],
+    [
+     "Format",
+     "Proctored exam that may include interactive components (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)"
+    ],
+    [
+     "Number of questions",
+     "not published by the vendor"
+    ],
+    [
+     "Level",
+     "Beginner (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)"
+    ],
+    [
+     "Delivery",
+     "Scheduled through Pearson VUE (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>, checked November 11, 2026)"
+    ]
+   ]
+  }
+ },
+ "objectives": {
+  "title_candidates": [
+   "AB-730 Skills Measured and Official Weights | CertPassly"
+  ],
+  "desc_candidates": [
+   "Every AB-730 skill from the official Microsoft study guide dated October 20, 2026: 4 skill areas, 41 tasks and the weight range for each area."
+  ],
+  "h1": "AB-730 Skills Measured: Official Objectives and Weights",
+  "body_html": "<p>This page lists every skill Microsoft measures on AB-730, word for word from the official study guide. The outline is dated October 20, 2026. Weights are ranges, so the exact mix on your exam can vary inside each range.</p><h2>Weights at a glance</h2><table><caption>AB-730 skill areas and weights as of October 20, 2026</caption><thead><tr><th scope=\"col\">Area</th><th scope=\"col\">Skill area</th><th scope=\"col\">Official weight</th></tr></thead><tbody><tr><td>1</td><td>Understand generative AI fundamentals</td><td>25 to 30 percent</td></tr><tr><td>2</td><td>Manage prompts and chats by using Microsoft 365 Copilot</td><td>20 to 25 percent</td></tr><tr><td>3</td><td>Manage business content and collaboration by using Microsoft 365 Copilot</td><td>20 to 25 percent</td></tr><tr><td>4</td><td>Drive business outcomes by using agents</td><td>20 to 25 percent</td></tr></tbody></table><p>The low ends add up to 85 percent and the high ends to 105 percent, so the ranges cover the whole exam.</p><h2>1. Understand generative AI fundamentals</h2><p>Weight: 25 to 30 percent of the exam. This area has 2 task groups and 8 listed tasks.</p><h3>1.1 Understand generative AI capabilities across Microsoft 365 experiences</h3><ul><li>Understand how Copilot works to keep your organization&#x27;s information private and secure</li><li>Understand how the context, like Work IQ, web data, or the app you&#x27;re using, can affect Copilot responses</li><li>Understand when to use Microsoft 365 Copilot Chat, agents, and Microsoft Copilot Cowork</li><li>Understand the differences in features and capabilities across Copilot experiences and Microsoft 365 apps</li></ul><h3>1.2 Identify responsible AI and data protection practices</h3><ul><li>Identify common risks, including inaccuracies, prompt injection, and over-reliance</li><li>Select verification steps appropriate to the task, including citation checks and human review</li><li>Recognize and mitigate risks to sensitive data</li><li>Understand how data protection restricts prompt results</li></ul><h2>2. Manage prompts and chats by using Microsoft 365 Copilot</h2><p>Weight: 20 to 25 percent of the exam. This area has 2 task groups and 11 listed tasks.</p><h3>2.1 Create and manage prompts in Microsoft 365 Copilot</h3><ul><li>Understand how to create an effective prompt, including model selection</li><li>Select appropriate resources to reference in a prompt</li><li>Save a prompt</li><li>Schedule a prompt</li><li>Share a prompt</li><li>Refine prompts based on generated responses</li><li>Describe how Copilot uses memory and instructions</li></ul><h3>2.2 Manage chats in Microsoft 365 Copilot</h3><ul><li>Find a previous chat</li><li>Delete a chat</li><li>Rename a chat</li><li>Organize and share information by using Notebooks</li></ul><h2>3. Manage business content and collaboration by using Microsoft 365 Copilot</h2><p>Weight: 20 to 25 percent of the exam. This area has 2 task groups and 11 listed tasks.</p><h3>3.1 Draft and analyze business content by using Microsoft 365 Copilot</h3><ul><li>Connect to sources beyond Microsoft 365 Copilot by using connectors</li><li>Generate or analyze content based on specific business context, including Work IQ and connectors</li><li>Generate images, visuals, and charts to support business content</li><li>Generate or analyze content across multiple Microsoft 365 applications such as Microsoft Word, Microsoft Excel, and Microsoft PowerPoint</li><li>Derive insights across Work IQ</li><li>Interpret and validate that AI-generated content meets business goals</li></ul><h3>3.2 Manage meetings and collaboration by using Microsoft 365 Copilot</h3><ul><li>Prepare for a meeting</li><li>Use the Facilitator agent</li><li>Use real-time catchup</li><li>Use Intelligent recap</li><li>Collaborate on business content by using Copilot Pages</li></ul><h2>4. Drive business outcomes by using agents</h2><p>Weight: 20 to 25 percent of the exam. This area has 2 task groups and 11 listed tasks.</p><h3>4.1 Select and apply prebuilt Microsoft 365 Copilot agents</h3><ul><li>Identify scenarios where a prebuilt agent can improve a business workflow</li><li>Choose between using a prebuilt agent or creating a custom agent for a business task</li><li>Apply an agent to a business process from within various Microsoft 365 Copilot experiences</li><li>Filter chats by agents</li></ul><h3>4.2 Perform business tasks by using Microsoft Copilot Cowork</h3><ul><li>Describe how Microsoft Copilot Cowork helps carry out multi-step business tasks</li><li>Understand how Cowork uses skills to complete parts of a task</li><li>Recognize security considerations and known limitations when using Cowork</li><li>Choose between prebuilt skills and custom skills</li><li>Delegate a piece of work to Cowork and a prebuilt skill</li><li>Review Cowork&#x27;s plan, progress, and results</li><li>Manage scheduled tasks or prompts</li></ul><h2>Changes from the previous outline</h2><ul><li>Create and manage Microsoft 365 Copilot agents: Removed</li><li>Drive business outcomes by using agents: New</li><li>Manage prompts and conversations by using AI: Share of the exam decreased</li></ul><nav class=\"exam-links\"><h2>More on AB-730</h2><ul><li><a href=\"https://certpassly.com/exams/microsoft/ab-730\">AB-730 exam overview</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/study-guide\">AB-730 study guide</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/faq\">AB-730 FAQ</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/practice-test\">AB-730 practice test</a></li><li><a href=\"https://certpassly.com/certifications/ai-business-professional\">Microsoft Certified: AI Business Professional</a></li><li><a href=\"https://certpassly.com/vendors/microsoft\">All Microsoft exams on CertPassly</a></li></ul></nav>",
+  "tables": {
+   "objectives": [
+    [
+     "1",
+     "Understand generative AI fundamentals",
+     "25 to 30 percent"
+    ],
+    [
+     "2",
+     "Manage prompts and chats by using Microsoft 365 Copilot",
+     "20 to 25 percent"
+    ],
+    [
+     "3",
+     "Manage business content and collaboration by using Microsoft 365 Copilot",
+     "20 to 25 percent"
+    ],
+    [
+     "4",
+     "Drive business outcomes by using agents",
+     "20 to 25 percent"
+    ]
+   ],
+   "weight_min_sum": 85,
+   "weight_max_sum": 105
+  }
+ },
+ "study_guide": {
+  "title_candidates": [
+   "AB-730 Study Guide: Free Plan by Skill Area | CertPassly"
+  ],
+  "desc_candidates": [
+   "Free AB-730 study plan: each of the 4 skill areas mapped to official Microsoft Learn resources, plus the exam sandbox and practice assessment. Updated 2026."
+  ],
+  "h1": "AB-730 Study Guide: A Plan Built on the Official Outline",
+  "body_html": "<p>Use this plan to prepare for AB-730 with free Microsoft material. Start with the areas that carry the most weight, then practice each task in Microsoft 365 Copilot. Hands-on use matters, since the exam tests how you apply Copilot to real business work.</p><h2>Study plan by skill area</h2><table><caption>AB-730 study plan mapped to Microsoft resources</caption><thead><tr><th scope=\"col\">Skill area</th><th scope=\"col\">Weight</th><th scope=\"col\">Official Microsoft resources</th></tr></thead><tbody><tr><td>Understand generative AI fundamentals</td><td>25 to 30 percent</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">AB-730 study guide</a><br><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-730#two-ways-to-prepare\">Self-paced learning paths and instructor-led course options</a><br><a href=\"https://learn.microsoft.com/en-us/ai/playbook/technology-guidance/generative-ai/\">Generative AI documentation</a><br><a href=\"https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot\">Microsoft 365 Copilot service description</a><br><a href=\"https://learn.microsoft.com/en-us/shows/exam-readiness-zone/\">Exam Readiness Zone videos</a></td></tr><tr><td>Manage prompts and chats by using Microsoft 365 Copilot</td><td>20 to 25 percent</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">AB-730 study guide</a><br><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-730#two-ways-to-prepare\">Self-paced learning paths and instructor-led course options</a><br><a href=\"https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot\">Microsoft 365 Copilot service description</a><br><a href=\"https://learn.microsoft.com/en-us/shows/exam-readiness-zone/\">Exam Readiness Zone videos</a></td></tr><tr><td>Manage business content and collaboration by using Microsoft 365 Copilot</td><td>20 to 25 percent</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">AB-730 study guide</a><br><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-730#two-ways-to-prepare\">Self-paced learning paths and instructor-led course options</a><br><a href=\"https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot\">Microsoft 365 Copilot service description</a><br><a href=\"https://learn.microsoft.com/en-us/microsoft-365/\">Microsoft 365 documentation</a><br><a href=\"https://learn.microsoft.com/en-us/shows/exam-readiness-zone/\">Exam Readiness Zone videos</a></td></tr><tr><td>Drive business outcomes by using agents</td><td>20 to 25 percent</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">AB-730 study guide</a><br><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-730#two-ways-to-prepare\">Self-paced learning paths and instructor-led course options</a><br><a href=\"https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot\">Microsoft 365 Copilot service description</a><br><a href=\"https://learn.microsoft.com/en-us/shows/exam-readiness-zone/\">Exam Readiness Zone videos</a></td></tr></tbody></table><h2>Suggested order</h2><ol><li>Work through \"Understand generative AI fundamentals\" (25 to 30 percent). Try each task in Copilot yourself, for example: understand how Copilot works to keep your organization&#x27;s information private and secure.</li><li>Work through \"Manage prompts and chats by using Microsoft 365 Copilot\" (20 to 25 percent). Try each task in Copilot yourself, for example: understand how to create an effective prompt, including model selection.</li><li>Work through \"Manage business content and collaboration by using Microsoft 365 Copilot\" (20 to 25 percent). Try each task in Copilot yourself, for example: connect to sources beyond Microsoft 365 Copilot by using connectors.</li><li>Work through \"Drive business outcomes by using agents\" (20 to 25 percent). Try each task in Copilot yourself, for example: identify scenarios where a prebuilt agent can improve a business workflow.</li></ol><h2>Before exam day</h2><ul><li>Try the free <a href=\"https://aka.ms/examdemo\">exam sandbox</a> to see the question screens.</li><li>Microsoft offers a free Practice Assessment on AI Skills Navigator. You must sign in to use it.</li><li>Read the product name note: questions may still say Microsoft 365 Copilot.</li><li>If you need extra time or other help, <a href=\"https://learn.microsoft.com/en-us/credentials/certifications/request-accommodations\">request an accommodation</a> early.</li></ul><h2>How CertPassly fits in</h2><p>Our <a href=\"https://certpassly.com/exams/microsoft/ab-730/objectives\">objectives page</a> keeps the full task list in one place. Our AB-730 practice bank is in draft and under review, as the <a href=\"https://certpassly.com/exams/microsoft/ab-730/practice-test\">practice test page</a> explains.</p><nav class=\"exam-links\"><h2>More on AB-730</h2><ul><li><a href=\"https://certpassly.com/exams/microsoft/ab-730\">AB-730 exam overview</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/objectives\">AB-730 skills measured</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/faq\">AB-730 FAQ</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/practice-test\">AB-730 practice test</a></li><li><a href=\"https://certpassly.com/certifications/ai-business-professional\">Microsoft Certified: AI Business Professional</a></li><li><a href=\"https://certpassly.com/vendors/microsoft\">All Microsoft exams on CertPassly</a></li></ul></nav>",
+  "tables": {
+   "study_plan": [
+    [
+     "Understand generative AI fundamentals",
+     "25 to 30 percent",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">AB-730 study guide</a><br><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-730#two-ways-to-prepare\">Self-paced learning paths and instructor-led course options</a><br><a href=\"https://learn.microsoft.com/en-us/ai/playbook/technology-guidance/generative-ai/\">Generative AI documentation</a><br><a href=\"https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot\">Microsoft 365 Copilot service description</a><br><a href=\"https://learn.microsoft.com/en-us/shows/exam-readiness-zone/\">Exam Readiness Zone videos</a>"
+    ],
+    [
+     "Manage prompts and chats by using Microsoft 365 Copilot",
+     "20 to 25 percent",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">AB-730 study guide</a><br><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-730#two-ways-to-prepare\">Self-paced learning paths and instructor-led course options</a><br><a href=\"https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot\">Microsoft 365 Copilot service description</a><br><a href=\"https://learn.microsoft.com/en-us/shows/exam-readiness-zone/\">Exam Readiness Zone videos</a>"
+    ],
+    [
+     "Manage business content and collaboration by using Microsoft 365 Copilot",
+     "20 to 25 percent",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">AB-730 study guide</a><br><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-730#two-ways-to-prepare\">Self-paced learning paths and instructor-led course options</a><br><a href=\"https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot\">Microsoft 365 Copilot service description</a><br><a href=\"https://learn.microsoft.com/en-us/microsoft-365/\">Microsoft 365 documentation</a><br><a href=\"https://learn.microsoft.com/en-us/shows/exam-readiness-zone/\">Exam Readiness Zone videos</a>"
+    ],
+    [
+     "Drive business outcomes by using agents",
+     "20 to 25 percent",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">AB-730 study guide</a><br><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-730#two-ways-to-prepare\">Self-paced learning paths and instructor-led course options</a><br><a href=\"https://learn.microsoft.com/en-us/office365/servicedescriptions/office-365-platform-service-description/microsoft-365-copilot\">Microsoft 365 Copilot service description</a><br><a href=\"https://learn.microsoft.com/en-us/shows/exam-readiness-zone/\">Exam Readiness Zone videos</a>"
+    ]
+   ]
+  },
+  "course_description": "Study plan for the AB-730 exam built from the official Microsoft skills outline dated October 20, 2026."
+ },
+ "faq": {
+  "title_candidates": [
+   "AB-730 FAQ: Answers from Microsoft Learn | CertPassly"
+  ],
+  "desc_candidates": [
+   "AB-730 questions answered from Microsoft Learn: 45 minute length, 700 pass mark, languages, price rules, retakes and what the 4 skill areas cover."
+  ],
+  "h1": "AB-730 Frequently Asked Questions",
+  "body_html": "<p>Short answers to common AB-730 questions. Each answer comes from Microsoft Learn and links to its source. Where Microsoft has not published a value, we say so.</p><h2>How long is the AB-730 exam?</h2><p>You get 45 minutes to finish it. (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>)</p><h2>What score do I need to pass AB-730?</h2><p>You need a score of 700 or higher. (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">source</a>)</p><h2>How many questions are on AB-730?</h2><p>Microsoft does not publish a fixed number of questions, so we do not give one.</p><h2>How much does the AB-730 exam cost?</h2><p>Microsoft sets the price by the country or region where you take the exam. Check the price when you book. (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>)</p><h2>Which languages is AB-730 offered in?</h2><p>It is offered in English, Arabic (Saudi Arabia), Chinese (Simplified), Chinese (Traditional), French, German, Indonesian (Indonesia), Italian, Korean, Japanese, Portuguese (Brazil), Russian and Spanish. (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>)</p><h2>Can I get extra time if AB-730 is not in my language?</h2><p>Yes. Microsoft says you can request 30 extra minutes in that case. (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">source</a>)</p><h2>When can I retake AB-730 if I fail?</h2><p>You can retake it 24 hours after your first attempt. Later retakes have longer waits. (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">source</a>)</p><h2>Are there prerequisites for AB-730?</h2><p>Microsoft lists no formal prerequisite. It expects you to know Microsoft 365 apps and basic prompting.</p><h2>What skill areas does AB-730 cover?</h2><p>There are 4 areas: Understand generative AI fundamentals (25 to 30 percent); Manage prompts and chats by using Microsoft 365 Copilot (20 to 25 percent); Manage business content and collaboration by using Microsoft 365 Copilot (20 to 25 percent); Drive business outcomes by using agents (20 to 25 percent). (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">source</a>)</p><h2>Does the exam still say Microsoft 365 Copilot?</h2><p>It may. Microsoft renamed the product to Microsoft Copilot, and some questions can still use the old name. (<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">source</a>)</p><h2>Does the Microsoft Certified: AI Business Professional credential expire?</h2><p>The credential page does not say. We will update this answer when Microsoft publishes a rule.</p><nav class=\"exam-links\"><h2>More on AB-730</h2><ul><li><a href=\"https://certpassly.com/exams/microsoft/ab-730\">AB-730 exam overview</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/objectives\">AB-730 skills measured</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/study-guide\">AB-730 study guide</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/practice-test\">AB-730 practice test</a></li><li><a href=\"https://certpassly.com/certifications/ai-business-professional\">Microsoft Certified: AI Business Professional</a></li><li><a href=\"https://certpassly.com/vendors/microsoft\">All Microsoft exams on CertPassly</a></li></ul></nav>",
+  "tables": {
+   "faq_sourced": [
+    "How long is the AB-730 exam?",
+    "What score do I need to pass AB-730?",
+    "How much does the AB-730 exam cost?",
+    "Which languages is AB-730 offered in?",
+    "Can I get extra time if AB-730 is not in my language?",
+    "When can I retake AB-730 if I fail?",
+    "What skill areas does AB-730 cover?",
+    "Does the exam still say Microsoft 365 Copilot?"
+   ],
+   "faq_unsourced": [
+    "How many questions are on AB-730?",
+    "Are there prerequisites for AB-730?",
+    "Does the Microsoft Certified: AI Business Professional credential expire?"
+   ]
+  },
+  "faq_sourced": [
+   "How long is the AB-730 exam?",
+   "What score do I need to pass AB-730?",
+   "How much does the AB-730 exam cost?",
+   "Which languages is AB-730 offered in?",
+   "Can I get extra time if AB-730 is not in my language?",
+   "When can I retake AB-730 if I fail?",
+   "What skill areas does AB-730 cover?",
+   "Does the exam still say Microsoft 365 Copilot?"
+  ],
+  "faq_unsourced": [
+   "How many questions are on AB-730?",
+   "Are there prerequisites for AB-730?",
+   "Does the Microsoft Certified: AI Business Professional credential expire?"
+  ]
+ },
+ "practice_test": {
+  "title_candidates": [
+   "AB-730 Practice Test Status and Free Options | CertPassly"
+  ],
+  "desc_candidates": [
+   "Our AB-730 practice bank is not ready yet. See the planned format (45 minutes, pass at 700) and the free official practice options from Microsoft."
+  ],
+  "h1": "AB-730 Practice Test",
+  "body_html": "<p>Our AB-730 practice bank is not ready for public use. The questions are in draft and wait for expert review, so no AB-730 practice questions are published yet, and we will not sell access until a reviewed bank exists. This page will change when it does.</p><h2>What the practice test will follow</h2><p>When the bank is ready, the timed mode will use the official 45 minute limit and the 700 pass mark. The question count will be a CertPassly choice, because Microsoft does not publish one. Questions will be spread by the official weights:</p><table><caption>Planned mix, based on the midpoint of each official weight range</caption><thead><tr><th scope=\"col\">Skill area</th><th scope=\"col\">Planned share of questions</th></tr></thead><tbody><tr><td>Understand generative AI fundamentals</td><td>29 percent</td></tr><tr><td>Manage prompts and chats by using Microsoft 365 Copilot</td><td>24 percent</td></tr><tr><td>Manage business content and collaboration by using Microsoft 365 Copilot</td><td>24 percent</td></tr><tr><td>Drive business outcomes by using agents</td><td>24 percent</td></tr></tbody></table><h2>Free official practice you can use today</h2><ul><li>Microsoft Practice Assessment on AI Skills Navigator (sign-in required).</li><li>The <a href=\"https://aka.ms/examdemo\">exam sandbox</a>, to see the exam screens.</li></ul><h2>Until then</h2><p>Use the <a href=\"https://certpassly.com/exams/microsoft/ab-730/study-guide\">study guide</a> and the <a href=\"https://certpassly.com/exams/microsoft/ab-730/objectives\">objectives list</a> to plan your prep.</p><nav class=\"exam-links\"><h2>More on AB-730</h2><ul><li><a href=\"https://certpassly.com/exams/microsoft/ab-730\">AB-730 exam overview</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/objectives\">AB-730 skills measured</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/study-guide\">AB-730 study guide</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/faq\">AB-730 FAQ</a></li><li><a href=\"https://certpassly.com/certifications/ai-business-professional\">Microsoft Certified: AI Business Professional</a></li><li><a href=\"https://certpassly.com/vendors/microsoft\">All Microsoft exams on CertPassly</a></li></ul></nav>",
+  "tables": {
+   "planned_mix": [
+    [
+     "Understand generative AI fundamentals",
+     "29 percent"
+    ],
+    [
+     "Manage prompts and chats by using Microsoft 365 Copilot",
+     "24 percent"
+    ],
+    [
+     "Manage business content and collaboration by using Microsoft 365 Copilot",
+     "24 percent"
+    ],
+    [
+     "Drive business outcomes by using agents",
+     "24 percent"
+    ]
+   ]
+  }
+ },
+ "vendor": {
+  "title_candidates": [
+   "Microsoft Certification Exams: Official Facts | CertPassly"
+  ],
+  "desc_candidates": [
+   "20 Microsoft certification exams tracked by CertPassly, with official exam names, credentials and Microsoft Learn links. Facts come from Microsoft only."
+  ],
+  "h1": "Microsoft Certification Exams",
+  "body_html": "<p>CertPassly tracks 20 Microsoft certification exams. Microsoft owns these exams and the credentials they lead to. Every fact on our pages comes from Microsoft Learn, and each page links to its source.</p><h2>Microsoft exams on CertPassly</h2><table><caption>Microsoft exams tracked by CertPassly</caption><thead><tr><th scope=\"col\">Code</th><th scope=\"col\">Official exam name</th><th scope=\"col\">Credential</th><th scope=\"col\">Official page</th><th scope=\"col\">Our page</th></tr></thead><tbody><tr><td>AB-210</td><td>Accelerating Sales Pipelines with AI in Dynamics 365</td><td>Microsoft Certified: Dynamics 365 Sales AI Consultant Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-210\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>AB-730</td><td>AI Business Professional</td><td>Not confirmed yet</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">Microsoft study guide</a></td><td><a href=\"https://certpassly.com/exams/microsoft/ab-730\">CertPassly page</a></td></tr><tr><td>AB-900</td><td>Microsoft 365 Copilot and Agent Administration Fundamentals</td><td>Not confirmed yet</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-900\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>AI-103</td><td>Developing AI Apps and Agents on Azure</td><td>Microsoft Certified: Azure AI Apps and Agents Developer Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-103\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>AI-200</td><td>Developing AI Cloud Solutions on Azure</td><td>Microsoft Certified: Azure AI Cloud Developer Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-200\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>AI-901</td><td>Microsoft Azure AI Fundamentals</td><td>Microsoft Certified: Azure AI Fundamentals</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-901\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>AZ-305</td><td>Designing Microsoft Azure Infrastructure Solutions</td><td>Microsoft Certified: Azure Solutions Architect Expert</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>AZ-700</td><td>Designing and Implementing Microsoft Azure Networking Solutions</td><td>Microsoft Certified: Azure Network Engineer Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-700\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>AZ-802</td><td>Administering Windows Server</td><td>Microsoft Certified: Windows Server Administrator Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>AZ-900</td><td>Microsoft Azure Fundamentals</td><td>Not confirmed yet</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-900\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>DP-300</td><td>Administering Microsoft Azure SQL Solutions</td><td>Microsoft Certified: Azure Database Administrator Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-300\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>DP-750</td><td>Implementing Data Engineering Solutions Using Azure Databricks</td><td>Microsoft Certified: Azure Databricks Data Engineer Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-750\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>DP-800</td><td>Developing AI-Enabled Database Solutions</td><td>Microsoft Certified: SQL AI Developer Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-800\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>MS-102</td><td>Microsoft 365 Administrator</td><td>Not confirmed yet</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-102\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>PL-300</td><td>Microsoft Power BI Data Analyst</td><td>Microsoft Certified: Power BI Data Analyst Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/pl-300\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>SC-200</td><td>Microsoft Security Operations Analyst</td><td>Microsoft Certified: Security Operations Analyst Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-200\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>SC-300</td><td>Microsoft Identity and Access Administrator</td><td>Microsoft Certified: Identity and Access Administrator Associate</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-300\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>SC-401</td><td>Administering Information Security in Microsoft 365</td><td>Not confirmed yet</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-401\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>SC-500</td><td>Implementing End-to-End Security Controls for Cloud and AI Workloads</td><td>Not confirmed yet</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-500\">Microsoft study guide</a></td><td>Not built yet</td></tr><tr><td>SC-900</td><td>Microsoft Security, Compliance, and Identity Fundamentals</td><td>Not confirmed yet</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-900\">Microsoft study guide</a></td><td>Not built yet</td></tr></tbody></table><p>Only exams with a CertPassly page link to one. The others link to Microsoft until our pages pass review.</p><h2>How Microsoft exams work</h2><ul><li>Microsoft offers a free exam sandbox to try the exam interface.</li><li>Candidates can request accommodations if they use assistive devices or need more time.</li><li>Associate, expert and specialty certifications expire annually and renew through a free online assessment on Microsoft Learn. Check each credential page, since not every credential follows this rule.</li><li>Localized exams are updated about eight weeks after the English version.</li><li>Microsoft exams on these pages are scheduled through Pearson VUE.</li></ul>",
+  "tables": {
+   "exams": [
+    [
+     "AB-210",
+     "Accelerating Sales Pipelines with AI in Dynamics 365",
+     "Microsoft Certified: Dynamics 365 Sales AI Consultant Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-210\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "AB-730",
+     "AI Business Professional",
+     "Not confirmed yet",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730\">Microsoft study guide</a>",
+     "<a href=\"https://certpassly.com/exams/microsoft/ab-730\">CertPassly page</a>"
+    ],
+    [
+     "AB-900",
+     "Microsoft 365 Copilot and Agent Administration Fundamentals",
+     "Not confirmed yet",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-900\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "AI-103",
+     "Developing AI Apps and Agents on Azure",
+     "Microsoft Certified: Azure AI Apps and Agents Developer Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-103\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "AI-200",
+     "Developing AI Cloud Solutions on Azure",
+     "Microsoft Certified: Azure AI Cloud Developer Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-200\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "AI-901",
+     "Microsoft Azure AI Fundamentals",
+     "Microsoft Certified: Azure AI Fundamentals",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-901\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "AZ-305",
+     "Designing Microsoft Azure Infrastructure Solutions",
+     "Microsoft Certified: Azure Solutions Architect Expert",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "AZ-700",
+     "Designing and Implementing Microsoft Azure Networking Solutions",
+     "Microsoft Certified: Azure Network Engineer Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-700\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "AZ-802",
+     "Administering Windows Server",
+     "Microsoft Certified: Windows Server Administrator Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "AZ-900",
+     "Microsoft Azure Fundamentals",
+     "Not confirmed yet",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-900\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "DP-300",
+     "Administering Microsoft Azure SQL Solutions",
+     "Microsoft Certified: Azure Database Administrator Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-300\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "DP-750",
+     "Implementing Data Engineering Solutions Using Azure Databricks",
+     "Microsoft Certified: Azure Databricks Data Engineer Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-750\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "DP-800",
+     "Developing AI-Enabled Database Solutions",
+     "Microsoft Certified: SQL AI Developer Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-800\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "MS-102",
+     "Microsoft 365 Administrator",
+     "Not confirmed yet",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-102\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "PL-300",
+     "Microsoft Power BI Data Analyst",
+     "Microsoft Certified: Power BI Data Analyst Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/pl-300\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "SC-200",
+     "Microsoft Security Operations Analyst",
+     "Microsoft Certified: Security Operations Analyst Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-200\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "SC-300",
+     "Microsoft Identity and Access Administrator",
+     "Microsoft Certified: Identity and Access Administrator Associate",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-300\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "SC-401",
+     "Administering Information Security in Microsoft 365",
+     "Not confirmed yet",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-401\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "SC-500",
+     "Implementing End-to-End Security Controls for Cloud and AI Workloads",
+     "Not confirmed yet",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-500\">Microsoft study guide</a>",
+     "Not built yet"
+    ],
+    [
+     "SC-900",
+     "Microsoft Security, Compliance, and Identity Fundamentals",
+     "Not confirmed yet",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-900\">Microsoft study guide</a>",
+     "Not built yet"
+    ]
+   ]
+  }
+ },
+ "certification": {
+  "title_candidates": [
+   "AI Business Professional Credential Guide | CertPassly"
+  ],
+  "desc_candidates": [
+   "What it takes to earn Microsoft Certified: AI Business Professional: one exam (AB-730), beginner level, roles and the official facts from Microsoft Learn."
+  ],
+  "h1": "Microsoft Certified: AI Business Professional",
+  "body_html": "<p>Microsoft Certified: AI Business Professional is a beginner level Microsoft credential for people who use Microsoft 365 Copilot in daily business work. You earn it by passing one exam, AB-730.</p><h2>Requirements</h2><table><caption>Microsoft Certified: AI Business Professional requirements</caption><thead><tr><th scope=\"col\">Item</th><th scope=\"col\">Official detail</th></tr></thead><tbody><tr><td>Required exam</td><td><a href=\"https://certpassly.com/exams/microsoft/ab-730\">AB-730</a> (the only exam listed)</td></tr><tr><td>Level</td><td>Beginner</td></tr><tr><td>Roles</td><td>Administrator, Business User</td></tr><tr><td>Prerequisites</td><td>not stated by the vendor</td></tr><tr><td>Validity</td><td>not stated by the vendor</td></tr><tr><td>Renewal</td><td>not stated by the vendor</td></tr><tr><td>Official page</td><td><a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">Microsoft Learn credential page</a> (checked November 11, 2026)</td></tr></tbody></table><p>Microsoft does not state an expiry or renewal rule on this credential page. Its general rule says associate, expert and specialty certifications expire each year, but this page does not place this credential in those groups.</p><h2>Who it is for</h2><p>Microsoft aims the exam at business users of generative AI tools such as Microsoft 365 Copilot, Copilot Cowork and prebuilt agents. You do not build AI apps or write code. The exam lasts 45 minutes and you need a score of 700 to pass.</p><h2>What the exam measures</h2><p>The AB-730 study guide groups the skills into 4 areas. The largest share goes to understand generative ai fundamentals, at 25 to 30 percent.</p><ul><li>Understand generative AI fundamentals: 25 to 30 percent</li><li>Manage prompts and chats by using Microsoft 365 Copilot: 20 to 25 percent</li><li>Manage business content and collaboration by using Microsoft 365 Copilot: 20 to 25 percent</li><li>Drive business outcomes by using agents: 20 to 25 percent</li></ul><h2>Prepare for it</h2><ul><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/objectives\">AB-730 skills measured</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/study-guide\">AB-730 study guide</a></li><li><a href=\"https://certpassly.com/exams/microsoft/ab-730/faq\">AB-730 FAQ</a></li><li>Microsoft offers a free Practice Assessment on AI Skills Navigator (sign-in required).</li></ul><p>See <a href=\"https://certpassly.com/vendors/microsoft\">all Microsoft exams</a> on CertPassly.</p>",
+  "tables": {
+   "requirements": [
+    [
+     "Required exam",
+     "<a href=\"https://certpassly.com/exams/microsoft/ab-730\">AB-730</a> (the only exam listed)"
+    ],
+    [
+     "Level",
+     "Beginner"
+    ],
+    [
+     "Roles",
+     "Administrator, Business User"
+    ],
+    [
+     "Prerequisites",
+     "not stated by the vendor"
+    ],
+    [
+     "Validity",
+     "not stated by the vendor"
+    ],
+    [
+     "Renewal",
+     "not stated by the vendor"
+    ],
+    [
+     "Official page",
+     "<a href=\"https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/\">Microsoft Learn credential page</a> (checked November 11, 2026)"
+    ]
+   ]
+  },
+  "crumb_name": "AI Business Professional"
+ }
+}

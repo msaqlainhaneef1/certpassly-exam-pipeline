@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "multiple_select",
+ "title": "How to answer this question type",
+ "body_html": "<p>Choose every option that applies. The stem often says how many to select (for example, which two). Selecting too many or too few is scored as incorrect.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

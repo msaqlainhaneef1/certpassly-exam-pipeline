@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "image_based_choice",
+ "title": "How to answer this question type",
+ "body_html": "<p>Read the exhibit first, then choose the option that matches what the exhibit shows. The exhibit is part of the question, not decoration.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

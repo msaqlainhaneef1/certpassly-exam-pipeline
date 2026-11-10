@@ -1,0 +1,105 @@
+{
+  "site_format_version": "v1",
+  "contract_csv_files": [
+    "answer_options.csv",
+    "cert_exam_links.csv",
+    "certifications.csv",
+    "domains.csv",
+    "exam_versions.csv",
+    "exams.csv",
+    "explanations.csv",
+    "launch_checklist.csv",
+    "page_copy.csv",
+    "products.csv",
+    "question_sources.csv",
+    "questions.csv",
+    "reviews.csv",
+    "sources.csv",
+    "topics.csv",
+    "vendors.csv"
+  ],
+  "sidecar_csv_files": {
+    "seo_metadatas.csv": [
+      "page_key",
+      "seo_title",
+      "meta_description",
+      "canonical_url",
+      "robots",
+      "og_title",
+      "og_description",
+      "og_image_url",
+      "h1_heading"
+    ],
+    "page_meta_extras.csv": [
+      "page_key",
+      "slug",
+      "twitter_card",
+      "twitter_title",
+      "twitter_description",
+      "og_type",
+      "og_url",
+      "og_site_name",
+      "last_updated",
+      "last_checked",
+      "jsonld_types",
+      "note"
+    ],
+    "exam_official_facts.csv": [
+      "exam_key",
+      "fact_key",
+      "value",
+      "source_url",
+      "verified_on",
+      "notes"
+    ],
+    "exam_faqs.csv": [
+      "exam_key",
+      "locale",
+      "question",
+      "answer",
+      "category",
+      "sort_order",
+      "is_published",
+      "reviewed_at"
+    ],
+    "exam_simulation_rules.csv": [
+      "exam_key",
+      "allow_back_navigation",
+      "allow_flagging",
+      "show_review_screen",
+      "delivered_question_types",
+      "official_source_url",
+      "notes"
+    ],
+    "media_assets.csv": [
+      "uuid",
+      "filename",
+      "original_name",
+      "filepath",
+      "mime_type",
+      "file_size_bytes",
+      "width",
+      "height",
+      "alt_text",
+      "category",
+      "uploaded_by",
+      "usage_count"
+    ],
+    "question_media_assets.csv": [
+      "question_version_key",
+      "path",
+      "kind",
+      "mime_type",
+      "sha256",
+      "width",
+      "height",
+      "alt_text",
+      "rights_status",
+      "visibility",
+      "license_evidence_ref",
+      "long_description",
+      "human_review_required"
+    ]
+  },
+  "note": "Sidecar files hold values the app cannot store yet (Twitter tags, last checked, og:image) or that map to tables without a workbook template (facts, faqs, simulation rules, media)."
+}

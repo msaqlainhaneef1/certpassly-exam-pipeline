@@ -1,0 +1,423 @@
+{
+  "site_format_version": "v1",
+  "snapshot_note": "Static snapshot of the CertPassly question type registry, aliases, family payload rules and source-file recognition markers. Bundled so the pipeline runs without the app repo. Update by dropping a new version folder and setting site_format_version in config.",
+  "aliases": {
+    "multiple_choice": "multiple_select",
+    "multi_select": "multiple_select",
+    "image_question": "image_based_choice",
+    "hotspot": "hotspot_single",
+    "drag_and_drop": "drag_drop",
+    "case_study": "case_study_group",
+    "scenario": "scenario_standalone",
+    "matrix_single": "single_choice_matrix",
+    "matrix_yes_no": "yes_no_matrix",
+    "yes_no": "true_false"
+  },
+  "types": {
+    "single_choice": {
+      "family": "selection",
+      "priority": "P0",
+      "scorer": "exact_option",
+      "renderer": "choice-single",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": true
+    },
+    "multiple_select": {
+      "family": "selection",
+      "priority": "P0",
+      "scorer": "exact_set",
+      "renderer": "choice-multiple",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": true
+    },
+    "true_false": {
+      "family": "selection",
+      "priority": "P0",
+      "scorer": "exact_value",
+      "renderer": "choice-single",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": true
+    },
+    "image_based_choice": {
+      "family": "selection",
+      "priority": "P0",
+      "scorer": "exact_option",
+      "renderer": "choice-single",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": true
+    },
+    "scenario_standalone": {
+      "family": "container",
+      "priority": "P0",
+      "scorer": "child_type",
+      "renderer": "case-study-panel",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": false,
+      "uses_options": false,
+      "container": true
+    },
+    "yes_no_matrix": {
+      "family": "matrix",
+      "priority": "P0",
+      "scorer": "matrix",
+      "renderer": "matrix",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "single_choice_matrix": {
+      "family": "matrix",
+      "priority": "P0",
+      "scorer": "matrix",
+      "renderer": "matrix",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "multi_select_matrix": {
+      "family": "matrix",
+      "priority": "P2",
+      "scorer": "matrix",
+      "renderer": "matrix",
+      "enabled": true,
+      "publishable": false,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "inline_dropdown": {
+      "family": "cloze",
+      "priority": "P0",
+      "scorer": "slot",
+      "renderer": "dropdown-blanks",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "multi_blank_dropdown": {
+      "family": "cloze",
+      "priority": "P0",
+      "scorer": "slot",
+      "renderer": "dropdown-blanks",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "text_cloze": {
+      "family": "cloze",
+      "priority": "P2",
+      "scorer": "normalized_text",
+      "renderer": "dropdown-blanks",
+      "enabled": true,
+      "publishable": false,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "ordering": {
+      "family": "sequence",
+      "priority": "P1",
+      "scorer": "order",
+      "renderer": "ordering",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "matching": {
+      "family": "association",
+      "priority": "P1",
+      "scorer": "match",
+      "renderer": "matching",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "categorization": {
+      "family": "association",
+      "priority": "P1",
+      "scorer": "match",
+      "renderer": "categorization",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "drag_drop": {
+      "family": "interaction",
+      "priority": "P1",
+      "scorer": "match",
+      "renderer": "categorization",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "hotspot_single": {
+      "family": "image_regions",
+      "priority": "P1",
+      "scorer": "region",
+      "renderer": "hotspot",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "hotspot_multi": {
+      "family": "image_regions",
+      "priority": "P1",
+      "scorer": "region",
+      "renderer": "hotspot",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "case_study_group": {
+      "family": "container",
+      "priority": "P1",
+      "scorer": "children_independent",
+      "renderer": "case-study-panel",
+      "enabled": true,
+      "publishable": true,
+      "auto_grade": false,
+      "uses_options": false,
+      "container": true
+    },
+    "active_screen": {
+      "family": "image_regions",
+      "priority": "P2",
+      "scorer": "region",
+      "renderer": "hotspot",
+      "enabled": true,
+      "publishable": false,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "short_text": {
+      "family": "constructed",
+      "priority": "P2",
+      "scorer": "normalized_text",
+      "renderer": "constructed-input",
+      "enabled": true,
+      "publishable": false,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "numeric": {
+      "family": "constructed",
+      "priority": "P2",
+      "scorer": "numeric",
+      "renderer": "constructed-input",
+      "enabled": true,
+      "publishable": false,
+      "auto_grade": true,
+      "uses_options": false
+    },
+    "multimedia_stimulus": {
+      "family": "content",
+      "priority": "P2",
+      "scorer": "child_type",
+      "renderer": "stimulus",
+      "enabled": true,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "container": true
+    },
+    "sectioned_delivery": {
+      "family": "delivery",
+      "priority": "P2",
+      "scorer": null,
+      "renderer": "shell",
+      "enabled": false,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "delivery": true
+    },
+    "unscored_pretest": {
+      "family": "delivery",
+      "priority": "P2",
+      "scorer": null,
+      "renderer": "shell",
+      "enabled": false,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "delivery": true
+    },
+    "adaptive_delivery": {
+      "family": "delivery",
+      "priority": "P4",
+      "scorer": null,
+      "renderer": "shell",
+      "enabled": false,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "delivery": true
+    },
+    "simulation_ui": {
+      "family": "performance",
+      "priority": "P3",
+      "scorer": "sandbox",
+      "renderer": "lab-frame",
+      "enabled": false,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "requires_sandbox": true
+    },
+    "terminal_task": {
+      "family": "performance",
+      "priority": "P3",
+      "scorer": "sandbox",
+      "renderer": "lab-frame",
+      "enabled": false,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "requires_sandbox": true
+    },
+    "lab_task": {
+      "family": "performance",
+      "priority": "P3",
+      "scorer": "sandbox",
+      "renderer": "lab-frame",
+      "enabled": false,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "requires_sandbox": true
+    },
+    "code_answer": {
+      "family": "constructed",
+      "priority": "P3",
+      "scorer": "sandbox",
+      "renderer": "lab-frame",
+      "enabled": false,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "requires_sandbox": true
+    },
+    "testlet": {
+      "family": "container",
+      "priority": "P2",
+      "scorer": "child_type",
+      "renderer": "case-study-panel",
+      "enabled": true,
+      "publishable": false,
+      "auto_grade": false,
+      "uses_options": false,
+      "container": true
+    }
+  },
+  "family_rules": {
+    "selection": {
+      "payload": "content.options[] (id,text), at least 2; options also as answer_options rows",
+      "answer_key": "correct_option_ids"
+    },
+    "matrix": {
+      "payload": "content.rows[] and content.columns[] required",
+      "answer_key": "rows {row_id: column_id or [ids]}"
+    },
+    "cloze": {
+      "payload": "content.blanks[] or slots or prompt_template required",
+      "answer_key": "slots {blank_id: choice_id} or accepted/text"
+    },
+    "sequence": {
+      "payload": "content.items[] required",
+      "answer_key": "order [item ids]"
+    },
+    "association": {
+      "payload": "content.left/items and right/bins/zones required",
+      "answer_key": "pairs or zones"
+    },
+    "interaction": {
+      "payload": "content.left/items and right/bins/zones required",
+      "answer_key": "pairs or zones"
+    },
+    "image_regions": {
+      "payload": "content.regions[] with label + normalized_coordinates[4]; image_asset_id or image_url",
+      "answer_key": "region_ids"
+    },
+    "container": {
+      "payload": "no payload validation at app layer; shared_context + child_items",
+      "answer_key": "children graded independently"
+    },
+    "constructed": {
+      "payload": "content.prompt (unit optional)",
+      "answer_key": "value / text / accepted"
+    },
+    "content": {
+      "payload": "stimulus media + child items",
+      "answer_key": "children"
+    },
+    "delivery": {
+      "payload": "delivery mode only, no scorer",
+      "answer_key": "none"
+    },
+    "performance": {
+      "payload": "task + expected actions, sandbox only",
+      "answer_key": "expected_actions / accepted"
+    }
+  },
+  "markers": {
+    "single_choice": "lettered options, one letter in Correct Answer, no \"which two/three\"",
+    "multiple_select": "several letters in Correct Answer, or \"Which two/three\", \"Each correct answer presents\"",
+    "true_false": "exactly two options True/False or Yes/No for one statement",
+    "image_based_choice": "lettered options plus an exhibit image (\"shown in the following exhibit\")",
+    "scenario_standalone": "shared scenario text then one or more child questions",
+    "yes_no_matrix": "\"For each of the following statements, select Yes if the statement is true\", Yes/No columns",
+    "single_choice_matrix": "grid with category columns, one choice per row",
+    "multi_select_matrix": "grid with several choices allowed per row",
+    "inline_dropdown": "\"Select the answer that correctly completes the sentence\", one drop-down in the answer area",
+    "multi_blank_dropdown": "answer area with two or more drop-downs (\"Use the drop-down menus\", \"select the BEST options in the answer area\")",
+    "text_cloze": "blanks to type, no choice list",
+    "ordering": "\"arrange in the correct order\", \"DRAG DROP ... sequence\"",
+    "matching": "two lists to pair (\"match each\")",
+    "categorization": "items to sort into named bins",
+    "drag_drop": "\"DRAG DROP\", tiles dragged to targets",
+    "hotspot_single": "click one area of an image",
+    "hotspot_multi": "click every area that applies on an image",
+    "case_study_group": "\"Case study\" with several questions on shared context",
+    "active_screen": "mock application screen with boxed controls to click (\"select the appropriate options in the answer area\" on a screenshot)",
+    "short_text": "type a short answer",
+    "numeric": "type a number",
+    "multimedia_stimulus": "audio/video/media stimulus with child items",
+    "sectioned_delivery": "delivery mode, not found in question files",
+    "unscored_pretest": "delivery mode, not found in question files",
+    "adaptive_delivery": "delivery mode, not found in question files",
+    "simulation_ui": "lab simulation performed in a UI",
+    "terminal_task": "type a command in a terminal",
+    "lab_task": "multi-step lab",
+    "code_answer": "write or complete code",
+    "testlet": "short shared stem with follow-up items kept together"
+  },
+  "counts": {
+    "types": 30,
+    "enabled_and_publishable": 16,
+    "enabled_not_publishable": 7,
+    "disabled": 7
+  },
+  "publish_gate_notes": {
+    "single_choice_and_image_based_choice": "2+ options and exactly 1 correct",
+    "multiple_select": "3+ options, 2+ correct, not all correct",
+    "true_false": "exactly 2 options",
+    "hotspot_family": "region labels and 4-number normalized coordinates plus an image"
+  }
+}

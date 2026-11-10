@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "categorization",
+ "title": "How to answer this question type",
+ "body_html": "<p>Drag or place each item into the bin or category it belongs to.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

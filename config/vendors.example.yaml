@@ -1,0 +1,430 @@
+# Vendor registry. Scripts load this file and do not hardcode vendor or exam names.
+# 25 vendors are in the owner catalog. Extra slugs from the lookup table are included
+# with in_catalog: false so they are ready if exams are added later.
+
+vendors:
+  acams:
+    name: ACAMS
+    official_site: "https://www.acams.org/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.acams.org/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - acams.org
+      - www.acams.org
+    sheet_aliases:
+      - acams
+
+  anthropic:
+    name: Anthropic
+    official_site: "https://claude.com/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://claude.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - claude.com
+      - anthropic.com
+      - www.pearsonvue.com
+    sheet_aliases:
+      - anthropic
+
+  apmg-international:
+    name: "APMG International"
+    official_site: "https://apmg-international.com/"
+    adapter: generic
+    delivery_partner: APMG
+    credential_type: certification
+    official_learning_url: "https://apmg-international.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - apmg-international.com
+    sheet_aliases:
+      - apmginternational
+
+  aws:
+    name: "Amazon Web Services"
+    official_site: "https://aws.amazon.com/certification/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://aws.amazon.com/certification/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - aws.amazon.com
+      - amazon.com
+    sheet_aliases:
+      - amazon
+      - amazone
+
+  cfi:
+    name: "Corporate Finance Institute"
+    official_site: "https://corporatefinanceinstitute.com/"
+    adapter: generic
+    delivery_partner: CFI
+    credential_type: certification
+    official_learning_url: "https://corporatefinanceinstitute.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - corporatefinanceinstitute.com
+    sheet_aliases:
+      - cfi
+
+  cips:
+    name: CIPS
+    official_site: "https://www.cips.org/"
+    adapter: generic
+    delivery_partner: CIPS
+    credential_type: certification
+    official_learning_url: "https://www.cips.org/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - cips.org
+      - www.cips.org
+    sheet_aliases:
+      - cips
+
+  cisco:
+    name: Cisco
+    official_site: "https://www.cisco.com/site/us/en/learn/training-certifications/index.html"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.cisco.com/site/us/en/learn/training-certifications/index.html"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - cisco.com
+      - www.cisco.com
+    sheet_aliases:
+      - cisco
+
+  comptia:
+    name: CompTIA
+    official_site: "https://www.comptia.org/en-us/certifications/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.comptia.org/en-us/certifications/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - comptia.org
+      - www.comptia.org
+    sheet_aliases:
+      - comptia
+      - comtia
+
+  ec-council:
+    name: EC-Council
+    official_site: "https://www.eccouncil.org/"
+    adapter: generic
+    delivery_partner: "ECC Exam Portal"
+    credential_type: certification
+    official_learning_url: "https://www.eccouncil.org/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - eccouncil.org
+      - www.eccouncil.org
+    sheet_aliases:
+      - eccouncil
+
+  fortinet:
+    name: Fortinet
+    official_site: "https://training.fortinet.com/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://training.fortinet.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - training.fortinet.com
+      - fortinet.com
+      - www.fortinet.com
+    sheet_aliases:
+      - fortinet
+
+  hpe:
+    name: "Hewlett Packard Enterprise"
+    official_site: "https://certification-learning.hpe.com/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://certification-learning.hpe.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - certification-learning.hpe.com
+      - hpe.com
+    sheet_aliases:
+      - hp
+
+  huawei:
+    name: Huawei
+    official_site: "https://e.huawei.com/en/talent/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://e.huawei.com/en/talent/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - e.huawei.com
+      - huawei.com
+    sheet_aliases:
+      - huawei
+
+  iapp:
+    name: IAPP
+    official_site: "https://iapp.org/certify/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://iapp.org/certify/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - iapp.org
+      - www.iapp.org
+    sheet_aliases:
+      - iapp
+
+  isaca:
+    name: ISACA
+    official_site: "https://www.isaca.org/credentialing"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.isaca.org/credentialing"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - isaca.org
+      - www.isaca.org
+    sheet_aliases:
+      - isaca
+
+  isc2:
+    name: ISC2
+    official_site: "https://www.isc2.org/certifications"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.isc2.org/certifications"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - isc2.org
+      - www.isc2.org
+    sheet_aliases:
+      - isc2
+
+  juniper:
+    name: "Juniper Networks"
+    official_site: "https://www.juniper.net/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.juniper.net/"
+    official_page_link_label: "Official exam page"
+    in_catalog: false
+    official_domains:
+      - juniper.net
+      - www.juniper.net
+    sheet_aliases:
+      - juniper
+
+  linux-foundation:
+    name: "The Linux Foundation"
+    official_site: "https://training.linuxfoundation.org/certification/"
+    adapter: generic
+    delivery_partner: PSI
+    credential_type: certification
+    official_learning_url: "https://training.linuxfoundation.org/certification/"
+    official_page_link_label: "Official exam page"
+    also_known_as: "The Linux Foundation (CNCF exams also sit here)"
+    in_catalog: true
+    official_domains:
+      - training.linuxfoundation.org
+      - linuxfoundation.org
+      - cncf.io
+    sheet_aliases:
+      - linuxfondition
+
+  microsoft:
+    name: Microsoft
+    official_site: "https://learn.microsoft.com/credentials/"
+    adapter: microsoft
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://learn.microsoft.com/en-us/training/"
+    official_page_link_label: "Official study guide"
+    in_catalog: true
+    official_domains:
+      - learn.microsoft.com
+      - microsoft.com
+      - aka.ms
+      - www.microsoft.com
+    sheet_aliases:
+      - microsoft
+
+  nokia:
+    name: Nokia
+    official_site: "https://www.nokia.com/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.nokia.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - nokia.com
+      - www.nokia.com
+    sheet_aliases:
+      - nokia
+
+  nutanix:
+    name: Nutanix
+    official_site: "https://www.nutanix.com/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.nutanix.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: false
+    official_domains:
+      - nutanix.com
+      - www.nutanix.com
+    sheet_aliases:
+      - nutanix
+
+  palo-alto-networks:
+    name: "Palo Alto Networks"
+    official_site: "https://www.paloaltonetworks.com/services/education/certification"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.paloaltonetworks.com/services/education/certification"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - paloaltonetworks.com
+      - www.paloaltonetworks.com
+    sheet_aliases:
+      - paloalto
+
+  pecb:
+    name: PECB
+    official_site: "https://pecb.com/"
+    adapter: generic
+    delivery_partner: PECB
+    credential_type: certification
+    official_learning_url: "https://pecb.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - pecb.com
+      - www.pecb.com
+    sheet_aliases:
+      - pecb
+
+  peoplecert:
+    name: PeopleCert
+    official_site: "https://www.peoplecert.org/"
+    adapter: generic
+    delivery_partner: PeopleCert
+    credential_type: certification
+    official_learning_url: "https://www.peoplecert.org/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - peoplecert.org
+      - www.peoplecert.org
+    sheet_aliases:
+      - peoplecert
+
+  pmi:
+    name: "Project Management Institute"
+    official_site: "https://www.pmi.org/certifications"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.pmi.org/certifications"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - pmi.org
+      - www.pmi.org
+    sheet_aliases:
+      - pmi
+
+  salesforce:
+    name: Salesforce
+    official_site: "https://trailheadacademy.salesforce.com/"
+    adapter: generic
+    delivery_partner: Webassessor
+    credential_type: certification
+    official_learning_url: "https://trailheadacademy.salesforce.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - trailheadacademy.salesforce.com
+      - trailhead.salesforce.com
+      - salesforce.com
+      - www.salesforce.com
+    sheet_aliases:
+      - salesforce
+
+  sap:
+    name: SAP
+    official_site: "https://learning.sap.com/certifications"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://learning.sap.com/certifications"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - learning.sap.com
+      - sap.com
+    sheet_aliases:
+      - sap
+
+  vmware:
+    name: "VMware by Broadcom"
+    official_site: "https://www.broadcom.com/"
+    adapter: generic
+    delivery_partner: "Pearson VUE"
+    credential_type: certification
+    official_learning_url: "https://www.broadcom.com/"
+    official_page_link_label: "Official exam page"
+    in_catalog: true
+    official_domains:
+      - broadcom.com
+      - www.broadcom.com
+      - vmware.com
+    sheet_aliases:
+      - vmware
+
+harmless_url_hosts:
+  - adobe
+  - w3.org
+  - openxmlformats
+  - purl.org
+  - schemas
+
+# Official hosts that are retired; question sources should use the current host instead.
+retired_official_hosts:
+  - docs.microsoft.com
+

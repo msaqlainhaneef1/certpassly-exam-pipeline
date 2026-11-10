@@ -1,0 +1,1 @@
+Build site-ready CertPassly exam catalog pages and question-import files from official vendor sources and owner PDFs. Use when adding a vendor, certification or exam, importing a question bank, or running the exam pipeline. Scripts first; one batched AI author stage; no site-repo or GitHub on the run path.

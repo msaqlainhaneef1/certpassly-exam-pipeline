@@ -1,0 +1,10 @@
+{
+ "level": "site",
+ "key": "scoring-explanation",
+ "title": "How a timed practice test is scored",
+ "body_html": "<p>The pass mark you see is the official passing score from the vendor, not a site invention. We do not convert scores to a different scale unless the vendor publishes that scale. Item types are scored as the site's question-type registry describes (for example, exact option set for multiple-select, and per-row answers for a yes/no grid). Unscored or held items are never mixed in silently. A practice result is practice only; it is not an official exam result.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

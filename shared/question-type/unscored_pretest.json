@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "unscored_pretest",
+ "title": "How to answer this question type",
+ "body_html": "<p>This is a delivery mode for trial items. It is not used as an imported question type.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

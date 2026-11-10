@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "text_cloze",
+ "title": "How to answer this question type",
+ "body_html": "<p>Type the missing word or phrase in each blank. Spelling matters unless the item says otherwise.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

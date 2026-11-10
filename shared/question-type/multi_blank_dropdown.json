@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "multi_blank_dropdown",
+ "title": "How to answer this question type",
+ "body_html": "<p>Fill every drop-down in the answer area. Each box is scored. Read the whole sentence before you choose.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

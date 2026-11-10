@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "simulation_ui",
+ "title": "How to answer this question type",
+ "body_html": "<p>Complete the task in a simulated interface. Follow the lab steps, then submit.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

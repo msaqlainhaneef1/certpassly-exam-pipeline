@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "testlet",
+ "title": "How to answer this question type",
+ "body_html": "<p>A short shared stem with follow-up items kept together. Answer each follow-up in turn.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

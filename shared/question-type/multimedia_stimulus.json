@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "multimedia_stimulus",
+ "title": "How to answer this question type",
+ "body_html": "<p>Watch or listen to the clip, then answer the questions that use it.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

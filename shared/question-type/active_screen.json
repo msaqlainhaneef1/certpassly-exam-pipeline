@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "active_screen",
+ "title": "How to answer this question type",
+ "body_html": "<p>The answer area is a mock screen. Select the controls the task asks for. These items need a careful look at the screenshot.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

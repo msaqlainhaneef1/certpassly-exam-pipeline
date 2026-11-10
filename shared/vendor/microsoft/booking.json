@@ -1,0 +1,15 @@
+{
+ "level": "vendor",
+ "key": "booking",
+ "title": "How to book the exam",
+ "body_html": "<p>You book the exam from the official credential or exam page, which schedules it through the vendor's named delivery partner. Create or sign in to your vendor account first, then follow the booking link on the official page. Fees, available dates and test-centre versus online options are shown at booking time and can vary by country or region.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [
+  {
+   "url": "https://learn.microsoft.com/en-us/credentials/certifications/ai-business-professional/",
+   "note": "Scheduling / delivery as stated on the official credential page in the first exam package."
+  }
+ ],
+ "slug": "microsoft"
+}

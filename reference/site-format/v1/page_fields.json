@@ -1,0 +1,72 @@
+{
+  "site_format_version": "v1",
+  "note": "Fields written into each generated page JSON. Twitter tags, og:image and last_checked have no app column yet; they also go to import/page_meta_extras.csv.",
+  "required_meta": [
+    "title",
+    "meta_description",
+    "canonical_url",
+    "robots",
+    "h1",
+    "slug",
+    "path",
+    "last_updated",
+    "last_checked"
+  ],
+  "meta_title_chars": [
+    50,
+    60
+  ],
+  "meta_description_chars": [
+    140,
+    160
+  ],
+  "og_keys": [
+    "og:title",
+    "og:description",
+    "og:url",
+    "og:type",
+    "og:site_name",
+    "og:locale",
+    "og:image"
+  ],
+  "twitter_keys": [
+    "twitter:card",
+    "twitter:title",
+    "twitter:description"
+  ],
+  "jsonld": {
+    "every_page": [
+      "WebPage",
+      "BreadcrumbList"
+    ],
+    "certification": [
+      "EducationalOccupationalCredential"
+    ],
+    "study_guide": [
+      "Course"
+    ],
+    "faq": [
+      "FAQPage"
+    ],
+    "practice_test_forbids": [
+      "Course"
+    ],
+    "never": [
+      "Review",
+      "AggregateRating"
+    ]
+  },
+  "page_json_keys": [
+    "key",
+    "kind",
+    "entity",
+    "status",
+    "meta",
+    "jsonld",
+    "tables",
+    "body_html",
+    "sources",
+    "brand_source",
+    "disclaimer_source"
+  ]
+}

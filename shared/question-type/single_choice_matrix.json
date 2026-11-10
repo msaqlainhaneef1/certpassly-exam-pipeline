@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "single_choice_matrix",
+ "title": "How to answer this question type",
+ "body_html": "<p>For each row, pick one column. Rows are scored separately.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

@@ -1,0 +1,10 @@
+{
+ "level": "vendor",
+ "key": "account",
+ "title": "Your vendor account",
+ "body_html": "<p>Results, scheduling and any official practice assessment usually sit behind a sign-in on the vendor's own site. This site does not host your vendor account and cannot reset it. Use the official account and support channels for those tasks.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": "microsoft"
+}

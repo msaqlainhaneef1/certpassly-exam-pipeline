@@ -1,0 +1,2 @@
+page_key,slug,twitter_card,twitter_title,twitter_description,og_type,og_url,og_site_name,last_updated,last_checked,jsonld_types,note
+exam_hub:ex-100,ex-100,summary,EX-100 Exam Facts | Example,Sample twitter description for layout only and padded to show the column.,website,https://certpassly.com/exams/example-vendor/ex-100,CertPassly,2026-11-11,2026-11-11,WebPage|BreadcrumbList,No app column yet; needs column and template support

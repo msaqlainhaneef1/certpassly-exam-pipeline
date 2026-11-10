@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "terminal_task",
+ "title": "How to answer this question type",
+ "body_html": "<p>Type the command or commands the task requires in the terminal.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

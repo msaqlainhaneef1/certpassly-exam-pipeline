@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "single_choice",
+ "title": "How to answer this question type",
+ "body_html": "<p>Choose the one option that best answers the question. Only one option is correct.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

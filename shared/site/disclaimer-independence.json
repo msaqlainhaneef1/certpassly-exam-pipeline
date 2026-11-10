@@ -1,0 +1,10 @@
+{
+ "level": "site",
+ "key": "disclaimer-independence",
+ "title": "Independence and trademarks",
+ "body_html": "<p>This site is an independent exam preparation platform. It is not sponsored, endorsed, run or approved by the vendors whose exams we cover, except for a partner link we name and can prove. We use vendor names, product names, certification titles and exam codes only to show what the study material covers. Those rights belong to their owners. Inclusion on this site does not imply partnership.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

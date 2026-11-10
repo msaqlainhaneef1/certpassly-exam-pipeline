@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "short_text",
+ "title": "How to answer this question type",
+ "body_html": "<p>Type a short answer in the box. Follow any format the stem gives.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

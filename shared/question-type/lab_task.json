@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "lab_task",
+ "title": "How to answer this question type",
+ "body_html": "<p>Complete the multi-step lab. Partial steps may or may not score, as the item says.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

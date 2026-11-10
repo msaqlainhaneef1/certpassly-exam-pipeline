@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "hotspot_single",
+ "title": "How to answer this question type",
+ "body_html": "<p>Select the one area of the image that answers the question.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

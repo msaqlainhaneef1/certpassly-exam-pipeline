@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "multi_select_matrix",
+ "title": "How to answer this question type",
+ "body_html": "<p>For each row you may pick more than one column, as the instructions say.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

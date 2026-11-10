@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "numeric",
+ "title": "How to answer this question type",
+ "body_html": "<p>Type the number, including units only if the stem asks for them.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

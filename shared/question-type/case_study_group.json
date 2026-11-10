@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "case_study_group",
+ "title": "How to answer this question type",
+ "body_html": "<p>Read the case materials first. Several questions share that case; they are answered in order and may not all be visible at once.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

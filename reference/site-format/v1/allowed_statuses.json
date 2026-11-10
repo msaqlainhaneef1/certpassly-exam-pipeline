@@ -1,0 +1,69 @@
+{
+  "site_format_version": "v1",
+  "note": "Allowed values on draft imports. The pipeline must never set verified, reviewed, approved, published, gate passed or active flags.",
+  "page_status": [
+    "draft"
+  ],
+  "publication_state": [
+    "draft"
+  ],
+  "page_copy_status": [
+    "draft"
+  ],
+  "record_status": [
+    "draft",
+    "unverified"
+  ],
+  "gates": [
+    "not_checked",
+    ""
+  ],
+  "catalog_enabled": [
+    "",
+    "no"
+  ],
+  "requirements_verified": [
+    "",
+    "no"
+  ],
+  "is_published": [
+    "",
+    "false"
+  ],
+  "rights_reviewed": [
+    "not_checked",
+    ""
+  ],
+  "license_status": [
+    "not_checked"
+  ],
+  "rights_status": [
+    "unverified",
+    "asserted_by_owner",
+    "not_checked"
+  ],
+  "answer_key_status": [
+    "as_in_source_file",
+    "flagged_for_owner"
+  ],
+  "forbidden_nonempty_fields": [
+    "verified_at",
+    "reviewed_at",
+    "published_at",
+    "checked_at",
+    "approval_date",
+    "verified_by",
+    "reviewer",
+    "approved_by",
+    "verified_on",
+    "source_verified_at"
+  ],
+  "forbidden_status_words": [
+    "verified",
+    "reviewed",
+    "approved",
+    "published",
+    "active",
+    "gate_passed"
+  ]
+}

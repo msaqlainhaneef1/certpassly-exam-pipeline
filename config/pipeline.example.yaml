@@ -1,0 +1,116 @@
+# Copy to <workspace>/config/pipeline.yaml and edit owner-specific values here,
+# not in the scripts. This file is the single source for brand, disclaimer,
+# banned terms, meta lengths and path defaults.
+
+site_format_version: v1
+
+brand: CertPassly
+brand_source: "config/pipeline.yaml brand"
+disclaimer: "CertPassly is an independent exam preparation platform. CertPassly is not sponsored, endorsed, run or approved by the vendors whose exams we cover. The only exception is a partner link we name and can prove. We use vendor names, product names, certification titles and exam codes only to show what our study material covers. Their rights belong to their respective owners as applicable. Inclusion on CertPassly does not imply partnership."
+disclaimer_source: "config/pipeline.yaml disclaimer"
+
+base_url: "https://certpassly.com"
+locale: en
+robots_draft: "noindex, nofollow"
+timezone: Asia/Karachi
+
+# App route patterns (must match reference/site-format/<version>/url_routes.json)
+routes:
+  vendor: "/vendors/{vendor}"
+  certification: "/certifications/{cert}"
+  exam_hub: "/exams/{vendor}/{exam}"
+  objectives: "/exams/{vendor}/{exam}/objectives"
+  study_guide: "/exams/{vendor}/{exam}/study-guide"
+  faq: "/exams/{vendor}/{exam}/faq"
+  practice_test: "/exams/{vendor}/{exam}/practice-test"
+
+meta:
+  title_min: 50
+  title_max: 60
+  description_min: 140
+  description_max: 160
+
+# Official vendor brands MUST appear (exam owner, fact source, credential issuer,
+# official delivery partner named by the vendor). Site brand is CertPassly only.
+# Never mention seller brands, social links, phone numbers, emails, free-update
+# lines or competitor names in site outputs.
+brand_denylist:
+  - innovior
+  - ittech
+  - examinotion
+  - prepkiwi
+  - tessgroup
+  - weblizardlabs
+  - certstime
+  - hugobarona
+  - measureup
+  - pass4future
+  - certsfire
+  - examtopics
+  - pass4sure
+  - braindump
+  - dumps
+  - udemy
+  - coursera
+  - whizlabs
+  - tutorialsdojo
+  - "exam replay"
+
+banned_phrases:
+  - "in today's fast paced world"
+  - "in today's fast-paced world"
+  - "unlock your potential"
+  - "look no further"
+  - "game changer"
+  - "game-changer"
+  - "dive into"
+  - delve
+  - elevate
+  - seamless
+  - "cutting edge"
+  - "cutting-edge"
+  - "ultimate guide"
+  - "comprehensive guide"
+  - embark
+  - journey
+  - "navigate the complexities"
+  - "it is important to note"
+
+placeholders:
+  - "lorem ipsum"
+  - tbd
+  - todo
+  - "coming soon"
+  - placeholder
+  - "dummy text"
+  - xxx
+  - "href=\"#\""
+
+contact_patterns:
+  social: "(facebook|fb|instagram|twitter|x|linkedin|t\\.me|telegram|wa\\.me|whatsapp|youtube|tiktok)\\.(com|me)/[A-Za-z0-9_.\\-]+"
+  email: "[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}"
+  phone: "(?<![\\w.])\\+?\\d[\\d\\s().\\-]{8,}\\d(?![\\w.])"
+  free_update: "free\\s+update"
+
+# Hosts that count as official vendor URLs for validate.py check 02c.
+# Keyed by vendor_slug. Also used as a fallback from official_site.
+official_url_patterns:
+  microsoft: "^https://([a-z0-9-]+\\.)?microsoft\\.com/|^https://aka\\.ms/"
+
+# Catalog extras (owner Drive folders to compare against the sheet)
+catalog:
+  # Salesforce owner folder: subfolders not in the sheet go to review.csv
+  extra_drive_roots:
+    - id: "1COjm0zvh_lp_NLwKvQDnMaY-dImY7g_g"
+      vendor_slug: salesforce
+      label: Salesforce
+
+# Optional default paths, overridable by CLI flags
+paths:
+  sheet: ""
+  workspace: ""
+
+not_published_label: "not published by the vendor"
+
+# Maximum fraction of a page body that may come from shared sections (default 0.4).
+shared_max_share: 0.4

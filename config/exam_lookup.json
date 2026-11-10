@@ -1,0 +1,768 @@
+{
+  "note": "Official exam URL candidates and label fixes. A name is kept only if it appears on a fetched official page.",
+  "exams": {
+    "AB-730": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-730"
+      ]
+    },
+    "SC-200": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-200"
+      ]
+    },
+    "SC-300": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-300"
+      ]
+    },
+    "DP-300": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-300"
+      ]
+    },
+    "AZ-700": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-700"
+      ]
+    },
+    "AZ-900": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-900"
+      ]
+    },
+    "SC-900": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-900"
+      ]
+    },
+    "SC-401": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-401"
+      ]
+    },
+    "SC-500": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-500"
+      ]
+    },
+    "PL-300": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/pl-300"
+      ]
+    },
+    "AZ-305": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305"
+      ]
+    },
+    "AB-900": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-900"
+      ]
+    },
+    "AI-103": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-103"
+      ]
+    },
+    "AI-200": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-200"
+      ]
+    },
+    "AZ-802": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802"
+      ]
+    },
+    "DP-750": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-750"
+      ]
+    },
+    "AB-210": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ab-210"
+      ]
+    },
+    "MS-102": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ms-102"
+      ]
+    },
+    "DP-800": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-800"
+      ]
+    },
+    "AI-901": {
+      "vendor": "microsoft",
+      "urls": [
+        "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-901"
+      ]
+    },
+    "200-301": {
+      "vendor": "cisco",
+      "urls": [
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/ccna.html"
+      ],
+      "name": "Cisco Certified Network Associate",
+      "cert": "CCNA"
+    },
+    "350-401": {
+      "vendor": "cisco",
+      "urls": [
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/encor.html"
+      ],
+      "name": "Implementing Cisco Enterprise Network Core Technologies",
+      "cert": "CCNP Enterprise"
+    },
+    "350-801": {
+      "vendor": "cisco",
+      "urls": [
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/clcor.html"
+      ],
+      "name": "Implementing Cisco Collaboration Core Technologies",
+      "cert": "CCNP Collaboration"
+    },
+    "350-701": {
+      "vendor": "cisco",
+      "urls": [
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/scor.html"
+      ],
+      "name": "Implementing and Operating Cisco Security Core Technologies",
+      "cert": "CCNP Security"
+    },
+    "200-201": {
+      "vendor": "cisco",
+      "urls": [
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/ccnacbr.html",
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/cbrops.html"
+      ],
+      "name": "Understanding Cisco Cybersecurity Operations Fundamentals",
+      "cert": "CCNA Cybersecurity"
+    },
+    "350-201": {
+      "vendor": "cisco",
+      "urls": [
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/cbrcor.html"
+      ],
+      "name": "Performing Cybersecurity Using Cisco Security Technologies",
+      "cert": "CCNP Cybersecurity"
+    },
+    "350-101": {
+      "vendor": "cisco",
+      "urls": [
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/wlcor.html"
+      ],
+      "name": "Implementing and Operating Cisco Wireless Core Technologies",
+      "cert": "CCNP Wireless"
+    },
+    "300-740": {
+      "vendor": "cisco",
+      "urls": [
+        "https://www.cisco.com/site/us/en/learn/training-certifications/exams/scazt.html"
+      ],
+      "name": "Designing and Implementing Secure Cloud Access for Users and Endpoints",
+      "cert": "CCNP Security"
+    },
+    "Plat-Arch-205": {
+      "vendor": "salesforce",
+      "urls": [
+        "https://trailheadacademy.salesforce.com/certificate/exam-sharing-visibility---Plat-Arch-205"
+      ],
+      "name": "Salesforce Certified Platform Sharing and Visibility Architect",
+      "cert": "Salesforce Certified Platform Sharing and Visibility Architect"
+    },
+    "Data-Con-101": {
+      "vendor": "salesforce",
+      "urls": [
+        "https://trailheadacademy.salesforce.com/certificate/exam-data-cloud---Data-Con-101"
+      ],
+      "name": "Salesforce Certified Data 360 Consultant",
+      "cert": "Salesforce Certified Data 360 Consultant"
+    },
+    "Plat-Arch-201": {
+      "vendor": "salesforce",
+      "urls": [
+        "https://trailheadacademy.salesforce.com/certificate/exam-data-architect---Plat-Arch-201"
+      ],
+      "name": "Salesforce Certified Platform Data Architect",
+      "cert": "Salesforce Certified Platform Data Architect"
+    },
+    "AI-201": {
+      "vendor": "salesforce",
+      "urls": [
+        "https://trailheadacademy.salesforce.com/certificate/exam-agentforce-specialist---AI-201"
+      ],
+      "name": "Salesforce Certified Agentforce Specialist",
+      "cert": "Salesforce Certified Agentforce Specialist"
+    },
+    "Plat-Admn-201": {
+      "vendor": "salesforce",
+      "urls": [
+        "https://trailheadacademy.salesforce.com/certificate/exam-platform-admin---Plat-Admn-201"
+      ],
+      "name": "Salesforce Certified Platform Administrator",
+      "cert": "Salesforce Certified Platform Administrator"
+    },
+    "Sales-Con-201": {
+      "vendor": "salesforce",
+      "urls": [
+        "https://trailheadacademy.salesforce.com/certificate/exam-sales-cloud-consultant---Sales-Con-201"
+      ]
+    },
+    "AP-208": {
+      "vendor": "salesforce",
+      "urls": []
+    },
+    "Rev-Con-201": {
+      "vendor": "salesforce",
+      "urls": []
+    },
+    "Slack-Admn-201": {
+      "vendor": "salesforce",
+      "urls": []
+    },
+    "CKS": {
+      "vendor": "linux-foundation",
+      "urls": [
+        "https://training.linuxfoundation.org/certification/certified-kubernetes-security-specialist/"
+      ],
+      "name": "Certified Kubernetes Security Specialist",
+      "cert": "Certified Kubernetes Security Specialist (CKS)"
+    },
+    "CKAD": {
+      "vendor": "linux-foundation",
+      "urls": [
+        "https://training.linuxfoundation.org/certification/certified-kubernetes-application-developer-ckad/"
+      ],
+      "name": "Certified Kubernetes Application Developer",
+      "cert": "Certified Kubernetes Application Developer (CKAD)"
+    },
+    "CKA": {
+      "vendor": "linux-foundation",
+      "urls": [
+        "https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/"
+      ],
+      "name": "Certified Kubernetes Administrator",
+      "cert": "Certified Kubernetes Administrator (CKA)"
+    },
+    "KCNA": {
+      "vendor": "linux-foundation",
+      "urls": [
+        "https://training.linuxfoundation.org/certification/kubernetes-cloud-native-associate/"
+      ],
+      "name": "Kubernetes and Cloud Native Associate",
+      "cert": "Kubernetes and Cloud Native Associate (KCNA)"
+    },
+    "CISSP": {
+      "vendor": "isc2",
+      "urls": [
+        "https://www.isc2.org/certifications/cissp"
+      ],
+      "name": "Certified Information Systems Security Professional",
+      "cert": "CISSP"
+    },
+    "CC": {
+      "vendor": "isc2",
+      "urls": [
+        "https://www.isc2.org/certifications/cc"
+      ],
+      "name": "Certified in Cybersecurity",
+      "cert": "CC"
+    },
+    "AIGP": {
+      "vendor": "iapp",
+      "urls": [
+        "https://iapp.org/certify/aigp"
+      ],
+      "name": "Artificial Intelligence Governance Professional",
+      "cert": "AIGP"
+    },
+    "CIPP/E": {
+      "vendor": "iapp",
+      "urls": [
+        "https://iapp.org/certify/cippe"
+      ],
+      "name": "Certified Information Privacy Professional/Europe",
+      "cert": "CIPP/E"
+    },
+    "ISO/IEC 27001 Lead Implementer": {
+      "vendor": "pecb",
+      "urls": [
+        "https://pecb.com/en/education-and-certification-for-individuals/iso-iec-27001/iso-iec-27001-lead-implementer"
+      ],
+      "name": "ISO/IEC 27001 Lead Implementer",
+      "cert": "PECB Certified ISO/IEC 27001 Lead Implementer"
+    },
+    "ISO/IEC 27001 Lead Auditor": {
+      "vendor": "pecb",
+      "urls": [
+        "https://pecb.com/en/education-and-certification-for-individuals/iso-iec-27001/iso-iec-27001-lead-auditor"
+      ],
+      "name": "ISO/IEC 27001 Lead Auditor",
+      "cert": "PECB Certified ISO/IEC 27001 Lead Auditor"
+    },
+    "ISO 9001 Lead Auditor": {
+      "vendor": "pecb",
+      "urls": [
+        "https://pecb.com/en/education-and-certification-for-individuals/iso-9001/iso-9001-lead-auditor"
+      ],
+      "name": "ISO 9001 Lead Auditor",
+      "cert": "PECB Certified ISO 9001 Lead Auditor"
+    },
+    "L4M3": {
+      "vendor": "cips",
+      "urls": []
+    },
+    "L4M8": {
+      "vendor": "cips",
+      "urls": []
+    },
+    "CLF-C02": {
+      "vendor": "aws",
+      "urls": [
+        "https://aws.amazon.com/certification/certified-cloud-practitioner/"
+      ],
+      "name": "AWS Certified Cloud Practitioner",
+      "cert": "AWS Certified Cloud Practitioner"
+    },
+    "SAA-C03": {
+      "vendor": "aws",
+      "urls": [
+        "https://aws.amazon.com/certification/certified-solutions-architect-associate/"
+      ],
+      "name": "AWS Certified Solutions Architect",
+      "cert": "AWS Certified Solutions Architect"
+    },
+    "AIF-C01": {
+      "vendor": "aws",
+      "urls": [
+        "https://aws.amazon.com/certification/certified-ai-practitioner/"
+      ],
+      "name": "AWS Certified AI Practitioner",
+      "cert": "AWS Certified AI Practitioner"
+    },
+    "SOA-C03": {
+      "vendor": "aws",
+      "urls": [
+        "https://aws.amazon.com/certification/certified-cloudops-engineer-associate/",
+        "https://aws.amazon.com/certification/certified-sysops-admin-associate/"
+      ],
+      "name": "AWS Certified CloudOps Engineer",
+      "cert": "AWS Certified CloudOps Engineer"
+    },
+    "ANS-C01": {
+      "vendor": "aws",
+      "urls": [
+        "https://aws.amazon.com/certification/certified-advanced-networking-specialty/"
+      ],
+      "name": "AWS Certified Advanced Networking",
+      "cert": "AWS Certified Advanced Networking"
+    },
+    "220-1201": {
+      "vendor": "comptia",
+      "urls": [
+        "https://www.comptia.org/en-us/certifications/a/"
+      ],
+      "name": "A+",
+      "cert": "CompTIA A+"
+    },
+    "220-1202": {
+      "vendor": "comptia",
+      "urls": [
+        "https://www.comptia.org/en-us/certifications/a/"
+      ],
+      "name": "A+",
+      "cert": "CompTIA A+"
+    },
+    "SY0-701": {
+      "vendor": "comptia",
+      "urls": [
+        "https://www.comptia.org/en-us/certifications/security/"
+      ],
+      "name": "Security+",
+      "cert": "CompTIA Security+"
+    },
+    "CAS-005": {
+      "vendor": "comptia",
+      "urls": [
+        "https://www.comptia.org/en-us/certifications/securityx/"
+      ],
+      "name": "SecurityX",
+      "cert": "CompTIA SecurityX"
+    },
+    "N10-009": {
+      "vendor": "comptia",
+      "urls": [
+        "https://www.comptia.org/en-us/certifications/network/"
+      ],
+      "name": "Network+",
+      "cert": "CompTIA Network+"
+    },
+    "PT0-003": {
+      "vendor": "comptia",
+      "urls": [
+        "https://www.comptia.org/en-us/certifications/pentest/"
+      ],
+      "name": "PenTest+",
+      "cert": "CompTIA PenTest+"
+    },
+    "CS0-003": {
+      "vendor": "comptia",
+      "urls": [
+        "https://www.comptia.org/en-us/certifications/cybersecurity-analyst/",
+        "https://www.comptia.org/en-us/certifications/cysa/"
+      ],
+      "name": "CySA+",
+      "cert": "CompTIA CySA+"
+    },
+    "CY0-001": {
+      "vendor": "comptia",
+      "urls": [
+        "https://www.comptia.org/en-us/certifications/secai/"
+      ],
+      "name": "SecAI+",
+      "cert": "CompTIA SecAI+"
+    },
+    "NetSec-Pro": {
+      "vendor": "palo-alto-networks",
+      "urls": []
+    },
+    "SSE-Engineer": {
+      "vendor": "palo-alto-networks",
+      "urls": []
+    },
+    "NGFW-Engineer": {
+      "vendor": "palo-alto-networks",
+      "urls": []
+    },
+    "SD-WAN-Engineer": {
+      "vendor": "palo-alto-networks",
+      "urls": []
+    },
+    "FCP_FGT_AD-7.6": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "FCSS_EFW_AD-7.6": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "NSE4_FGT_AD-7.6": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "NSE5_SSE_AD-26": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "NSE6_OTS_AR-7.6": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "NSEI_OTS_AR-7.6": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "FCP_FMG_AD-7.7": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "NSE7_SOC_AR-7.6": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "NSE7_FSN_AR-7.6": {
+      "vendor": "fortinet",
+      "urls": []
+    },
+    "2V0-11.25": {
+      "vendor": "vmware",
+      "urls": []
+    },
+    "2V0-13.24": {
+      "vendor": "vmware",
+      "urls": []
+    },
+    "2V0-21.23": {
+      "vendor": "vmware",
+      "urls": []
+    },
+    "HPE7-A01": {
+      "vendor": "hpe",
+      "urls": [
+        "https://certification-learning.hpe.com/tr/datacard/Exam/HPE7-A01"
+      ]
+    },
+    "HPE6-A85": {
+      "vendor": "hpe",
+      "urls": [
+        "https://certification-learning.hpe.com/tr/datacard/Exam/HPE6-A85"
+      ]
+    },
+    "HPE6-A78": {
+      "vendor": "hpe",
+      "urls": [
+        "https://certification-learning.hpe.com/tr/datacard/Exam/HPE6-A78"
+      ]
+    },
+    "HPE7-V01": {
+      "vendor": "hpe",
+      "urls": [
+        "https://certification-learning.hpe.com/tr/datacard/Exam/HPE7-V01"
+      ]
+    },
+    "HPE7-S02": {
+      "vendor": "hpe",
+      "urls": [
+        "https://certification-learning.hpe.com/tr/datacard/Exam/HPE7-S02"
+      ]
+    },
+    "C_DBADM_2404": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_CPE_2409": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_LCNC_2406": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "E_S4CPE_2405": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_TS4CO_2023": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "E_ACTAI_2403": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_FIORD_2502": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_TADM_23": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_CPI_2506": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_BW4H_2505": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_S4CFI_2504": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_IEE2E_2404": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_TS4FI_2023": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_THR82_2505": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_SEC_2405": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_S4EWM_2023": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_THR81_2505": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_TS412_2021": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "C_TS462_2023": {
+      "vendor": "sap",
+      "urls": []
+    },
+    "CISA": {
+      "vendor": "isaca",
+      "urls": [
+        "https://www.isaca.org/credentialing/cisa"
+      ],
+      "name": "Certified Information Systems Auditor",
+      "cert": "CISA"
+    },
+    "CISM": {
+      "vendor": "isaca",
+      "urls": [
+        "https://www.isaca.org/credentialing/cism"
+      ],
+      "name": "Certified Information Security Manager",
+      "cert": "CISM"
+    },
+    "AAIR": {
+      "vendor": "isaca",
+      "urls": [
+        "https://www.isaca.org/credentialing/aair"
+      ],
+      "name": "Advanced in AI Risk",
+      "cert": "AAIR"
+    },
+    "CCDV-F": {
+      "vendor": "anthropic",
+      "urls": [
+        "https://www.pearsonvue.com/us/en/anthropic.html",
+        "https://claude.com/resources/articles/four-role-based-claude-certifications"
+      ],
+      "name": "Claude Certified Developer - Foundations",
+      "cert": "Claude Certified Developer: Foundations"
+    },
+    "CCAR-F": {
+      "vendor": "anthropic",
+      "urls": [
+        "https://www.pearsonvue.com/us/en/anthropic.html",
+        "https://claude.com/resources/articles/four-role-based-claude-certifications"
+      ],
+      "name": "Claude Certified Architect - Foundations",
+      "cert": "Claude Certified Architect: Foundations"
+    },
+    "CCAR-P": {
+      "vendor": "anthropic",
+      "urls": [
+        "https://www.pearsonvue.com/us/en/anthropic.html",
+        "https://claude.com/resources/articles/four-role-based-claude-certifications"
+      ],
+      "name": "Claude Certified Architect - Professional",
+      "cert": "Claude Certified Architect: Professional"
+    },
+    "CCA-F": {
+      "vendor": "anthropic",
+      "urls": []
+    },
+    "PMP": {
+      "vendor": "pmi",
+      "urls": [
+        "https://www.pmi.org/certifications/project-management-pmp"
+      ],
+      "name": "Project Management Professional",
+      "cert": "PMP"
+    },
+    "PMI-RMP": {
+      "vendor": "pmi",
+      "urls": [
+        "https://www.pmi.org/certifications/risk-management-rmp"
+      ],
+      "name": "Risk Management Professional",
+      "cert": "PMI-RMP"
+    },
+    "FMVA": {
+      "vendor": "cfi",
+      "urls": [
+        "https://corporatefinanceinstitute.com/certifications/financial-modeling-valuation-analyst-fmva-program/"
+      ],
+      "name": "Financial Modeling & Valuation Analyst",
+      "cert": "FMVA"
+    },
+    "312-50v13": {
+      "vendor": "ec-council",
+      "urls": [
+        "https://www.eccouncil.org/train-certify/certified-ethical-hacker-ceh/"
+      ],
+      "name": "Certified Ethical Hacker",
+      "cert": "CEH"
+    },
+    "4A0-AI1": {
+      "vendor": "nokia",
+      "urls": []
+    },
+    "4A0-D01": {
+      "vendor": "nokia",
+      "urls": []
+    },
+    "CCAS": {
+      "vendor": "acams",
+      "urls": [
+        "https://www.acams.org/en/certifications/ccas-certification"
+      ],
+      "name": "Certified Cryptoasset Anti-Financial Crime Specialist",
+      "cert": "CCAS"
+    },
+    "H35-210_V2.5": {
+      "vendor": "huawei",
+      "urls": []
+    },
+    "ITILFNDV5": {
+      "vendor": "peoplecert",
+      "urls": []
+    },
+    "AgilePM Foundation": {
+      "vendor": "apmg-international",
+      "urls": [
+        "https://apmg-international.com/product/agile-project-management-agilepmr-certification"
+      ],
+      "name": "AgilePM",
+      "cert": "AgilePM Foundation"
+    }
+  },
+  "label_fix": {
+    "AB-900": "AB-900",
+    "AI-103": "AI-103",
+    "AI-200": "AI-200",
+    "AZ-802": "AZ-802",
+    "DP-750": "DP-750",
+    "AB-210": "AB-210",
+    "MS-102": "MS-102",
+    "DP-800": "DP-800",
+    "AI-901": "AI-901",
+    "AZ-305": "AZ-305",
+    "200-201CCNACBR": "200-201",
+    "350-201CBRCOR": "350-201",
+    "300-740": "300-740",
+    "CIPP-E": "CIPP/E",
+    "ISO-IEC-27001-LEAD-IMPLEMENTER": "ISO/IEC 27001 Lead Implementer",
+    "ISO-IEC-27001-LEAD-AUDITOR": "ISO/IEC 27001 Lead Auditor",
+    "ISO-9001-LEAD-AUDITOR": "ISO 9001 Lead Auditor",
+    "PMP-2026": "PMP",
+    "CISA": "CISA",
+    "FCP-FMG-AD-7.7": "FCP_FMG_AD-7.7",
+    "312-50V13": "312-50v13",
+    "AGILEPMFOUNDATION": "AgilePM Foundation"
+  },
+  "code_vendor": {
+    "FMVA": "cfi",
+    "CEH": "ec-council",
+    "CISA": "isaca"
+  }
+}

@@ -1,0 +1,10 @@
+{
+ "level": "vendor",
+ "key": "retake-policy",
+ "title": "Retakes",
+ "body_html": "<p>If you do not pass, the official page states when you may sit again. A common rule is a short wait after the first attempt and a longer wait after later attempts. Always check the current official retake rule before you book a resit, because the vendor can change it.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": "microsoft"
+}

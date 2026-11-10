@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "sectioned_delivery",
+ "title": "How to answer this question type",
+ "body_html": "<p>This is a delivery mode, not a question you will import from a file.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}

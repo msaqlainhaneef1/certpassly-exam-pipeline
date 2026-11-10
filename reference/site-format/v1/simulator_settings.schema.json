@@ -1,0 +1,67 @@
+{
+  "site_format_version": "v1",
+  "$comment": "Shape of out/<CODE>/simulator_settings.json. Time and pass mark come from official sources. Question count is a site choice when the vendor does not publish one.",
+  "type": "object",
+  "required": [
+    "exam_key",
+    "status",
+    "time_limit_minutes",
+    "passing_score",
+    "question_count",
+    "domain_mix",
+    "rules",
+    "bank_status"
+  ],
+  "properties": {
+    "exam_key": {
+      "type": "string"
+    },
+    "status": {
+      "const": "draft"
+    },
+    "time_limit_minutes": {
+      "type": "object",
+      "required": [
+        "value",
+        "basis",
+        "source"
+      ]
+    },
+    "passing_score": {
+      "type": "object",
+      "required": [
+        "value",
+        "basis",
+        "source"
+      ]
+    },
+    "question_count": {
+      "type": "object",
+      "required": [
+        "value",
+        "basis",
+        "note"
+      ]
+    },
+    "domain_mix": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "domain_code",
+          "official_range",
+          "planned_share_pct"
+        ]
+      }
+    },
+    "rules": {
+      "type": "object"
+    },
+    "sections": {
+      "type": "array"
+    },
+    "bank_status": {
+      "type": "string"
+    }
+  }
+}

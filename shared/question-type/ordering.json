@@ -1,0 +1,10 @@
+{
+ "level": "question-type",
+ "key": "ordering",
+ "title": "How to answer this question type",
+ "body_html": "<p>Put the items in the correct sequence. The full order is scored together.</p>",
+ "version": "1.0.0",
+ "last_updated": "2026-11-11",
+ "sources": [],
+ "slug": null
+}
