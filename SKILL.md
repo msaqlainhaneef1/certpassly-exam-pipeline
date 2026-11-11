@@ -96,7 +96,8 @@ Reusable blocks under `shared/` (site, vendor, certification, question-type). Te
 - Owner PDFs with unusual layouts may leave items in `unparsed.json`.
 - Drive download needs folders shared as "Anyone with the link". Private folders stop with a clear error.
 - Rendering needs `pip install -e ".[render]"` and `python -m playwright install chromium`. Without it, JS-built pages stop with that instruction.
+- `scripts/check_import_conformance.py` checks import files against `reference/site-format/v1`, including `key_source`, `verification_status`, `researched_unverified`, `answer_not_found` and `scoring_excluded_question_keys`. It does not run the live site importer.
 - The site-restricted web search in answer_research may return nothing (search engines block scripts). Then only listed URLs and the exam's official sources are searched; the attempt is logged.
-- Real-exam proof so far: Data-Con-101 ran live through catalog, Drive download, discovery + render, research JSON, extract and answer_research (no AI). Its author stage (explanations, page prose) was not run, so its pages, bank and package are not built yet.
+- Real-exam proof: Data-Con-101 has now run live through every default stage, including one batched author pass (65 short explanations and page prose), pages, import, bank, validate, check_bank and package. 65 imported, 0 held. Official facts (105 minutes, 70 percent, 60 questions, USD 200) come from the saved Salesforce exam guide.
 - A non-editable `pip install .` is enough for `--help`. Full runs need a clone (`pip install -e .`) or `CERTPASSLY_SKILL_ROOT`.
 - This skill does not publish pages, change site code, or write to the database.

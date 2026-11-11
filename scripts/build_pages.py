@@ -124,10 +124,16 @@ def build_exam(rpath):
     doms=O['domains']
     pages=[]
     # tables are computed from official facts; body prose comes from the author stage
+    price_cell=cell('price', F['price'].get('value'))
+    if F['price'].get('value') in (None,'',[]):
+        price_cell=price_cell+(prose.get('exam_hub',{}).get('price_note') or '')
+    qcf=F.get('question_count') or {}
+    qc_val=qcf.get('value')
     kf_rows=[['Exam length',cell('duration_minutes',f'{dur} minutes')],['Passing score',cell('passing_score',f'{ps} or higher')],
-             ['Price',cell('price','')+(prose.get('exam_hub',{}).get('price_note') or '')],
+             ['Price',price_cell],
              ['Languages',cell('languages',', '.join(langs))],['Format',cell('question_formats',F['question_formats']['value'])],
-             ['Number of questions',esc(NP)],['Level',cell('level',F['level']['value'])],['Delivery',cell('delivery',F['delivery']['value'])]]
+             ['Number of questions',cell('question_count', qc_val if qc_val not in (None,'') else None)],
+             ['Level',cell('level',F['level']['value'])],['Delivery',cell('delivery',F['delivery']['value'])]]
     # If cached body already includes tables (approved pilot), keep it so HTML stays stable.
     hub_tables=prose['exam_hub'].get('tables') or {'key_facts':kf_rows}
     if 'key_facts' not in hub_tables: hub_tables['key_facts']=kf_rows

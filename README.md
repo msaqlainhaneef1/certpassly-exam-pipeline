@@ -130,6 +130,15 @@ Vendor and certification pages are built once and reused when their inputs have 
 python -m unittest discover -s tests -v
 ```
 
+To check produced import files against `reference/site-format/v1` (CSV headers, allowed statuses, simulator schema, including researched and answer_not_found fields):
+
+```bash
+python scripts/check_import_conformance.py --root /path/to/workspace --exam EXAM-CODE
+# or: python scripts/check_import_conformance.py --package EXAM-package.zip
+```
+
+This is not a live run of the site importer.
+
 `tests/test_demo_end_to_end.py` builds two synthetic demo exams (Microsoft adapter and generic adapter) with `tests/demo_kit.py` and runs every stage through the CLI. Try it: `python tests/demo_kit.py microsoft /tmp/demo` then `certpassly-pipeline --exam DM-101 --root /tmp/demo --offline --date 2026-11-11`.
 
 The gold-package regression rebuilds a finished real exam from a cached workspace. It runs only when `CERTPASSLY_GOLD` points at that workspace and is not collected otherwise, so CI shows 0 skipped. That workspace is not committed (see `tests/fixtures/README.md`).

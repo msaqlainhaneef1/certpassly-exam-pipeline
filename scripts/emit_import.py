@@ -77,12 +77,14 @@ write(imp,'exam_faqs.csv',[dict(exam_key=e,locale='en',question=H.unescape(q),an
 # simulator settings
 doms=R['objectives']['domains']; mids=[(d['weight_min_pct']+d['weight_max_pct'])/2 for d in doms]
 sim=dict(exam_key=e,status='draft',time_limit_minutes=dict(value=F['duration_minutes']['value'],basis='official',source=cpu),passing_score=dict(value=F['passing_score']['value'],basis='official',source=sgu),
-    question_count=dict(value=None,basis='site_choice',note='Not published by the vendor. Owner sets this when a reviewed bank exists.'),
+    question_count=(dict(value=F['question_count']['value'],basis='official',source=F['question_count'].get('url') or sgu,note=F['question_count'].get('quote') or 'Published by the vendor.')
+                   if (F.get('question_count') or {}).get('value') not in (None,'',[])
+                   else dict(value=None,basis='site_choice',note='Not published by the vendor. Owner sets this when a reviewed bank exists.')),
     domain_mix=[dict(domain_code=d['code'],domain_name=d['name'],official_range=[d['weight_min_pct'],d['weight_max_pct']],planned_share_pct=round(m*100/sum(mids),1),basis='midpoint of official range, normalized') for d,m in zip(doms,mids)],
     rules=dict(allow_back_navigation=dict(value=True,basis='site_choice'),allow_flagging=dict(value=True,basis='site_choice'),show_review_screen=dict(value=True,basis='site_choice'),
       delivered_question_types=dict(value=[],basis='site_choice',note='Set when the bank exists. Must use types that are enabled and publishable in config/question_types.php.')),
     sections=[],sections_note='The vendor does not publish sections for this exam; single section.',bank_status='not_ready')
 json.dump(sim,open(f'{out}/simulator_settings.json','w'),indent=1)
-write(imp,'exam_simulation_rules.csv',[dict(exam_key=e,allow_back_navigation='1',allow_flagging='1',show_review_screen='1',delivered_question_types='[]',official_source_url=cpu,notes='Draft. Navigation flags are site choices. Question count is a site choice (not published). Bank not ready.')],
+write(imp,'exam_simulation_rules.csv',[dict(exam_key=e,allow_back_navigation='1',allow_flagging='1',show_review_screen='1',delivered_question_types='[]',official_source_url=cpu,notes=('Draft. Navigation flags are site choices. Question count follows the official page. Bank not ready.' if (F.get('question_count') or {}).get('value') not in (None,'',[]) else 'Draft. Navigation flags are site choices. Question count is a site choice (not published). Bank not ready.'))],
       ['exam_key','allow_back_navigation','allow_flagging','show_review_screen','delivered_question_types','official_source_url','notes'])
 print('import files',len(os.listdir(imp)))

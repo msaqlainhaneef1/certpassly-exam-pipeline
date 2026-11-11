@@ -2,7 +2,7 @@
 """Step 8 checks for one exam package + shared vendor/cert pages. Exit 1 on any failure.
 Usage: validate.py research/<vendor>/<CODE>.json"""
 import csv, glob, hashlib, html, json, os, re, subprocess, sys, datetime, argparse
-sys.path.insert(0, os.path.dirname(__file__)); import site_settings, paths as pathutil
+sys.path.insert(0, os.path.dirname(__file__)); import site_settings, paths as pathutil, source_text
 B=pathutil.root(); S=site_settings.load()
 ap=argparse.ArgumentParser(description='Validate one exam package. Exit 1 on any failure.')
 ap.add_argument('research')
@@ -51,7 +51,7 @@ for d in R['objectives']['domains']:
     for t in d['topics']:
         for s_ in [t['name']]+t['subtopics']:
             if norm(s_) not in pagetext[sid['sg']]: probs.append('objective text not on page: '+s_)
-    if f"{norm(d['name'])} ({d['weight_min_pct']}-{d['weight_max_pct']}%)" not in pagetext[sid['sg']]: probs.append('weight not on page: '+d['name'])
+    if not source_text.weight_on_page(d['name'], d, pagetext[sid['sg']]): probs.append('weight not on page: '+d['name'])
 C=json.load(open(f'{B}/research/certs/{c}.json')); cid={s['id']:s['url'] for s in C['sources']}
 for k in ['level','roles','practice_assessment','last_updated']: fact_ok('cert.'+k,dict(C[k],source_id='cp'),cid)
 V=json.load(open(f'{B}/research/vendors/{v}.json')); vid={s['id']:s['url'] for s in V['sources']}
@@ -235,7 +235,9 @@ chk('12l researched keys: official domain, saved copy sha256, verbatim quote, un
 chk('12m answer_not_found items kept as drafts, listed in REVIEW.md, excluded from scoring in simulator settings; nothing held',not _anf and not QJ['held_for_review'],_anf or f"{sum(1 for x in QS if x.get('answer_key_status')=='answer_not_found')} answer_not_found, {len(QJ['held_for_review'])} held")
 chk('12b practice page states the bank is not ready',"practice bank is not ready" in text(htmls['practice_test']),'')
 sim=json.load(open(f'{OUT}/simulator_settings.json'))
-chk('12c simulator: official time and pass mark, question count marked site choice',sim['time_limit_minutes']['value']==R['facts']['duration_minutes']['value'] and sim['passing_score']['value']==R['facts']['passing_score']['value'] and sim['question_count']['basis']=='site_choice' and sim['question_count']['value'] is None,'')
+_qc=R['facts'].get('question_count') or {}
+_qc_ok=(sim['question_count']['basis']=='official' and sim['question_count']['value']==_qc.get('value')) if source_text.published(_qc) else (sim['question_count']['basis']=='site_choice' and sim['question_count']['value'] is None)
+chk('12c simulator: official time and pass mark; question count official when published, otherwise site choice',sim['time_limit_minutes']['value']==R['facts']['duration_minutes']['value'] and sim['passing_score']['value']==R['facts']['passing_score']['value'] and _qc_ok,'')
 chk('12d simulator domain mix sums to 100',abs(sum(x['planned_share_pct'] for x in sim['domain_mix'])-100)<0.6,'')
 # 13 media
 chk('13 media: no images shipped, none referenced',not re.search(r'<img',' '.join(htmls.values())),'og:image empty by design')

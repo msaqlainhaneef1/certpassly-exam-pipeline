@@ -113,3 +113,12 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 - Python 3.11 is the oldest supported version: never reuse the outer quote type inside an f-string expression (3.12+ only). Run `py_compile` on 3.11 before pushing. (v1.1.1, CI run 42975699520)
 - Path filters must normalise `os.sep` to `/` before matching; Windows CI caught a filter that only worked on Linux. (v1.1.2, CI run 42976175004)
 - Paths written into JSON/evidence must be POSIX (`/`), never `os.sep`. (v1.1.3, CI run 42976591708)
+
+## v1.1.4 lessons (Data-Con-101 author through package)
+
+- Official skill weights are not always written as `Name (min-max%)`. Salesforce exam guides use `Name: 14%` when the weight is a single figure. A quote check that only looks for the range form will fail a correct research file. Accept both forms (and an en dash in a range, after normalisation).
+- A key-facts helper that is called as `cell('price', '')` will print "not published by the vendor" even when research has a published value. Pass the official value. The same applies to question count: if the vendor publishes a number, the table and simulator settings must use it (`basis=official`). Site choice is only for a gap.
+- Validate 12c must follow that rule, or a correct official count would fail the gate.
+- Author-stage prose still has to clear word-count and grade gates (150+ words, grade 11 or lower). Short sentences in the study guide dropped the grade from 11.9 to 8.6; vendor and certification pages needed a few more plain sentences to clear 150 words.
+- A scripted site-format conformance check can prove that import files match the published contract, including the new researched and answer_not_found fields. It cannot prove that the live site importer accepts those fields until the site team runs their importer.
+- Live Drive tests: a public "anyone with the link" folder returns HTTP 200 with `flip-entry` markup and resume works by sha256. A valid-format folder id that is not shared returns HTTP 404 and the script message `drive: folder {id} is not readable (HTTP 404). It must be shared as "Anyone with the link".` Quota and virus-scan HTML pages were not triggered live.

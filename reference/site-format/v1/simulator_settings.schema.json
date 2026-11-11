@@ -62,6 +62,16 @@
     },
     "bank_status": {
       "type": "string"
+    },
+    "scoring_excluded_question_keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Draft question keys with answer_not_found. Shown for review but never scored. Empty when every item has a key."
+    },
+    "scoring_excluded_note": {
+      "type": "string"
     }
   }
 }

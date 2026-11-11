@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.4
+
+- Real Salesforce Data-Con-101 run finished through author (one batched pass: 65 short explanations and page prose), pages, import, bank, validate, check_bank and package. 65 questions imported, 0 held, 62/62 validate checks passed, check_bank 2841 passed / 0 failed.
+- Fix validate check 02: official outlines that state a single weight as `Solution Positioning: 14%` (Salesforce and similar) now match, not only the range form `Name (min-max%)`.
+- Fix key facts and simulator settings: when the vendor publishes a price or question count, use the official value and source. Previously the price cell always showed "not published by the vendor" and question count was hardcoded as a site choice. Check 12c now requires an official count when one is published, and site choice only when it is not.
+- New `scripts/check_import_conformance.py` checks produced import files against `reference/site-format/v1` (CSV templates, question types, allowed statuses, simulator schema, including `key_source`, `verification_status`, `researched_unverified`, `answer_not_found`, and `scoring_excluded_question_keys`). This is not a live site-importer run.
+- `simulator_settings.schema.json` now documents `scoring_excluded_question_keys` and `scoring_excluded_note`.
+- Tests: `tests/test_v114.py` (weight wording, conformance of the new fields).
+
+
 ## 1.1.3
 
 - Fix Windows: answer_research stored saved_path with backslashes; evidence paths are now always written with forward slashes so files are portable across OSes.
