@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.1 (2026-11-11)
+
+Documentation release. No pipeline behavior changed.
+
+- `AGENTS.md` at the repo root: entry point for any AI agent, the hard rules, and where to go next. `CLAUDE.md`, `.cursor/rules/certpassly.mdc` and `.github/copilot-instructions.md` point to it.
+- `docs/AI-OPERATOR-GUIDE.md`: the full self-training manual. Every owner rule; every stage in order with inputs, outputs, exact command, success and common failures; the author pass files with schemas, examples and limits; the author self-check; runbooks for a new exam from a Drive link, a vendor batch and offline; troubleshooting; the release and push flow; a before-you-say-done checklist; and a report template with the proof fields.
+- `docs/AI-TRAINING-EXERCISES.md`: a graded path on the synthetic demo (run, break one thing, see the gate fail, fix) with expected outputs from real runs.
+- `HANDOVER.md` on main, updated to v1.2.0 and v1.2.1: versions and tags, SC-900 results, CI runs, lessons and open items.
+- README and SKILL.md point to the guide (SKILL_BODY.md stays identical to SKILL.md without front matter).
+- `tests/test_ai_guide.py`: the guide's stage order must match `run_pipeline.py --list-stages`, every stage name and repo path in the docs must exist, every `certpassly-pipeline` command must use real flags and stages, and the new docs must have no typographic dashes, denylist terms or contact lines.
+
 ## 1.2.0 (2026-11-11)
 
 Writing work from the v1.2.0 plan (HANDOVER.md section 8), plus the fixes found by the first real run (Microsoft SC-900 from the owner Drive folder: 253 imported, 0 held).

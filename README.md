@@ -8,6 +8,8 @@ The only AI stage is `author` (batched). Everything else is scripted.
 
 Read [reference/lessons-learned.md](reference/lessons-learned.md) before you run a new exam. The same top rules are repeated in `SKILL.md`.
 
+**AI agents and new operators:** start with [AGENTS.md](AGENTS.md), then read the full manual [docs/AI-OPERATOR-GUIDE.md](docs/AI-OPERATOR-GUIDE.md) (every rule, every stage, the author pass, runbooks, release flow, done checklist and report template) and do the exercises in [docs/AI-TRAINING-EXERCISES.md](docs/AI-TRAINING-EXERCISES.md). Project state and open items are in [HANDOVER.md](HANDOVER.md).
+
 ## Requirements
 
 - Python 3.10 or newer

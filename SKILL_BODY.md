@@ -4,6 +4,8 @@ Scripts-first skill for draft, site-ready exam pages and question-import files. 
 
 **Read [reference/lessons-learned.md](reference/lessons-learned.md) before every run.** The lessons below are the short form of that file.
 
+**Full manual:** [docs/AI-OPERATOR-GUIDE.md](docs/AI-OPERATOR-GUIDE.md) has every owner rule, every stage in order (inputs, outputs, command, success, failures), the author pass file formats and self-check, runbooks, the release flow, the done checklist and the report template. Train on the demo with [docs/AI-TRAINING-EXERCISES.md](docs/AI-TRAINING-EXERCISES.md). Agents start at [AGENTS.md](AGENTS.md).
+
 ## Top rules (repeat these)
 
 1. Re-read the latest owner rules and `pipeline.yaml` before each stage. Rules have changed mid-run.
