@@ -5,7 +5,10 @@ Vendor and certification pages are built once and skipped when their input hash 
 Usage: build_pages.py research/<vendor>/<CODE>.json
 
 Original page prose comes from out/<CODE>/authoring/page_prose.json (the author stage).
-This script does not call AI.
+Search-intent assignments come from research/<vendor>/<CODE>.search-intent.json (built by
+search_intent.py from research facts): each page record carries its main query and the
+questions it must answer, so the writing check can test coverage. This script never reads
+competitor notes and never pastes their text. This script does not call AI.
 """
 import csv, hashlib, html, json, os, re, sys, datetime
 sys.path.insert(0, os.path.dirname(__file__))
@@ -32,6 +35,22 @@ def pick(cands,lo,hi,used):
         if lo<=len(c)<=hi and c not in used: used.add(c); return c
     raise SystemExit(f'no candidate in {lo}-{hi}: '+' || '.join(f'{len(c)}:{c}' for c in cands))
 USED_T=set(); USED_D=set()
+INTENT={}
+
+def load_intent(rpath, code):
+    """Search-intent assignments for this exam ({} when the file is missing)."""
+    p=os.path.join(os.path.dirname(os.path.abspath(rpath)), f'{code}.search-intent.json')
+    if not os.path.exists(p): return {}
+    d=json.load(open(p,encoding='utf-8'))
+    d['_file']=os.path.relpath(p, B).replace(os.sep,'/')
+    return d
+
+def intent_for(kind):
+    pg=(INTENT.get('pages') or {}).get(kind)
+    if not pg: return None
+    qs={q['id']:q for q in INTENT.get('questions') or []}
+    return dict(file=INTENT.get('_file'), main_query=pg.get('main_query'),
+                questions=[dict(id=i, question=qs[i]['question'], basis=qs[i].get('basis')) for i in pg.get('questions') or [] if i in qs])
 TLO,THI=S['meta_title_range']; DLO,DHI=S['meta_description_range']
 
 def page(key,kind,path,title_c,desc_c,h1,crumbs,body,tables,jsonld_extra,sources,out_dir,entity):
@@ -56,6 +75,8 @@ def page(key,kind,path,title_c,desc_c,h1,crumbs,body,tables,jsonld_extra,sources
     os.makedirs(out_dir,exist_ok=True)
     rec=dict(key=key,kind=kind,entity=entity,status='draft',meta=meta,jsonld=jsonld,tables=tables,body_html=body,sources=[dict(url=s['url'],sha256=s['sha256'],retrieved_at=s['retrieved_at']) for s in sources],
              brand_source=S['brand_source'],disclaimer_source=S['disclaimer_source'])
+    si=intent_for(kind)
+    if si: rec['search_intent']=si
     json.dump(rec,open(f'{out_dir}/{key}.json','w'),indent=1,ensure_ascii=False); open(f'{out_dir}/{key}.html','w').write(doc)
     return rec
 
@@ -110,6 +131,7 @@ def build_exam(rpath):
     src={s['id']:srcinfo(s['url']) for s in R['sources']}
     out=f'{B}/out/{code}/pages'
     prose=load_prose(code)
+    INTENT.clear(); INTENT.update(load_intent(rpath, code))
     ctx=dict(vendor_slug=v, certification_slug=c, exam_code=code)
     P={k:route(k,vendor=v,exam=e,cert=c) for k in ('exam_hub','objectives','study_guide','faq','practice_test')}
     P['vendor']=route('vendor',vendor=v); P['certification']=route('certification',cert=c)
@@ -194,7 +216,7 @@ def build_vendor(V,catalog_rows,current_code,prose):
 
 def build_cert(C,V,P,R,prose):
     ctx=dict(vendor_slug=V.get("vendor_slug"), certification_slug=C.get("certification_slug"), exam_code=R.get("exam_code"))
-    out=f'{B}/out/certifications/{C["certification_slug"]}'; h=inhash(f'{B}/research/certs/{C["certification_slug"]}.json',f'{B}/research/{R["vendor_slug"]}/{R["exam_code"]}.json',f'{B}/out/{R["exam_code"]}/authoring/page_prose.json')
+    out=f'{B}/out/certifications/{C["certification_slug"]}'; h=inhash(f'{B}/research/certs/{C["certification_slug"]}.json',f'{B}/research/{R["vendor_slug"]}/{R["exam_code"]}.json',f'{B}/out/{R["exam_code"]}/authoring/page_prose.json',f'{B}/research/{R["vendor_slug"]}/{R["exam_code"]}.search-intent.json')
     if skip(out,'certification',h): print('skip cert (unchanged)'); return json.load(open(f'{out}/certification.json'))
     cs=srcinfo(C['sources'][0]['url']); path=route('certification',cert=C['certification_slug'])
     cred={"@context":"https://schema.org","@type":"EducationalOccupationalCredential","name":C['name'],"credentialCategory":"certification","educationalLevel":C['level']['value'],

@@ -8,7 +8,10 @@ The run is idempotent: vendor and certification pages are skipped when unchanged
 and saved official sources are reused. Failed checks exit with status 1.
 
 The only stage that calls AI is `author` (batched explanations and original page
-prose). This script never talks to the app repo, GitHub or artisan.
+prose), and this script never calls a model for it: it only checks that the author
+files exist. The `intent` and `writing` stages are scripts too: search intent is built
+from research facts, and the writing check flags problems so only the flagged parts
+go back for a fix. This script never talks to the app repo, GitHub or artisan.
 """
 from __future__ import annotations
 import argparse, csv, json, os, shutil, subprocess, sys, time
@@ -25,8 +28,10 @@ STAGES=[
     ('research','parser first','Fill or check research JSON from official pages using the vendor adapter in scripts/adapters (chosen from config/vendors.yaml). AI is allowed only for official facts the adapter lists as gaps, each with a quote and source id. Not the author stage.'),
     ('extract','no','Split the owner PDF, write visual_draft from OCR and marker boxes. No AI.'),
     ('answer_research','pick only','Items with no answer in the owner file: find candidate OFFICIAL pages (research sources, listed URLs, site-restricted search on official_domains), save them with sha256, rank matching lines. The key is picked by AI in the author batch (authoring/answer_research.json) and re-verified by script: official domain, saved copy, verbatim quote. No evidence: item stays as draft flagged answer_not_found and is excluded from scoring.'),
+    ('intent','no','Build research/<vendor>/<CODE>.search-intent.json from research facts only: the main query per page, people-also-ask questions from official facts and recorded gaps, and which page answers each. Competitor notes (research/<vendor>/<CODE>.competitor-notes.json) are read as topic labels only. Runs before author and pages. A person may edit the file.'),
     ('author','YES','THE AI STAGE. Batched only: rewrite explanations, write original page prose (page_prose.json), finish visual_transcription.json where OCR is not enough, and write bank_meta.json. Never invent questions. Never change stems, options or keys. This script does not call a model; it checks the files are present and stops with instructions if they are not.'),
     ('pages','no','Build exam (and shared vendor/cert) pages from research JSON + page_prose.json. Vendor and cert pages are skipped when their inputs have not changed.'),
+    ('writing','no','Writing check after pages (scripts/check_writing.py, no AI): banned AI phrases, long sentences, dashes, unsourced numbers, grade and word count, search-intent coverage, competitor overlap. Writes writing-review.json and WRITING-REVIEW.md (failed checks only) and authoring/writing_fix_request.json. Only flagged parts go back for a fix, then pages and writing run again (the second check). Exit 1 on flags unless writing.fail_on_flags is false; open flags stay in REVIEW.md.'),
     ('import','no','Write workbook CSVs, sidecars (including page_meta_extras.csv) and simulator_settings.json from the generated pages.'),
     ('bank','no','Assemble questions.json, question import CSVs, media, CLEANUP-LOG.md and REVIEW.md. Runs after import so page sources.csv is merged, not wiped.'),
     ('validate','no','Refresh MANIFEST.json, then run validate.py and check_bank.py. Exit 1 on any failed check.'),
@@ -70,7 +75,7 @@ def preflight(cfg, exam, logf, stages):
     for key in ('CERTPASSLY_APP','APP_REPO','CERTPASSLY_REPO'):
         if os.environ.get(key):
             log(logf, f'note: {key} is set but will be ignored; the skill is self-contained.')
-    later={'sources','research','extract','author','bank','pages','import','validate','package'}
+    later={'sources','research','extract','intent','author','bank','pages','writing','import','validate','package'}
     if later & set(stages) and not exam:
         problems.append('--exam CODE is required for this stage')
     if problems:
@@ -260,7 +265,26 @@ def stage_answer_research(opts, logf, exam):
     from collections import Counter
     log(logf, f'answer_research: {len(C)} no-answer items -> {dict(Counter(r["status"] for r in Rz.values()))}; candidates in out/{exam}/answer_research/candidates.json')
 
+def intent_file(rpath, exam):
+    return os.path.join(os.path.dirname(os.path.abspath(rpath)), f'{exam}.search-intent.json')
+
+def stage_intent(opts, logf, exam):
+    rpath,_=load_research(paths.root(), exam, logf)
+    run_script([sys.executable, os.path.join(HERE,'search_intent.py'), rpath], logf)
+
+def ensure_intent(opts, logf, exam):
+    """Pre-step for author and pages: build the search-intent file when it is missing."""
+    rpath,_=load_research(paths.root(), exam, logf)
+    if not os.path.exists(intent_file(rpath, exam)):
+        log(logf, 'search intent: no file yet, building it from research facts first.')
+        stage_intent(opts, logf, exam)
+
+def stage_writing(opts, logf, exam, no_fail=False):
+    rpath,_=load_research(paths.root(), exam, logf)
+    run_script([sys.executable, os.path.join(HERE,'check_writing.py'), rpath]+(['--no-fail'] if no_fail else []), logf)
+
 def stage_author(opts, logf, exam):
+    ensure_intent(opts, logf, exam)
     out=os.path.join(paths.root(),'out',exam,'authoring')
     need=['explanations_text.json','page_prose.json','bank_meta.json']
     # explanations_visual.json is optional if there are no visual items
@@ -282,10 +306,16 @@ def stage_author(opts, logf, exam):
     if missing:
         log(logf, 'AUTHOR STAGE (the only AI stage). Files still needed:')
         for m in missing: log(logf, '  - '+m)
-        log(logf, 'Write them in one batched pass: original page prose, rewritten explanations, bank_meta (skill map, skipped files, cover-fact notes), and visual transcription where OCR is not enough. Do not invent questions. Do not change stems, options or keys. Then rerun --stage author (or the remaining stages).')
+        log(logf, 'Write them in one batched pass: original page prose, rewritten explanations, bank_meta (skill map, skipped files, cover-fact notes), and visual transcription where OCR is not enough. Follow reference/writing-brief.md. Answer the questions research/<vendor>/'+exam+'.search-intent.json assigns to each page. Use competitor notes as topics only, never their wording. Do not invent questions. Do not change stems, options or keys. Then rerun --stage author (or the remaining stages).')
         sys.exit(2)
     # light presence check: explanations cover split items later in bank/validate
     log(logf, 'author: required files present (explanations, page_prose, bank_meta). AI is not invoked by this script.')
+    fixp=os.path.join(out,'writing_fix_request.json')
+    if os.path.exists(fixp):
+        try: parts=sorted((json.load(open(fixp,encoding='utf-8')).get('parts') or {}).keys())
+        except Exception: parts=[]
+        if parts:
+            log(logf, 'author: writing fixes pending. Fix ONLY these parts (see authoring/writing_fix_request.json), then rerun pages and writing: '+', '.join(parts))
     # Shared blocks listed in page_prose must exist or be written in the same batched pass.
     try:
         prose=json.load(open(os.path.join(out,'page_prose.json'),encoding='utf-8'))
@@ -308,8 +338,15 @@ def stage_bank(opts, logf, exam):
     run_script([sys.executable, os.path.join(HERE,'build_bank.py'), rpath], logf)
 
 def stage_pages(opts, logf, exam):
+    ensure_intent(opts, logf, exam)
     rpath,_=load_research(paths.root(), exam, logf)
     run_script([sys.executable, os.path.join(HERE,'build_pages.py'), rpath], logf)
+    if 'writing' not in (getattr(opts,'selected_stages',None) or []):
+        # Pages were rebuilt (for example after a flagged fix): the writing check must run again.
+        # Here it records flags (writing-review.json, REVIEW.md) without stopping the stages the
+        # caller chose; the writing stage itself, or validate check 19, is the gate.
+        log(logf, 'pages: running the writing check on the rebuilt pages (second check after a fix; flags are recorded, the writing stage or validate check 19 gates them).')
+        stage_writing(opts, logf, exam, no_fail=True)
 
 def stage_import(opts, logf, exam):
     rpath,_=load_research(paths.root(), exam, logf)
@@ -360,7 +397,9 @@ HANDLERS={
     'research': stage_research,
     'extract': stage_extract,
     'answer_research': stage_answer_research,
+    'intent': stage_intent,
     'author': stage_author,
+    'writing': stage_writing,
     'bank': stage_bank,
     'pages': stage_pages,
     'import': stage_import,
@@ -436,6 +475,7 @@ def main():
     cfg=config_load.load(opts.config)
     site_settings.reset(); site_settings.load(opts.config)
     stages=opts.stages or names
+    opts.selected_stages=list(stages)
     for s in stages:
         if s not in HANDLERS:
             print('unknown stage:', s, file=sys.stderr); print('known:', ', '.join(names), file=sys.stderr); return 2

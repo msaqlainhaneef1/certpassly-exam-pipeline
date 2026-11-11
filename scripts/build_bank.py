@@ -226,5 +226,11 @@ if cover:
     RV+=['','## Cover facts in the file that differ from the official page','']+['* '+c for c in cover]
 if skipped:
     RV+=['','## VCE file skipped' if any('.vce' in s.lower() for s in skipped) else '## Skipped source files','']+[f'* {s}' for s in skipped]
+# Writing flags that are still open stay in REVIEW.md (scripts/check_writing.py).
+_wr=f'{OUT}/writing-review.json'
+if os.path.exists(_wr):
+    import check_writing
+    with open(_wr,encoding='utf-8') as _fh: _rv=json.load(_fh)
+    RV+=['',check_writing.review_section(_rv).rstrip('\n')]
 open(f'{OUT}/REVIEW.md','w').write('\n'.join(RV)+'\n')
 print('imported',len(qs),'held',len(held),'researched',sum(1 for r in AR_R.values() if r['status']=='researched_official'),'answer_not_found',len(EXCL),'flagged',len(review),dict(cnt))

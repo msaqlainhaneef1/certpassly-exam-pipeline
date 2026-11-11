@@ -120,3 +120,19 @@ not_published_label: "not published by the vendor"
 
 # Maximum fraction of a page body that may come from shared sections (default 0.4).
 shared_max_share: 0.4
+
+# Writing check (scripts/check_writing.py, stage `writing`). See reference/writing-brief.md.
+# The banned AI-phrase list is data in config/banned_ai_phrases.txt (skill) plus an optional
+# <workspace>/config/banned_ai_phrases.txt. banned_phrases above are checked too.
+writing:
+  # Exit 1 from the writing stage when any flag is open. Set false to continue; open flags stay in REVIEW.md.
+  fail_on_flags: true
+  # validate.py check 19: the latest writing check ran on the current files and left zero flags.
+  validate_gate: true
+  max_sentence_words: 35
+  # A run of this many words copied from competitor notes fails the check.
+  competitor_overlap_words: 8
+  min_words: 150
+  max_grade: 11
+  # How far after a topic word the official answer must appear (characters).
+  answer_window_chars: 400

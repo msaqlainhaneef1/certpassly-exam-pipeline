@@ -105,6 +105,8 @@ RAW=('/extracted/','/media/src/','/media/','/answer_research/')
 TEXT_EXT=('.json','.csv','.md','.html','.txt','.sha256')
 scan=[f for f in glob.glob(f'{OUT}/**/*',recursive=True)+glob.glob(f'{B}/out/vendors/**/*',recursive=True)+glob.glob(f'{B}/out/certifications/**/*',recursive=True)+glob.glob(f'{B}/research/**/*.json',recursive=True)+glob.glob(f'{B}/config/*.json') if os.path.isfile(f)]
 scan=[f for f in scan if f.endswith(TEXT_EXT) and not any(r in f.replace(os.sep,'/') for r in RAW)]
+# Competitor notes are an input (topics only), never an output; the writing check gates copied wording.
+scan=[f for f in scan if not f.endswith('.competitor-notes.json')]
 FROZEN_JSON=('prompt_text','text','label','prompt','prompt_template','stem','quote')  # quote: verbatim official text
 def prose_view(f):
     t=open(f,encoding='utf8',errors='ignore').read()
@@ -346,6 +348,12 @@ for b in shared_sections.iter_blocks():
             shared_hits.append((b.get('_rel') or b.get('key'),n))
 chk('18b shared blocks have no banned terms, contact lines or typographic dashes',not shared_hits,shared_hits[:12])
 
+# 19 optional writing gate (writing.validate_gate in pipeline.yaml)
+_W=(S.get('raw') or {}).get('writing') or {}
+if isinstance(_W,dict) and _W.get('validate_gate'):
+    import check_writing
+    _ok,_det=check_writing.gate_status(args.research)
+    chk('19 writing check ran on the current files and left zero flags (second check after any fix)',_ok,_det)
 fails=[r for r in res if not r[1]]
 lines=[f'# VALIDATION: {code} pages pilot','',f'Run {pathutil.now_label()} by scripts/validate.py.','',f'Result: {len(res)-len(fails)} of {len(res)} checks passed, {len(fails)} failed.','',
        'These are structural checks. They do not replace human source verification in the admin, subject expert review, or the app publish gates. All records are drafts.','','| Check | Result | Detail |','|---|---|---|']
