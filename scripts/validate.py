@@ -103,7 +103,7 @@ chk('09 no placeholder text or placeholder links',not ph,ph)
 RAW=('/extracted/','/media/src/','/media/','/answer_research/')
 TEXT_EXT=('.json','.csv','.md','.html','.txt','.sha256')
 scan=[f for f in glob.glob(f'{OUT}/**/*',recursive=True)+glob.glob(f'{B}/out/vendors/**/*',recursive=True)+glob.glob(f'{B}/out/certifications/**/*',recursive=True)+glob.glob(f'{B}/research/**/*.json',recursive=True)+glob.glob(f'{B}/config/*.json') if os.path.isfile(f)]
-scan=[f for f in scan if f.endswith(TEXT_EXT) and not any(r in f for r in RAW)]
+scan=[f for f in scan if f.endswith(TEXT_EXT) and not any(r in f.replace(os.sep,'/') for r in RAW)]
 FROZEN_JSON=('prompt_text','text','label','prompt','prompt_template','stem','quote')  # quote: verbatim official text
 def prose_view(f):
     t=open(f,encoding='utf8',errors='ignore').read()

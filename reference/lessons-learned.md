@@ -111,3 +111,4 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 - Web search from scripts is often blocked (DuckDuckGo returned 0 results). Always seed answer_research with the exam's official sources and listed URLs; log the failed search.
 
 - Python 3.11 is the oldest supported version: never reuse the outer quote type inside an f-string expression (3.12+ only). Run `py_compile` on 3.11 before pushing. (v1.1.1, CI run 42975699520)
+- Path filters must normalise `os.sep` to `/` before matching; Windows CI caught a filter that only worked on Linux. (v1.1.2, CI run 42976175004)

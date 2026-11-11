@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+
+- Fix Windows: validate skip list for raw folders (extracted, media, answer_research) used forward slashes only, so the denylist scan flagged the stripped-text audit file on Windows.
+
 ## 1.1.1
 
 - Fix Python 3.11 SyntaxError in build_bank.py REVIEW line (nested f-string quotes) that failed CI on all four jobs.
