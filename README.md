@@ -27,8 +27,8 @@ On Windows, prefer PowerShell and `install.ps1`. Git Bash can also run `install.
 Once this repository has a remote (the maintainer will tell you which one):
 
 ```bash
-git clone https://github.com/<owner>/<repo>.git
-cd <repo>
+git clone https://github.com/msaqlainhaneef1/certpassly-exam-pipeline.git
+cd certpassly-exam-pipeline
 # Linux / macOS / Git Bash
 ./install.sh
 # Windows PowerShell
@@ -42,7 +42,7 @@ Or install the package directly from the Git URL (no local clone of the docs nee
 python -m venv .venv
 # Linux / macOS:  source .venv/bin/activate
 # Windows PowerShell:  .\.venv\Scripts\Activate.ps1
-pip install "git+https://github.com/<owner>/<repo>.git"
+pip install "git+https://github.com/msaqlainhaneef1/certpassly-exam-pipeline.git"
 certpassly-pipeline --help
 ```
 
@@ -58,8 +58,8 @@ A non-editable `pip install git+...` puts the code in site-packages and does not
 ### From a local clone, with pip
 
 ```bash
-git clone https://github.com/<owner>/<repo>.git
-cd <repo>
+git clone https://github.com/msaqlainhaneef1/certpassly-exam-pipeline.git
+cd certpassly-exam-pipeline
 python -m venv .venv
 # Linux / macOS:  source .venv/bin/activate
 # Windows PowerShell:  .\.venv\Scripts\Activate.ps1
