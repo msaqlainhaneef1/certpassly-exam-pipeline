@@ -137,7 +137,7 @@ def build_exam(rpath):
     P['vendor']=route('vendor',vendor=v); P['certification']=route('certification',cert=c)
     asof=fmt_date(O['outline_as_of']); dur=F['duration_minutes']['value']; ps=F['passing_score']['value']; langs=F['languages']['value']
     def cell(fk,val):
-        f=F[fk]; s=src[f['source_id']] if f.get('source_id') else None
+        f=F.get(fk) or {}; s=src.get(f['source_id']) if f.get('source_id') else None
         if f.get('value') in (None,'',[]): val=None  # never render 'None or higher' for an unpublished fact
         v_=esc(val) if val not in (None,'') else esc(NP)
         return v_+(f' ({link(s["url"],"source")}, checked {fmt_date(s["retrieved_at"])})' if s else '')
@@ -153,9 +153,9 @@ def build_exam(rpath):
     qc_val=qcf.get('value')
     kf_rows=[['Exam length',cell('duration_minutes',f'{dur} minutes')],['Passing score',cell('passing_score',f'{ps} or higher')],
              ['Price',price_cell],
-             ['Languages',cell('languages',', '.join(langs))],['Format',cell('question_formats',F['question_formats']['value'])],
+             ['Languages',cell('languages',', '.join(langs) if isinstance(langs,(list,tuple)) else langs)],['Format',cell('question_formats',(F.get('question_formats') or {}).get('value'))],
              ['Number of questions',cell('question_count', qc_val if qc_val not in (None,'') else None)],
-             ['Level',cell('level',F['level']['value'])],['Delivery',cell('delivery',F['delivery']['value'])]]
+             ['Level',cell('level',(F.get('level') or {}).get('value'))],['Delivery',cell('delivery',(F.get('delivery') or {}).get('value'))]]
     # If cached body already includes tables (approved pilot), keep it so HTML stays stable.
     hub_tables=prose['exam_hub'].get('tables') or {'key_facts':kf_rows}
     if 'key_facts' not in hub_tables: hub_tables['key_facts']=kf_rows

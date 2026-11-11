@@ -21,6 +21,12 @@ out/<exam>/
   extracted/        split.json, layout.json, unparsed.json, items/, raw.xml, cleanups.json
   authoring/        page_prose.json, explanations, bank_meta.json, visual_transcription.json,
                     writing_fix_request.json (only while writing flags are open)
+
+  visual_transcription.json shapes (extracted/), one record per image-keyed item:
+    yes/no grid      {rows:[text], key:['yes'|'no' per row]}
+    drop-down        {blanks:[[choice text] per blank], labels, template with {{blank1}}, key:[choice index per blank]}
+    DRAG DROP        {tiles:[tile text], targets:[target text], key:[tile index per target]}  -> drag_drop, key pairs {z1:'t2'}
+  explanations_visual.json "o": per row for a grid; per blank then per choice for a drop-down; per target then per tile for drag_drop.
   media/
   pages/            exam-hub, objectives, study-guide, faq, practice-test
   import/           workbook CSVs, page_meta_extras.csv, simulator_settings.json

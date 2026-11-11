@@ -48,6 +48,8 @@ def classify(item, visual=None):
         return 'single_choice','one letter keyed'
     if visual is None: return 'needs_review','visual item without transcription'
     if 'yes_no' in m and visual.get('rows'): return 'yes_no_matrix','Yes/No statement grid'
+    if visual.get('tiles') and visual.get('targets'):
+        return 'drag_drop',f"{len(visual['tiles'])} tiles dragged to {len(visual['targets'])} targets"
     if visual.get('blanks'):
         return ('inline_dropdown' if len(visual['blanks'])==1 else 'multi_blank_dropdown'),f"{len(visual['blanks'])} drop-down(s) in answer area"
     if visual.get('type')=='active_screen': return 'active_screen','boxed controls on a mock screen'
@@ -62,7 +64,9 @@ def agree(qtype, stem, n_correct=None, n_blanks=None, has_exhibit=False):
     if qtype=='multiple_select':
         w=re.search(r'\b(?:which|choose|select|what are) (two|three|four)\b',stem,re.I); want={'two':2,'three':3,'four':4}.get(w.group(1).lower()) if w else None
         if want and n_correct!=want: p.append(f'stem asks for {want} but key has {n_correct}')
-    if qtype in ('inline_dropdown','multi_blank_dropdown') and not ('dropdown' in m or 'hotspot' in m): p.append('drop-down type without answer-area marker')
+    if qtype in ('inline_dropdown','multi_blank_dropdown') and not ('dropdown' in m or 'hotspot' in m):
+        p.append('DRAG DROP marker but type is '+qtype+'; transcribe tiles and targets as drag_drop' if 'dragdrop' in m else 'drop-down type without answer-area marker')
+    if qtype=='drag_drop' and 'dragdrop' not in m: p.append('drag_drop type without DRAG DROP marker')
     if qtype=='inline_dropdown' and n_blanks!=1: p.append('inline_dropdown must have 1 blank')
     if qtype=='multi_blank_dropdown' and (n_blanks or 0)<2: p.append('multi_blank_dropdown needs 2+ blanks')
     if 'hotspot' in m and qtype in ('single_choice','multiple_select','true_false'): p.append('HOTSPOT marker flattened to a plain choice type')

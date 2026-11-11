@@ -50,7 +50,7 @@ for k,it in S.items():
     if k in AR_R: continue
     if k not in EXP:
         raise SystemExit(f'author stage: no explanation for {k} in authoring/explanations_text.json or explanations_visual.json')
-    e=EXP[k]; t=types[qtype]; text=it['stem']+' '+' '.join(it['options'].values())+' '+' '.join((vt or {}).get('rows',[]))+' '+(vt or {}).get('template','')
+    e=EXP[k]; t=types[qtype]; text=it['stem']+' '+' '.join(it['options'].values())+' '+' '.join((vt or {}).get('rows',[]))+' '+(vt or {}).get('template','')+' '+' '.join((vt or {}).get('targets',[]))
     sk=skill(text); flags=[]; hr=False
     content={'prompt':it['stem']}; key={}; expl={'core':e['c']}; frozen={}; opts=[]
     if qtype in ('single_choice','multiple_select','image_based_choice','true_false'):
@@ -63,6 +63,14 @@ for k,it in S.items():
         content.update(rows=[dict(id=f'r{i+1}',text=r) for i,r in enumerate(vt['rows'])],columns=[dict(id='yes',text='Yes'),dict(id='no',text='No')])
         key={'rows':{f'r{i+1}':v for i,v in enumerate(vt['key'])}}
         for i,r in enumerate(vt['rows']): frozen[f'row.r{i+1}']=r; expl[f'r{i+1}']=e['o'][i]
+    elif qtype=='drag_drop':
+        # tiles (left) are dragged to targets (right); key pairs each target with one tile
+        content.update(left=[dict(id=f't{j+1}',text=t) for j,t in enumerate(vt['tiles'])],right=[dict(id=f'z{i+1}',text=z) for i,z in enumerate(vt['targets'])])
+        key={'pairs':{f'z{i+1}':f't{j+1}' for i,j in enumerate(vt['key'])}}
+        for j,t in enumerate(vt['tiles']): frozen[f'left.t{j+1}']=t
+        for i,z in enumerate(vt['targets']):
+            frozen[f'right.z{i+1}']=z
+            for j in range(len(vt['tiles'])): expl[f'z{i+1}.t{j+1}']=e['o'][i][j]
     else:
         blanks=[]; 
         for bi,ch in enumerate(vt['blanks']):
@@ -182,7 +190,7 @@ for q in qs:
         ao.append(dict(option_key=f"{q['question_key']}-{o['id']}",question_version_key=q['question_version_key'],option_letter=o['option_letter'],display_order=i+1,option_text=o['text'],
                        is_correct='yes' if o['id'] in q['answer_key'].get('correct_option_ids',[]) else 'no',rationale_text=q['explanations'][o['id']],checked_by='',checked_at='',status='draft'))
 write('answer_options.csv',ao,cols('answer_options.csv'))
-def wc(q): return ' '.join(v for kk,v in q['explanations'].items() if kk!='core' and (kk in q['answer_key'].get('correct_option_ids',[]) or q['answer_key'].get('rows',{}).get(kk)=='yes' or kk in [f'{b}.{c}' for b,c in q['answer_key'].get('slots',{}).items()]))
+def wc(q): return ' '.join(v for kk,v in q['explanations'].items() if kk!='core' and (kk in q['answer_key'].get('correct_option_ids',[]) or q['answer_key'].get('rows',{}).get(kk)=='yes' or kk in [f'{b}.{c}' for b,c in q['answer_key'].get('slots',{}).items()] or kk in [f'{z}.{t}' for z,t in q['answer_key'].get('pairs',{}).items()]))
 write('explanations.csv',[dict(question_version_key=q['question_version_key'],core_explanation=q['core_explanation'],why_correct=wc(q) or q['core_explanation'],
     why_incorrect=' '.join(f"{kk}: {v}" for kk,v in q['explanations'].items() if kk!='core'),architectural_takeaway='',common_mistake='',reviewer='',reviewed_at='',status='draft') for q in qs],cols('explanations.csv'))
 write('question_sources.csv',[dict(question_version_key=q['question_version_key'],evidence_key=s['evidence_key'],source_url=s['source_url'],relevant_section=s['title'],supports_claim='core explanation',rights_status='unverified',reviewer='',verified_at='',status='unverified') for q in qs for s in q['sources']],cols('question_sources.csv'))

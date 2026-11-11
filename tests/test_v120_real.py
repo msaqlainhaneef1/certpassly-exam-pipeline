@@ -167,3 +167,88 @@ class ExamLengthNotExtraTime(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main(verbosity=2)
+
+
+class DragDropType(unittest.TestCase):
+    """DRAG DROP items were forced into a drop-down type, which the marker gate (validate 12f) rightly rejects."""
+    def setUp(self):
+        sys.path.insert(0, str(SKILL/'scripts'))
+        import qtypes; self.Q=qtypes
+    def item(self, stem):
+        return dict(stem=stem, options={}, answer_raw='', question_images=['a.png'], answer_images=['b.png'])
+    def test_tiles_and_targets_classify_as_drag_drop(self):
+        vt=dict(tiles=['Corrective','Detective','Preventative'], targets=['Encrypt data.','Audit access.'], key=[2,1])
+        t,reason=self.Q.classify(self.item('DRAG DROP - Match each action to its type. Select and Place:'), vt)
+        self.assertEqual(t, 'drag_drop'); self.assertIn('tiles', reason)
+        self.assertIn('drag_drop', self.Q.registry()[0])
+        self.assertEqual(self.Q.agree('drag_drop', 'DRAG DROP - Match each action.'), [])
+    def test_marker_gate_names_the_fix(self):
+        p=self.Q.agree('multi_blank_dropdown', 'DRAG DROP - Match each action.', n_blanks=2)
+        self.assertTrue(p and 'drag_drop' in p[0], p)
+        self.assertEqual(self.Q.agree('drag_drop', 'Select the answer that correctly completes the sentence.'), ['drag_drop type without DRAG DROP marker'])
+
+
+class DragDropAndUnpublishedFactsEndToEnd(unittest.TestCase):
+    """End to end on the demo: a DRAG DROP item becomes drag_drop with pairs, and unpublished
+    languages, formats and level render as not published instead of crashing build_pages."""
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(SKILL/'tests'))
+        import demo_kit
+        from test_demo_end_to_end import run_cli
+        cls.tmp=Path(tempfile.mkdtemp(prefix='cp120-dd-'))
+        info=demo_kit.build('microsoft', cls.tmp/'ws'); cls.root=Path(info['root']); E=cls.exam=info['exam']
+        out=cls.root/'out'/E
+        r=run_cli(cls.root, E)  # full run first: baseline must pass
+        cls.base_rc=r.returncode; cls.base_log=r.stdout+r.stderr
+        # unpublished facts
+        rp=cls.root/'research'/info['vendor']/f'{E}.json'; R=json.loads(rp.read_text(encoding='utf-8'))
+        for k in ('languages','question_formats','level'):
+            R['facts'][k]={'value':None,'reason':'not published by the vendor'}
+        rp.write_text(json.dumps(R, indent=1), encoding='utf-8')
+        pp=out/'authoring'/'page_prose.json'; P=json.loads(pp.read_text(encoding='utf-8'))
+        P['faq']['body_html']=re.sub(r'(<h2>Which languages are offered\?</h2><p>)[^<]*', r'\1The list of languages is not published by the vendor.', P['faq']['body_html'])
+        P['faq']['faq_sourced']=[q for q in P['faq'].get('faq_sourced',[]) if 'language' not in q]
+        P['faq']['faq_unsourced']=list(P['faq'].get('faq_unsourced',[]))+['Which languages are offered?']
+        pp.write_text(json.dumps(P, indent=1), encoding='utf-8')
+        # q004 becomes a DRAG DROP item (stem marker + tiles/targets transcription + per target, per tile explanations)
+        sp=out/'extracted'/'split.json'; S=json.loads(sp.read_text(encoding='utf-8'))
+        S['q004']['stem']='DRAG DROP - '+S['q004']['stem']; sp.write_text(json.dumps(S, indent=1), encoding='utf-8')
+        vp=out/'extracted'/'visual_transcription.json'; V=json.loads(vp.read_text(encoding='utf-8'))
+        V['q004']=dict(tiles=['daily','weekly','monthly'], targets=['Backups run','Reports run'], key=[0,1], note='drag-and-drop item')
+        vp.write_text(json.dumps(V, indent=1), encoding='utf-8')
+        ep=out/'authoring'/'explanations_visual.json'; X=json.loads(ep.read_text(encoding='utf-8'))
+        X['q004']=dict(c='Backups run daily and reports run weekly in this demo.', o=[['Right. Daily.','Wrong. Too sparse.','Wrong. Too sparse.'],['Wrong. Too often.','Right. Weekly.','Wrong. Too sparse.']], s=['SG'], a='key_matches_current_docs')
+        ep.write_text(json.dumps(X, indent=1), encoding='utf-8')
+        env=os.environ.copy(); env.pop('CERTPASSLY_ROOT', None)
+        exe=shutil.which('certpassly-pipeline'); cmd=[exe] if exe else [sys.executable, str(SKILL/'scripts'/'run_pipeline.py')]
+        cmd+=['--exam',E,'--root',str(cls.root),'--offline','--date',demo_kit.DATE]
+        for st in ('intent','pages','writing','import','bank','validate','package'): cmd+=['--stage',st]
+        r2=subprocess.run(cmd, cwd=str(cls.root), env=env, capture_output=True, text=True, encoding='utf-8', errors='replace')
+        cls.rc=r2.returncode; cls.log=r2.stdout+r2.stderr; cls.out=out
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp, ignore_errors=True)
+    def test_baseline_run_passes(self):
+        self.assertEqual(self.base_rc, 0, self.base_log[-3000:])
+    def test_rerun_passes_every_gate(self):
+        self.assertEqual(self.rc, 0, self.log[-4000:])
+        self.assertNotIn('Traceback', self.log)
+        rows=json.loads((self.out/'validation.json').read_text(encoding='utf-8'))
+        failed=[r for r in rows if not (r.get('passed', r.get('ok')) if isinstance(r, dict) else r[1])]
+        self.assertEqual(failed, [])
+        self.assertRegex(self.log, r'Summary: \d+ passed, 0 failed')
+    def test_drag_drop_item_shape(self):
+        q=next(x for x in json.loads((self.out/'questions.json').read_text(encoding='utf-8'))['questions'] if x['question_key']=='q004')
+        self.assertEqual(q['question_type'], 'drag_drop')
+        c=q['response_schema']['content']
+        self.assertEqual([t['text'] for t in c['left']], ['daily','weekly','monthly'])
+        self.assertEqual([t['text'] for t in c['right']], ['Backups run','Reports run'])
+        self.assertEqual(q['answer_key'], {'pairs':{'z1':'t1','z2':'t2'}})
+        self.assertEqual(q['explanations']['z2.t2'], 'Right. Weekly.')
+        self.assertFalse([f for f in q['flags'] if f.startswith('MARKER')])
+    def test_unpublished_facts_render_as_not_published(self):
+        hub=(self.out/'pages'/'exam-hub.html').read_text(encoding='utf-8')
+        for label in ('Languages','Format','Level'):
+            m=re.search(r'<t[dh]>'+label+r'</t[dh]>\s*<td>([^<]*)', hub)
+            self.assertTrue(m, label); self.assertIn('not published', m.group(1).lower())
