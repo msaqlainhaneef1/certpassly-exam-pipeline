@@ -109,3 +109,5 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 - Bordered answer-area boxes can have one faint (anti-aliased) edge. Accept three dark edges plus the faint one at a lighter threshold (vision_util.boxes) so region coordinates come from the script, not from AI.
 - The answer for a no-answer item can come from an official screenshot as well as text (AB-730 q089: the Sources information icon). Save the screenshot with sha256 too, but the verifiable quote must be page text.
 - Web search from scripts is often blocked (DuckDuckGo returned 0 results). Always seed answer_research with the exam's official sources and listed URLs; log the failed search.
+
+- Python 3.11 is the oldest supported version: never reuse the outer quote type inside an f-string expression (3.12+ only). Run `py_compile` on 3.11 before pushing. (v1.1.1, CI run 42975699520)

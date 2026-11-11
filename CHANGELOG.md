@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- Fix Python 3.11 SyntaxError in build_bank.py REVIEW line (nested f-string quotes) that failed CI on all four jobs.
+
 ## 1.1.0 (2026-11-11)
 
 - New owner rule: no-answer items are never held. New `answer_research` stage (`scripts/answer_research.py`): candidate official pages (research sources, listed URLs, site-restricted search on `official_domains`), saved with sha256, ranked matching lines, scripted region boxes for image items. One batched AI pick (`authoring/answer_research.json`) is re-verified by script (official domain, saved copy, verbatim quote, key fits). Imported as `researched_unverified` / `key_source=researched_official` / `verification_status=unverified`, `reviewer_needed`. No evidence: `answer_not_found`, draft, logged searched URLs, excluded from scoring (`scoring_excluded_question_keys` in simulator settings). New gates validate 12l/12m; check_bank exempts answer_not_found from key and region checks. Allowed statuses extended (`researched_unverified`, `answer_not_found`, `key_source`, `verification_status`): the site importer must accept them.
