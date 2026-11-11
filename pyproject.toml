@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "certpassly-exam-pipeline"
-version = "1.0.2"
+version = "1.1.0"
 description = "Scripts-first pipeline that builds CertPassly exam pages and question import files from official vendor sources and owner PDFs."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,6 +15,11 @@ dependencies = [
   "opencv-python-headless>=4.9",
   "Pillow>=10.0",
 ]
+
+[project.optional-dependencies]
+# Render JavaScript-built official pages (fetch_sources.py falls back to it). Then run:
+#   python -m playwright install chromium
+render = ["playwright>=1.40"]
 
 [project.scripts]
 certpassly-pipeline = "certpassly_pipeline.run_pipeline:main"

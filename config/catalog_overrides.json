@@ -1,0 +1,78 @@
+{
+ "note": "Owner-sheet label rules for the catalog stage. Scripts hold no exam labels or codes; edit this file when the sheet changes. match: exact (default) or upper (case-insensitive).",
+ "header_notes": [
+  {
+   "header": "ciro",
+   "reason": "vendor_unknown",
+   "note": "Header CIRO is not a vendor in the lookup table. Rows under it need owner confirmation."
+  }
+ ],
+ "skip_labels": [
+  {
+   "label": "WINDOWS 11 PRO",
+   "match": "upper",
+   "reason": "not_an_exam",
+   "vendor_context": "@header",
+   "note": "Product name with a single file link, not a certification exam."
+  },
+  {
+   "label": "RSE",
+   "reason": "unclear_exam",
+   "vendor_context": "ciro",
+   "note": "RSE is not a recognised exam code in the lookup tables. Owner to confirm vendor and exam."
+  },
+  {
+   "label": "CCA-F",
+   "reason": "unclear_code",
+   "vendor_context": "anthropic",
+   "note": "CCA-F is not in the official Pearson VUE code list (CCAO-F, CCAR-F, CCAR-P, CCDV-F). May mean CCAR-F (Architect Foundations) or CCAO-F (Associate Foundations). Not merged."
+  }
+ ],
+ "label_merges": [
+  {
+   "label": "CEH",
+   "code": "312-50v13",
+   "review": "after",
+   "reason": "possible_duplicate_merged",
+   "vendor_context": "ec-council",
+   "note": "CEH is the credential; 312-50v13 is its exam code. Merged into 312-50v13 with both folders kept."
+  },
+  {
+   "label": "Salesforce Certified Sharing and Visibility Architect",
+   "code": "Plat-Arch-205",
+   "review": "before",
+   "reason": "possible_duplicate_merged",
+   "vendor_context": "salesforce",
+   "note": "Older name of Plat-Arch-205 (official page title: Salesforce Certified Platform Sharing and Visibility Architect). Folder attached to Plat-Arch-205 as an extra folder. Owner to confirm."
+  }
+ ],
+ "code_notes": [
+  {
+   "codes": [
+    "CISA"
+   ],
+   "reason": "vendor_context_check",
+   "vendor_context": "ciro",
+   "note": "\"CiSA\" sits under the CIRO block. Mapped to ISACA CISA by code; owner to confirm."
+  },
+  {
+   "codes": [
+    "FMVA"
+   ],
+   "reason": "vendor_context_check",
+   "vendor_context": "",
+   "note": "No vendor header above this row. FMVA mapped to Corporate Finance Institute by code; owner to confirm it is in scope (CFI credential, not a proctored vendor exam in the usual sense)."
+  },
+  {
+   "codes": [
+    "NSEI_OTS_AR-7.6",
+    "NSE7_FSN_AR-7.6",
+    "NSE5_SSE_AD-26",
+    "FCP_FMG_AD-7.7"
+   ],
+   "reason": "code_check",
+   "vendor_context": "fortinet",
+   "note": "Code pattern unusual or version not confirmed on an official Fortinet page (possible typo, for example NSEI vs NSE6, or 7.7 vs 7.6). Kept as written."
+  }
+ ]
+}

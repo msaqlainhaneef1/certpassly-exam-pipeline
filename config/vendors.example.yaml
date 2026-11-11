@@ -270,6 +270,9 @@ vendors:
     credential_type: certification
     official_learning_url: "https://learn.microsoft.com/en-us/training/"
     official_page_link_label: "Official study guide"
+    # Research discovery: the catalog URL is the study guide (sg); the credential page (cp) is linked from it.
+    seed_role: sg
+    discover_cp: "https://learn\\.microsoft\\.com/[a-z-]*/?credentials/certifications/(?!resources/)[a-z0-9-]+/?"
     in_catalog: true
     official_domains:
       - learn.microsoft.com
@@ -377,6 +380,11 @@ vendors:
     credential_type: certification
     official_learning_url: "https://trailheadacademy.salesforce.com/"
     official_page_link_label: "Official exam page"
+    # The academy exam page is built by JavaScript: render it. It links the exam guide,
+    # which holds the outline, weights and pass mark, so the guide becomes sg.
+    render: true
+    seed_role: cp
+    discover_sg: "https://trailhead\\.salesforce\\.com/(?:[a-z-]+/)?help\\?article=[A-Za-z0-9-]*Exam-Guide"
     in_catalog: true
     official_domains:
       - trailheadacademy.salesforce.com

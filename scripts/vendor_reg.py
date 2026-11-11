@@ -77,3 +77,9 @@ def exam_lookup():
 def reset():
     global _V,_E
     _V=_E=None
+
+
+def catalog_overrides():
+    """Owner-sheet label rules (skip, merge, notes) from config/catalog_overrides.json."""
+    path=_find('catalog_overrides.json')
+    return json.load(open(path,encoding='utf-8')) if path else {}

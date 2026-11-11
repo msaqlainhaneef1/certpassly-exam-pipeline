@@ -26,7 +26,10 @@ cfg=site_settings.load()
 sheet=args.sheet or (cfg.get('raw') or {}).get('paths',{}).get('sheet') or os.path.join(B,'sheet.csv')
 if not os.path.exists(sheet):
     raise SystemExit('Sheet not found: %s (pass --sheet)'%sheet)
-rows=list(csv.reader(open(sheet)))
+rows=list(csv.reader(open(sheet,encoding='utf-8-sig')))
+OV=vendor_reg.catalog_overrides()
+def _lab_match(rule,lab):
+    return lab.upper()==rule['label'].upper() if rule.get('match')=='upper' else lab==rule['label']
 vhead={'C':None,'E':None}; cat={}; review=[]
 def rv(reason,label,link,cell,vendor,note): review.append(dict(reason=reason,raw_label=label,drive_link=link,sheet_cell=cell,context_vendor=vendor or '',note=note))
 for i,r in enumerate(rows,1):
@@ -38,29 +41,30 @@ for i,r in enumerate(rows,1):
         if c in VENDORS:
             vhead[side]=VENDORS[c][0]
             if link: rv('vendor_only_folder',lab,link,cell,VENDORS[c][0],'Vendor header with a Drive folder but no exam code. Ask which exams this folder holds.')
-            if c=='ciro': rv('vendor_unknown',lab,'',cell,'','Header CIRO is not a vendor in the lookup table. Rows under it need owner confirmation.')
+            for h in OV.get('header_notes') or []:
+                if compact(h['header'])==c: rv(h['reason'],lab,'',cell,'',h['note'])
             continue
         key=re.sub(r'\s+','',lab).upper()
         code=LABEL_FIX.get(key)
         if not code:
             for k in EXAMS:
                 if re.sub(r'\s+','',k).upper()==key: code=k
-        if lab.upper()=='WINDOWS 11 PRO': rv('not_an_exam',lab,link,cell,vhead[side],'Product name with a single file link, not a certification exam.'); continue
-        if lab=='RSE': rv('unclear_exam',lab,link,cell,'ciro','RSE is not a recognised exam code in the lookup tables. Owner to confirm vendor and exam.'); continue
-        if lab=='CCA-F': rv('unclear_code',lab,link,cell,'anthropic','CCA-F is not in the official Pearson VUE code list (CCAO-F, CCAR-F, CCAR-P, CCDV-F). May mean CCAR-F (Architect Foundations) or CCAO-F (Associate Foundations). Not merged.'); continue
-        if lab=='CEH': code='312-50v13'
-        if lab=='Salesforce Certified Sharing and Visibility Architect':
-            rv('possible_duplicate_merged',lab,link,cell,'salesforce','Older name of Plat-Arch-205 (official page title: Salesforce Certified Platform Sharing and Visibility Architect). Folder attached to Plat-Arch-205 as an extra folder. Owner to confirm.'); code='Plat-Arch-205'
+        sk=next((x for x in OV.get('skip_labels') or [] if _lab_match(x,lab)),None)
+        if sk:
+            rv(sk['reason'],lab,link,cell,vhead[side] if sk.get('vendor_context')=='@header' else sk.get('vendor_context',''),sk['note']); continue
+        mg=next((x for x in OV.get('label_merges') or [] if _lab_match(x,lab)),None)
+        if mg:
+            if mg.get('review')=='before': rv(mg['reason'],lab,link,cell,mg.get('vendor_context',''),mg['note'])
+            code=mg['code']
         if not code: rv('unknown_label',lab,link,cell,vhead[side],'Label not in lookup tables. Not guessed.'); continue
         v=EXAMS[code]['vendor']
         if vhead[side] and vhead[side]!=v and code not in CODE_VENDOR:
             rv('vendor_header_mismatch',lab,link,cell,vhead[side],f'Code belongs to {v} by code lookup but sits under header {vhead[side]}.')
-        if code=='CISA': rv('vendor_context_check',lab,link,cell,'ciro','"CiSA" sits under the CIRO block. Mapped to ISACA CISA by code; owner to confirm.')
-        if code=='FMVA': rv('vendor_context_check',lab,link,cell,'','No vendor header above this row. FMVA mapped to Corporate Finance Institute by code; owner to confirm it is in scope (CFI credential, not a proctored vendor exam in the usual sense).')
-        if code in ('NSEI_OTS_AR-7.6','NSE7_FSN_AR-7.6','NSE5_SSE_AD-26','FCP_FMG_AD-7.7'): rv('code_check',lab,link,cell,'fortinet','Code pattern unusual or version not confirmed on an official Fortinet page (possible typo, for example NSEI vs NSE6, or 7.7 vs 7.6). Kept as written.')
+        for cn in OV.get('code_notes') or []:
+            if code in cn['codes']: rv(cn['reason'],lab,link,cell,cn.get('vendor_context',''),cn['note'])
         e=cat.setdefault(code,dict(code=code,vendor=v,labels=[],cells=[],statuses=[],folders=[]))
-        if e['labels'] and lab not in ('CEH','Salesforce Certified Sharing and Visibility Architect'): rv('duplicate_row',lab,link,cell,v,f'Same exam already listed at {e["cells"][0]}. Merged.')
-        if lab=='CEH': rv('possible_duplicate_merged',lab,link,cell,'ec-council','CEH is the credential; 312-50v13 is its exam code. Merged into 312-50v13 with both folders kept.')
+        if e['labels'] and not mg: rv('duplicate_row',lab,link,cell,v,f'Same exam already listed at {e["cells"][0]}. Merged.')
+        if mg and mg.get('review')=='after': rv(mg['reason'],lab,link,cell,mg.get('vendor_context',''),mg['note'])
         e['labels'].append(lab); e['cells'].append(cell); e['statuses'].append(stat.strip()); 
         if link: e['folders'].append(link.strip())
 # shared folder check

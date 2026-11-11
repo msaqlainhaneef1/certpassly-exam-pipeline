@@ -24,6 +24,7 @@ STAGES=[
     ('sources','no','Fetch and hash official vendor pages listed in research JSON. Reuses saved copies.'),
     ('research','parser first','Fill or check research JSON from official pages using the vendor adapter in scripts/adapters (chosen from config/vendors.yaml). AI is allowed only for official facts the adapter lists as gaps, each with a quote and source id. Not the author stage.'),
     ('extract','no','Split the owner PDF, write visual_draft from OCR and marker boxes. No AI.'),
+    ('answer_research','pick only','Items with no answer in the owner file: find candidate OFFICIAL pages (research sources, listed URLs, site-restricted search on official_domains), save them with sha256, rank matching lines. The key is picked by AI in the author batch (authoring/answer_research.json) and re-verified by script: official domain, saved copy, verbatim quote. No evidence: item stays as draft flagged answer_not_found and is excluded from scoring.'),
     ('author','YES','THE AI STAGE. Batched only: rewrite explanations, write original page prose (page_prose.json), finish visual_transcription.json where OCR is not enough, and write bank_meta.json. Never invent questions. Never change stems, options or keys. This script does not call a model; it checks the files are present and stops with instructions if they are not.'),
     ('pages','no','Build exam (and shared vendor/cert) pages from research JSON + page_prose.json. Vendor and cert pages are skipped when their inputs have not changed.'),
     ('import','no','Write workbook CSVs, sidecars (including page_meta_extras.csv) and simulator_settings.json from the generated pages.'),
@@ -122,7 +123,7 @@ def build_intake_from_folder(exam, folder, out, cfg, logf):
     files=[]
     for name in sorted(os.listdir(folder)):
         p=os.path.join(folder,name)
-        if not os.path.isfile(p): continue
+        if not os.path.isfile(p) or name.startswith('.') or name.endswith('.part'): continue
         low=name.lower()
         rec=dict(path=os.path.abspath(p), size=os.path.getsize(p), sha256=hashlib.sha256(open(p,'rb').read()).hexdigest(), name=name)
         if low.endswith('.pdf'): rec['use']='extracted'
@@ -154,12 +155,30 @@ def stage_intake(opts, logf, exam):
         return
     cfg=config_load.load(os.environ.get('CERTPASSLY_CONFIG'))
     folder=owner_folder(exam, cfg)
-    if os.path.isdir(folder):
+    has_files=os.path.isdir(folder) and any(not n.startswith('.') for n in os.listdir(folder))
+    if not opts.offline and (not has_files or opts.force):
+        import drive_fetch
+        log(logf, f'intake: downloading owner files for {exam} from its Drive folder in catalog.csv')
+        r=drive_fetch.fetch(exam, folder)
+        log(logf, f'intake: Drive download done ({len(r["downloaded"])} new, {len(r["skipped"])} already present)')
+    elif opts.offline and not has_files:
+        log(logf, 'intake: offline, so the Drive download is skipped.')
+    if os.path.isdir(folder) and any(not n.startswith('.') for n in os.listdir(folder)):
         return build_intake_from_folder(exam, folder, out, cfg, logf)
     log(logf, f'intake: no owner files. Download the owner files for {exam} into {folder} (PDF plus any VCE), set owner_rights_statement in pipeline.yaml, then rerun.')
     sys.exit(2)
 
+def _generated(rp):
+    try: return json.load(open(rp,encoding='utf-8')).get('generated_by')=='research_init'
+    except Exception: return False
+
 def stage_sources(opts, logf, exam):
+    rp=research_path(paths.root(), exam)
+    if not rp or _generated(rp):
+        import research_init
+        log(logf, 'sources: no hand-written research file; discovering official pages from catalog.csv (render when needed)')
+        research_init.discover(exam)
+        return
     rpath,R=load_research(paths.root(), exam, logf)
     files=[rpath,
            os.path.join(paths.root(),'research','vendors',R['vendor_slug']+'.json'),
@@ -187,6 +206,11 @@ def stage_sources(opts, logf, exam):
     run_script([sys.executable, os.path.join(HERE,'fetch_sources.py'), *files], logf, env)
 
 def stage_research(opts, logf, exam):
+    rp=research_path(paths.root(), exam)
+    if not rp or _generated(rp):
+        import research_init
+        research_init.build(exam, force=True)
+        log(logf, 'research: research JSON generated from saved official pages (every fact has source id, url, sha256, quote); gaps in research/gaps.json')
     rpath,R=load_research(paths.root(), exam, logf)
     from adapters import parse_official
     out=parse_official(R, paths.root())
@@ -223,6 +247,19 @@ def stage_extract(opts, logf, exam):
     run_script([sys.executable, os.path.join(HERE,'extract_owner_pdf.py'), pdf, out], logf)
     run_script([sys.executable, os.path.join(HERE,'analyze_visual.py'), out], logf)
 
+def stage_answer_research(opts, logf, exam):
+    import answer_research
+    out=os.path.join(paths.root(),'out',exam)
+    rpath,R=load_research(paths.root(), exam, logf)
+    v=R['vendor_slug']
+    C=answer_research.discover(out, v, exam, offline=opts.offline)
+    if not C:
+        log(logf, 'answer_research: every item has an answer in the owner file; nothing to research.')
+        return
+    Rz=answer_research.verify(out, v, exam)
+    from collections import Counter
+    log(logf, f'answer_research: {len(C)} no-answer items -> {dict(Counter(r["status"] for r in Rz.values()))}; candidates in out/{exam}/answer_research/candidates.json')
+
 def stage_author(opts, logf, exam):
     out=os.path.join(paths.root(),'out',exam,'authoring')
     need=['explanations_text.json','page_prose.json','bank_meta.json']
@@ -237,6 +274,11 @@ def stage_author(opts, logf, exam):
             draft={}
         if draft:
             missing.append('extracted/visual_transcription.json')
+    arp=os.path.join(paths.root(),'out',exam,'answer_research','result.json')
+    if os.path.exists(arp) and not os.path.exists(os.path.join(out,'answer_research.json')):
+        try: pend=[k for k,r in json.load(open(arp,encoding='utf-8')).items() if r.get('status')=='pending_ai_pick']
+        except Exception: pend=[]
+        if pend: missing.append('answer_research.json (pick keys for '+', '.join(pend)+' from answer_research/candidates.json; verbatim quotes only)')
     if missing:
         log(logf, 'AUTHOR STAGE (the only AI stage). Files still needed:')
         for m in missing: log(logf, '  - '+m)
@@ -317,6 +359,7 @@ HANDLERS={
     'sources': stage_sources,
     'research': stage_research,
     'extract': stage_extract,
+    'answer_research': stage_answer_research,
     'author': stage_author,
     'bank': stage_bank,
     'pages': stage_pages,
@@ -420,6 +463,7 @@ def main():
                     log(fh, f'==== stage {s} done ====')
                 except SystemExit as e:
                     code=e.code if isinstance(e.code,int) else 1
+                    if not isinstance(e.code,int) and e.code: log(fh, f'ERROR: {e.code}')
                     log(fh, f'==== stage {s} failed for {exam} (exit {code}) ====')
                     failed.append((exam,s,code))
                     if code and s=='catalog':
