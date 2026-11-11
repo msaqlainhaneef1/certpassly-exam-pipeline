@@ -154,6 +154,16 @@ class ExamLengthNotExtraTime(unittest.TestCase):
         if mp:
             self.assertTrue(re.fullmatch(mp, 'https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-123'))
 
+    def test_links_keep_hrefs_with_a_fragment(self):
+        import research_init
+        d=Path(tempfile.mkdtemp(prefix='cp120-links-'))
+        try:
+            (d/'p.html').write_text('<a href="#top">x</a><a href="/c/exams/ZZ-101#ways">e</a><a href="/c/policy">p</a>', encoding='utf-8')
+            L=research_init.links(dict(path=str(d/'p.html'), url='https://learn.example.com/c/guide/zz-101'))
+            self.assertEqual(L, ['https://learn.example.com/c/exams/ZZ-101','https://learn.example.com/c/policy'])
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
 
 if __name__=='__main__':
     unittest.main(verbosity=2)

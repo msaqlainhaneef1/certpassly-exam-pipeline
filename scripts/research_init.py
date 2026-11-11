@@ -37,8 +37,10 @@ def links(meta):
     body=open(meta['path'],encoding='utf-8',errors='ignore').read()
     base=meta.get('final_url') or meta['url']
     out=[]
-    for m in re.finditer(r'(?:href|data-link)\s*=\s*"([^"#]+)"', body):
-        u=urllib.parse.urljoin(base, html.unescape(m.group(1)))
+    for m in re.finditer(r'(?:href|data-link)\s*=\s*"([^"]+)"', body):
+        # Keep links that carry a #fragment (they were dropped before); compare without it.
+        u=urllib.parse.urldefrag(urllib.parse.urljoin(base, html.unescape(m.group(1))))[0]
+        if not u or u==base and m.group(1).startswith('#'): continue
         if u not in out: out.append(u)
     return out
 
