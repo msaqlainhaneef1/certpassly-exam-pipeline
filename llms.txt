@@ -1,0 +1,10 @@
+# CertPassly exam pipeline
+
+> Scripts that build draft CertPassly exam pages, question banks and simulator import files from official vendor sources. Any AI (ChatGPT, Claude, Gemini, Copilot, Cursor, Codex, Windsurf, Cline, Aider, Continue, Amazon Q, Junie, or others) should start here.
+
+## Read in this order
+- [AGENTS.md](AGENTS.md): entry point and hard rules
+- [docs/AI-OPERATOR-GUIDE.md](docs/AI-OPERATOR-GUIDE.md): every stage, gate, runbook and release step
+- [docs/AI-TRAINING-EXERCISES.md](docs/AI-TRAINING-EXERCISES.md): hands-on levels 0 to 6
+- [HANDOVER.md](HANDOVER.md): current state and open items
+- [SKILL.md](SKILL.md): the skill itself

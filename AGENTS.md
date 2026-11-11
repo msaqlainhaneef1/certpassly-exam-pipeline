@@ -36,3 +36,7 @@ pip install -e .
 certpassly-pipeline --list-stages
 python -m unittest discover -s tests -v
 ```
+
+## For every AI tool
+
+This file is the single source of truth for any AI: ChatGPT, Claude, Gemini, Copilot, Cursor, Codex, Windsurf, Cline, Aider, Continue, Amazon Q, Junie, or any other. Tool-specific files (CLAUDE.md, GEMINI.md, CONVENTIONS.md, .cursorrules, .windsurfrules, .clinerules, llms.txt and others) only point here. If you are a chat AI without file access, ask the user to paste AGENTS.md and docs/AI-OPERATOR-GUIDE.md.
