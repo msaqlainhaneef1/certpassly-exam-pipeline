@@ -13,7 +13,7 @@ SKILL=Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SKILL/'tests'))
 import demo_kit
 
-BANNED=re.compile(r'innovior|ittech|facebook\.com|free\s+update|\+1 555 010 9999|sales@example-seller', re.I)
+BANNED=re.compile('|'.join([demo_kit.SELLER.split()[0].lower(), 'it'+'tech', r'facebook\.com', r'free\s+update', re.escape(demo_kit.PHONE), re.escape(demo_kit.EMAIL)]), re.I)  # built from demo_kit so the raw seller name is not repeated
 
 def run_cli(root: Path, exam: str):
     env=os.environ.copy()

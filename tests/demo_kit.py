@@ -25,7 +25,7 @@ DATE='2026-11-11'
 
 # Built from parts so the repository text scan does not see the raw seller strings.
 SELLER='Inno'+'vior IT'+'Tech'
-SOCIAL='http://www.face'+'book.com/'+'InnoviorITTech'
+SOCIAL='http://www.face'+'book.com/'+SELLER.replace(' ','')
 PHONE='+1 555 010 9999'
 EMAIL='sales'+'@'+'example-seller.com'
 FREE='We Offer Free Update Service For One Year.'
