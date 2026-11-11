@@ -2,7 +2,7 @@
 """Step 8 checks for one exam package + shared vendor/cert pages. Exit 1 on any failure.
 Usage: validate.py research/<vendor>/<CODE>.json"""
 import csv, glob, hashlib, html, json, os, re, subprocess, sys, datetime, argparse
-sys.path.insert(0, os.path.dirname(__file__)); import site_settings, paths as pathutil, source_text
+sys.path.insert(0, os.path.dirname(__file__)); import site_settings, paths as pathutil, source_text, fetch_sources
 B=pathutil.root(); S=site_settings.load()
 ap=argparse.ArgumentParser(description='Validate one exam package. Exit 1 on any failure.')
 ap.add_argument('research')
@@ -33,7 +33,8 @@ chk('01c exam row has code, name, duration, passing score, URLs',all(ex[k] for k
 srcmeta={}
 for root,_,fs in os.walk(f'{B}/sources/{v}'):
     for f in fs:
-        if f.endswith('.json'): d=json.load(open(os.path.join(root,f))); srcmeta[d['url']]=d
+        if f.endswith('.json'):
+            sp=os.path.join(root,f); d=fetch_sources.load_sidecar(sp); srcmeta[d['url']]=d
 sid={s['id']:s['url'] for s in R['sources']}
 probs=[]
 pagetext={u:norm(re.sub(r'<[^>]+>',' ',open(m['path'],encoding='utf8',errors='ignore').read())) for u,m in srcmeta.items()}

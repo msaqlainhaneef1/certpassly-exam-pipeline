@@ -30,8 +30,9 @@ def _load_sources(research, workspace):
         meta=None
         d=os.path.join(workspace,'sources',vendor)
         if os.path.isdir(d):
+            import fetch_sources
             for f in sorted(glob.glob(os.path.join(d,'*.json'))):
-                try: m=json.load(open(f,encoding='utf-8'))
+                try: m=fetch_sources.load_sidecar(f)
                 except Exception: continue
                 if m.get('url')==src.get('url'):
                     meta=m; break

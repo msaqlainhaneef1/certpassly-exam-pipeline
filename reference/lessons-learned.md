@@ -122,3 +122,10 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 - Author-stage prose still has to clear word-count and grade gates (150+ words, grade 11 or lower). Short sentences in the study guide dropped the grade from 11.9 to 8.6; vendor and certification pages needed a few more plain sentences to clear 150 words.
 - A scripted site-format conformance check can prove that import files match the published contract, including the new researched and answer_not_found fields. It cannot prove that the live site importer accepts those fields until the site team runs their importer.
 - Live Drive tests: a public "anyone with the link" folder returns HTTP 200 with `flip-entry` markup and resume works by sha256. A valid-format folder id that is not shared returns HTTP 404 and the script message `drive: folder {id} is not readable (HTTP 404). It must be shared as "Anyone with the link".` Quota and virus-scan HTML pages were not triggered live.
+
+## v1.1.5 lessons (Windows GitHub-install verify)
+
+- `find_saved` remapping sidecar paths is not enough. Any reader that opens `meta['path']` or `meta['text_path']` from a sidecar JSON (`generic._load_sources`, the Microsoft adapter, `validate.py` source walk) must use the same helper. A copied workspace failed research on Windows with "no skill outline with weights" even though the rendered exam-guide HTML and sha256 were present.
+- Poppler version matters more than Tesseract for text-layer PDFs. Windows Poppler 25.07.0 `pdftohtml -xml` kept XML document order correct but wrote unusable `top` attributes (collapsed duplicates; some markers near the page max). A global `(page, top, left)` sort then assigned options and "Correct Answer:" to the wrong items and left `answer_raw` empty, so `answer_research` treated almost every item as unanswered. Trust XML order when tops collide or look flipped; keep the Y-sort only when coordinates are consistent, so a same-line letter to the right of "Correct Answer:" still attaches. Normalise CRLF even when a given dump is LF-only.
+- Do not check owner-exam `raw.xml` into git. Synthetic pdf2xml fixtures must reproduce the coordinate pathology.
+

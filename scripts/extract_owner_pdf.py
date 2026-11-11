@@ -40,17 +40,68 @@ OPTION_PATTERNS = [
 ]
 
 
+def _normalize_xml(xml_text):
+    """pdftohtml on Windows may emit CRLF; treat line endings as LF."""
+    return (xml_text or '').replace('\r\n', '\n').replace('\r', '\n')
+
+
+def page_tops_trustworthy(els):
+    """False when xml 'top' is unsafe to sort by (Windows Poppler 25.x and similar).
+
+    Seen failures: many distinct strings share the same (top, left), and some
+    early markers have a huge/flipped top so a (page, top, left) sort puts
+    "QUESTION 1" after later questions and drops answer keys. XML document
+    order stays correct in those dumps; use it instead.
+    """
+    texts = [e for e in els if e.get('k') == 'txt' and (e.get('t') or '').strip()]
+    if len(texts) < 4:
+        return True
+    from collections import Counter
+    pairs = [(e['top'], e['left']) for e in texts]
+    counts = Counter(pairs)
+    dup_share = sum(n - 1 for n in counts.values() if n > 1) / len(texts)
+    if dup_share >= 0.15:
+        return False
+    tops = [e['top'] for e in texts]
+    span = max(tops) - min(tops)
+    if span > 100:
+        lo, hi = min(tops), max(tops)
+        early = texts[0]['top']
+        later = [e['top'] for e in texts[1:6]]
+        if early >= lo + 0.8 * span and any(t <= lo + 0.2 * span for t in later):
+            return False
+    return True
+
+
+def order_elements(els):
+    """Reading order: sort by (top, left) only when those coordinates are consistent."""
+    by_page = {}
+    for i, e in enumerate(els):
+        rec = dict(e)
+        rec['_i'] = i
+        by_page.setdefault(e['page'], []).append(rec)
+    out = []
+    for p in sorted(by_page):
+        items = by_page[p]
+        if page_tops_trustworthy(items):
+            items = sorted(items, key=lambda e: (e['top'], e['left'], e['_i']))
+        out.extend(items)
+    for e in out:
+        e.pop('_i', None)
+    return out
+
+
 def load_elements(xml_text):
+    xml_text = _normalize_xml(xml_text)
     els = []
     for pm in re.finditer(r'<page number="(\d+)"(.*?)</page>', xml_text, re.S):
         pg = int(pm.group(1))
         for m in re.finditer(r'<image top="(\d+)" left="(\d+)"[^>]*src="([^"]+)"', pm.group(2)):
             els.append(dict(k='img', page=pg, top=int(m.group(1)), left=int(m.group(2)), src=m.group(3).split('/')[-1]))
         for m in re.finditer(r'<text top="(\d+)" left="(\d+)"[^>]*>(.*?)</text>', pm.group(2), re.S):
-            els.append(dict(k='txt', page=pg, top=int(m.group(1)), left=int(m.group(2)),
-                            t=html.unescape(re.sub(r'<[^>]+>', '', m.group(3)))))
-    els.sort(key=lambda e: (e['page'], e['top'], e['left']))
-    return els
+            raw = html.unescape(re.sub(r'<[^>]+>', '', m.group(3))).replace('\r', '')
+            els.append(dict(k='txt', page=pg, top=int(m.group(1)), left=int(m.group(2)), t=raw))
+    return order_elements(els)
 
 
 def detect_layout(els):

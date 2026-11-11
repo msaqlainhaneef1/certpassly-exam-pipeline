@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.5
+
+- Fix Windows: `generic._load_sources`, the Microsoft adapter and `validate.py` now resolve saved-source `path` and `text_path` through a shared `fetch_sources.resolve_sidecar_paths` / `load_sidecar` helper (the same remap `find_saved` already used). A workspace copied from another machine no longer reads empty official pages, so research can find official skill weights without a hand-edited sidecar.
+- Fix Windows: Poppler 25.07.0 `pdftohtml -xml` can emit unreliable `top` values (many distinct lines share the same coordinates; some early markers get a huge or flipped `top`). Sorting every element by `(page, top, left)` then put "QUESTION 1" after later items and dropped owner answer keys. The extractor now uses XML document order when tops look untrustworthy, still sorts by `(top, left)` when they are consistent (same-line answer letters), and normalises CRLF in the XML. Not exam- or vendor-specific.
+- Tests: `tests/test_v115.py` (foreign absolute sidecar paths; collapsed/flipped tops; CRLF xml).
+
+
 ## 1.1.4
 
 - Real Salesforce Data-Con-101 run finished through author (one batched pass: 65 short explanations and page prose), pages, import, bank, validate, check_bank and package. 65 questions imported, 0 held, 62/62 validate checks passed, check_bank 2841 passed / 0 failed.

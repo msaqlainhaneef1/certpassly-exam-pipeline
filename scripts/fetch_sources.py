@@ -22,20 +22,42 @@ def sha(p): return sha_bytes(open(p,'rb').read())
 def slug_for(url):
     return re.sub(r'[^a-z0-9]+','-',url.split('://',1)[-1].lower()).strip('-')[:90]
 
+def resolve_sidecar_paths(meta, sidecar_path):
+    """Point path and text_path at the files next to the sidecar.
+
+    Sidecars store absolute paths from the machine that fetched the page. A
+    copied workspace (or a Linux path on Windows) still has the HTML and .txt
+    beside the .json; use those when they exist.
+    """
+    if not isinstance(meta, dict) or not sidecar_path:
+        return meta
+    d=os.path.dirname(os.path.abspath(sidecar_path))
+    name=os.path.basename(sidecar_path)
+    if name.endswith('.html.json'):
+        here=os.path.join(d, name[:-5])
+    else:
+        here=os.path.join(d, os.path.basename(meta.get('path') or ''))
+    if here and os.path.isfile(here):
+        meta['path']=os.path.abspath(here)
+    if meta.get('text_path'):
+        tpath=os.path.join(d, os.path.basename(meta['text_path']))
+        if os.path.isfile(tpath):
+            meta['text_path']=os.path.abspath(tpath)
+    return meta
+
+def load_sidecar(sidecar_path):
+    """Load a source sidecar JSON and remap path/text_path next to it."""
+    meta=json.load(open(sidecar_path, encoding='utf-8'))
+    return resolve_sidecar_paths(meta, sidecar_path)
+
 def find_saved(vendor, url, root=None):
     d=os.path.join(root or paths.root(),'sources',vendor)
     if not os.path.isdir(d): return None
     for n in sorted(os.listdir(d)):
         if n.endswith('.json'):
-            try: m=json.load(open(os.path.join(d,n),encoding='utf-8'))
+            try: m=load_sidecar(os.path.join(d,n))
             except Exception: continue
             if m.get('url')==url:
-                # sidecars store absolute paths; a copied or moved workspace resolves them next to the sidecar
-                here=os.path.join(d, n[:-5]) if n.endswith('.html.json') else os.path.join(d, os.path.basename(m.get('path','')))
-                if os.path.isfile(here): m['path']=os.path.abspath(here)
-                if m.get('text_path'):
-                    t=os.path.join(d, os.path.basename(m['text_path']))
-                    if os.path.isfile(t): m['text_path']=os.path.abspath(t)
                 return m
     return None
 

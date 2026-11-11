@@ -12,8 +12,9 @@ LEARN_GUIDE='https://learn.microsoft.com/en-us/credentials/certifications/resour
 def _page(research, workspace, source_id):
     u=next(s['url'] for s in research['sources'] if s['id']==source_id)
     vendor=research['vendor_slug']
+    import fetch_sources
     files=glob.glob(os.path.join(workspace,'sources',vendor,'*.json'))
-    meta=next(json.load(open(f)) for f in files if json.load(open(f)).get('url')==u)
+    meta=next(fetch_sources.load_sidecar(f) for f in files if fetch_sources.load_sidecar(f).get('url')==u)
     return open(meta['path'], errors='ignore').read(), meta
 
 def _clean(x):
