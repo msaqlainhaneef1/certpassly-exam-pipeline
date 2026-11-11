@@ -210,15 +210,26 @@ class TestAB730Regression(unittest.TestCase):
         self._need_gold()
         a=loadj(self.tmpdir/'out'/EXAM/'questions.json')
         b=loadj(self.gold/'out'/EXAM/'questions.json')
-        self.assertEqual(len(a['questions']), len(b['questions']))
-        self.assertEqual(len(a['held_for_review']), len(b['held_for_review']))
+        # v1.1.0 owner rule: the item the reference held (q089, no answer in the file) is now imported
+        # with a key researched from official Microsoft documentation, flagged unverified.
+        held_ref={h['question_key'] for h in b['held_for_review']}
+        self.assertEqual(held_ref, {'q089'})
+        self.assertEqual(a['held_for_review'], [])
+        self.assertEqual(len(a['questions']), len(b['questions'])+len(held_ref))
         self.assertEqual(a['status'], b['status'])
-        # compare per key, ignoring nothing essential
         am={q['question_key']:q for q in a['questions']}
         bm={q['question_key']:q for q in b['questions']}
-        self.assertEqual(set(am), set(bm))
+        self.assertEqual(set(am), set(bm)|held_ref)
+        r=am['q089']
+        self.assertEqual((r['question_type'], r['answer_key'], r['key_source'], r['answer_key_status'], r['verification_status']),
+                         ('active_screen', {'region_ids':['r2']}, 'researched_official', 'researched_unverified', 'unverified'))
+        ev=r['research_evidence']
+        self.assertTrue(ev['source_url'].startswith('https://learn.microsoft.com/') and ev['reviewer_needed'] and ev['confidence']=='high')
+        self.assertIn('linked citation section', ev['quote'])
         diffs=[]
-        for k in am:
+        for k in bm:
+            self.assertEqual(am[k].get('key_source'), 'owner_file', k)
+            am[k]={kk:v for kk,v in am[k].items() if kk!='key_source'}
             if am[k]!=bm[k]:
                 # find first differing field
                 for field in set(am[k])|set(bm[k]):

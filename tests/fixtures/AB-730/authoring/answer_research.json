@@ -1,0 +1,38 @@
+{
+ "q089": {
+  "key": {"region_ids": ["r2"]},
+  "source_url": "https://learn.microsoft.com/en-us/copilot/microsoft-365/manage-public-web-access",
+  "quote": "To provide greater visibility into the generated search queries, web search query citations are shown to users in the linked citation section of the Copilot response. The section shows the exact web search queries (derived from the user's prompt) that were sent to the Bing search service.",
+  "confidence": "high",
+  "note": "The same official page shows a screenshot (saved: sources/microsoft/learn-microsoft-com-en-us-copilot-media-privacy-copilot-web-search-citations-raw-png.png, alt 'Screenshot of web search query citations in Microsoft Copilot.') where the information icon next to Sources opens 'Web search issued by Copilot' with the query. Region boxes are the script proposals from vision_util.boxes; labels mapped from the image.",
+  "content": {
+   "regions": [
+    {"id": "r1", "label": "the citation marker after the answer text", "normalized_coordinates": [0.308, 0.3127, 0.033, 0.0347]},
+    {"id": "r2", "label": "the Sources information icon", "normalized_coordinates": [0.228, 0.4041, 0.031, 0.0386]},
+    {"id": "r3", "label": "the first citation entry", "normalized_coordinates": [0.16, 0.5161, 0.229, 0.0592]},
+    {"id": "r4", "label": "the first response action icon", "normalized_coordinates": [0.156, 0.9485, 0.024, 0.0322]},
+    {"id": "r5", "label": "the Copy icon", "normalized_coordinates": [0.19, 0.9485, 0.025, 0.0322]},
+    {"id": "r6", "label": "the Share icon", "normalized_coordinates": [0.223, 0.9485, 0.025, 0.0322]},
+    {"id": "r7", "label": "the Like icon", "normalized_coordinates": [0.253, 0.9485, 0.025, 0.0322]},
+    {"id": "r8", "label": "the Dislike icon", "normalized_coordinates": [0.292, 0.9485, 0.024, 0.0322]},
+    {"id": "r9", "label": "the Read aloud icon", "normalized_coordinates": [0.32, 0.9485, 0.025, 0.0322]}
+   ]
+  },
+  "explanation": {
+   "c": "Microsoft documents that web search query citations appear in the linked citation (Sources) section of a Copilot Chat response and show the exact queries sent to Bing. In the documented screen, the information icon next to Sources opens the list of web searches Copilot issued, so that icon is where you confirm the query.",
+   "o": {
+    "r1": "The citation number links the sentence to its source page, not to the search query.",
+    "r2": "Correct per the official page: the Sources information icon shows the web search queries Copilot issued.",
+    "r3": "The citation entry opens the website that was used, not the query that found it.",
+    "r4": "This response action does not show search queries.",
+    "r5": "Copy copies the response text only.",
+    "r6": "Share sends the response; it does not show queries.",
+    "r7": "Feedback control only.",
+    "r8": "Feedback control only.",
+    "r9": "Reads the response aloud; it does not show queries."
+   },
+   "a": "key_researched_official",
+   "s": []
+  }
+ }
+}

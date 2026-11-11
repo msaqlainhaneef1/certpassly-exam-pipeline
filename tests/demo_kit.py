@@ -9,7 +9,7 @@ Each demo has a synthetic owner PDF with seller branding on the cover (seller
 name, a social link, a phone number, an email and a free-update line) so the
 stripping gates run, plus six items: single_choice, multiple_select,
 yes_no_matrix, inline_dropdown (both read from answer-area images), one
-image-only item that is held, and one item with no answer that is held.
+image-only item with no evidence (answer_not_found), and one item with no answer that answer_research keys from a saved official page.
 A binary .vce file sits next to the PDF so the intake skip path runs.
 
 Usage (CLI):  python tests/demo_kit.py microsoft|salesforce DEST
@@ -248,7 +248,7 @@ def build(profile: str, dest: Path) -> dict:
       'obj':f'The outline groups tasks under each skill area. Read every task line as a verb plus an object, then ask whether you could do it in a trial tenant without notes. Ranges are wide on purpose because {VN} rotates items between forms, so prepare for the top of each range rather than the middle.',
       'sg':f'Week one goes to the area with the largest official range. Week two covers the smaller area and its hands on tasks. Week three is timed review of weak tasks only. Keep a short log of each mistake, the task it maps to, and the official page that settles it, then reread that log the night before.',
       'faq':f'These answers are short on purpose. Each one points back to a saved {VN} page, and answers without an official source are kept out of the structured data so search engines only see sourced facts. If a figure changes on the official page, the next pipeline run updates this answer and its checked date.',
-      'pt':f'Practice sessions on {E} will use the official time limit and pass mark where {VN} publishes them. Until a subject expert has reviewed each draft item, the bank stays offline. Image based items are transcribed by hand and confirmed, and any item without an answer in the owner file is held back instead of guessed.',
+      'pt':f'Practice sessions on {E} will use the official time limit and pass mark where {VN} publishes them. Until a subject expert has reviewed each draft item, the bank stays offline. Image based items are transcribed by hand and confirmed, and any item without an answer in the owner file is keyed only from official documentation and flagged unverified.',
       'pt2':'Free official practice, when the vendor offers it, is the best first check of readiness. Use it before any paid option and compare your weak areas with the official outline.',
       'ven':f'{VN} publishes its exam rules on its own learning site. This page gathers the parts that apply to every {VN} exam on CertPassly: booking, identification and retakes. Exam specific numbers live on each exam page, so this page stays short and links out to them instead of repeating figures that can drift.',
       'cert':f'The {P["cert_name"]} credential is earned by passing {E}. It sits at the {P["level"].lower()} level on the official page. Holders are expected to apply the skills in the outline at work, not only recall them. Renewal rules are not published on the saved page, so check the official page before you plan a renewal date, and keep proof of your result.',
@@ -294,7 +294,16 @@ def build(profile: str, dest: Path) -> dict:
     (auth/'explanations_text.json').write_text(json.dumps({
       'q001':ex('A secret store keeps keys and passwords out of app code.',['Right. It holds secrets.','Wrong. Reports do not store secrets.','Wrong. Themes change look only.','Wrong. Layouts arrange fields.']),
       'q002':ex('Extra sign-in factors and sign-in rules both lower account risk.',['Right. A second factor blocks stolen passwords.','Wrong. Shared passwords raise risk.','Right. Rules can block risky sign-ins.','Wrong. Public links widen access.']),
-      'q006':ex('Held: the owner file gives no answer.',['Not checked.','Not checked.','Not checked.'],'key_could_not_be_checked'),
+    }, indent=1), encoding='utf-8')
+    # answer_research (owner rule v1.1.0): q006 has no answer in the file; a saved official doc page states it.
+    # q005 (image-only, no readable controls) has no official evidence and becomes answer_not_found.
+    doc_url=P['site'].rstrip('/')+'/docs/demo-data-export'
+    _source(dest, V, doc_url, f'<html><body><h1>Export data</h1><p>The Data export service exports data on a schedule, weekly or monthly.</p><p>The Theme editor changes colors and logos.</p></body></html>')
+    (auth/'answer_research_urls.json').write_text(json.dumps({'q006':[doc_url, 'https://www.example.org/q6']}, indent=1), encoding='utf-8')
+    (auth/'answer_research.json').write_text(json.dumps({
+      'q006':dict(key=['a'], source_url=doc_url, quote='The Data export service exports data on a schedule, weekly or monthly.', confidence='high',
+                  explanation=dict(c='The official export page says the Data export service runs exports on a schedule.', o=['Right. It exports on a schedule.','Wrong. It changes colors and logos.','Wrong. Help does not export data.'], a='key_researched_official', s=[])),
+      'q005':dict(answer_not_found=True, note='The mock screen has no readable controls and no official page describes it.'),
     }, indent=1), encoding='utf-8')
     (auth/'explanations_visual.json').write_text(json.dumps({
       'q003':ex('Roles can be granted to groups; default log retention is far shorter than ten years.',['Yes. Group scope is supported.','No. Default retention is shorter.']),

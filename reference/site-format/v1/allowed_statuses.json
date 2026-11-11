@@ -44,7 +44,9 @@
   ],
   "answer_key_status": [
     "as_in_source_file",
-    "flagged_for_owner"
+    "flagged_for_owner",
+    "researched_unverified",
+    "answer_not_found"
   ],
   "forbidden_nonempty_fields": [
     "verified_at",
@@ -65,5 +67,12 @@
     "published",
     "active",
     "gate_passed"
+  ],
+  "key_source": [
+    "owner_file",
+    "researched_official"
+  ],
+  "verification_status": [
+    "unverified"
   ]
 }

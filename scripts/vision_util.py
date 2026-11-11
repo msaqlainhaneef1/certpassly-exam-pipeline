@@ -64,3 +64,30 @@ def rects(path, min_w=60, min_h=30):
     for r in sorted(out, key=lambda r: -r[2] * r[3]):
         if not any(abs(r[0]-d[0]) < .01 and abs(r[1]-d[1]) < .02 and abs(r[2]-d[2]) < .02 and abs(r[3]-d[3]) < .03 for d in ded): ded.append(r)
     return ded
+
+
+def boxes(path, min_w=20, min_h=18, dark=200, edge=0.75):
+    """Bordered boxes drawn around clickable areas (hotspot / active-screen answer areas).
+
+    Keeps a contour's bounding rectangle when each of its four edges is mostly dark
+    (so open or anti-aliased borders still count, unlike rects()). Normalized (x, y, w, h).
+    """
+    g = cv2.imread(path, cv2.IMREAD_GRAYSCALE); H, W = g.shape
+    e = (g < dark).astype(np.uint8)
+    cs, _ = cv2.findContours(e, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    out = []
+    for c in cs:
+        x, y, w, h = cv2.boundingRect(c)
+        if w < min_w or h < min_h or w > 0.9 * W or h > 0.9 * H: continue
+        def sides(m):
+            return [m[y:y+2, x:x+w].max(axis=0).mean(), m[y+h-2:y+h, x:x+w].max(axis=0).mean(),
+                    m[y:y+h, x:x+2].max(axis=1).mean(), m[y:y+h, x+w-2:x+w].max(axis=1).mean()]
+        s1 = sides(e)
+        if min(s1) < edge:
+            # one faint (anti-aliased) border: accept when the other three are dark and the faint one shows at a lighter threshold
+            if sorted(s1)[1] < edge or min(sides((g < 235).astype(np.uint8))) < edge: continue
+        out.append((x / W, y / H, w / W, h / H))
+    ded = []
+    for r in sorted(out, key=lambda r: -r[2] * r[3]):
+        if not any(abs(r[0]-d[0]) < .01 and abs(r[1]-d[1]) < .02 and abs(r[2]-d[2]) < .02 and abs(r[3]-d[3]) < .03 for d in ded): ded.append(r)
+    return ded

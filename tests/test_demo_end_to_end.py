@@ -55,21 +55,35 @@ class _DemoBase:
         self.assertGreaterEqual(len(rows), 55)
         self.assertRegex(self.log, r'Summary: \d+ passed, 0 failed')
 
-    def test_03_types_holds_and_flags(self):
+    def test_03_types_research_and_flags(self):
         q=json.loads((self.out/'questions.json').read_text(encoding='utf-8'))
         types=sorted(x['question_type'] for x in q['questions'])
-        self.assertEqual(types, ['inline_dropdown','multiple_select','single_choice','yes_no_matrix'])
-        held={h['question_key']:h['reason'] for h in q['held_for_review']}
-        self.assertEqual(sorted(held), ['q005','q006'])
-        self.assertIn('no answer', held['q006'])
+        self.assertEqual(types, ['active_screen','inline_dropdown','multiple_select','single_choice','single_choice','yes_no_matrix'])
+        self.assertEqual(q['held_for_review'], [])  # owner rule v1.1.0: nothing is held
+        m={x['question_key']:x for x in q['questions']}
+        r=m['q006']
+        self.assertEqual((r['answer_key'], r['key_source'], r['answer_key_status'], r['verification_status'], r['scoring_excluded']),
+                         ({'correct_option_ids':['a']}, 'researched_official', 'researched_unverified', 'unverified', False))
+        ev=r['research_evidence']
+        self.assertEqual(ev['quote'], 'The Data export service exports data on a schedule, weekly or monthly.')
+        self.assertTrue(ev['reviewer_needed'] and ev['sha256'] and ev['saved_path'].startswith('sources/'))
+        n=m['q005']
+        self.assertEqual((n['answer_key_status'], n['scoring_excluded'], n['answer_key']), ('answer_not_found', True, {}))
+        self.assertTrue(n['research_evidence']['searched_urls'])
+        self.assertEqual(q['scoring_excluded_question_keys'], ['q005'])
+        sim=json.loads((self.out/'simulator_settings.json').read_text(encoding='utf-8'))
+        self.assertEqual(sim['scoring_excluded_question_keys'], ['q005'])
         vis=[x for x in q['questions'] if x['question_type'] in ('yes_no_matrix','inline_dropdown')]
         self.assertTrue(all(x['human_review_required'] for x in vis))
         self.assertTrue(all(x['publication_state']=='draft' for x in q['questions']))
+        self.assertEqual([x['key_source'] for x in q['questions'] if x['question_key'] in ('q001','q002')], ['owner_file','owner_file'])
 
-    def test_04_review_lists_vce_holds_and_cover_conflict(self):
+    def test_04_review_lists_vce_research_and_cover_conflict(self):
         rv=(self.out/'REVIEW.md').read_text(encoding='utf-8')
         self.assertIn('.vce', rv)
-        self.assertIn('q005', rv); self.assertIn('q006', rv)
+        self.assertIn('UNVERIFIED key', rv); self.assertIn('q006', rv)
+        self.assertRegex(rv, r'q005: answer_not_found')
+        self.assertIn('www.example.org', rv)  # non-official URL rejected and logged
         self.assertIn('Cover says', rv)
         self.assertNotIn('41 image-based', rv)
         self.assertIn('2 image-based items', rv)

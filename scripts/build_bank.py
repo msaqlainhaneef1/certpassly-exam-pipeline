@@ -37,12 +37,17 @@ _off=META.get('off_syllabus') or {}
 OFF_SYL=re.compile(_off['pattern'], re.I) if _off.get('pattern') else None
 os.makedirs(f'{OUT}/media',exist_ok=True); os.makedirs(f'{OUT}/import',exist_ok=True)
 qs=[]; stems={}; review=[]; held=[]; media_rows=[]; qma=[]; cleanups=json.load(open(f'{EX}/cleanups.json'))
+# Owner rule v1.1.0: no-answer items are never held or dropped. answer_research keys them from official pages
+# (researched_official, unverified) or flags them answer_not_found (draft, excluded from scoring).
+import answer_research as AR
+AR_T=AR.targets(OUT)
+AR_R=AR.verify(OUT, R['vendor_slug'], code) if AR_T else {}
+_pend=[k for k,r in AR_R.items() if r['status']=='pending_ai_pick']
+if _pend:
+    raise SystemExit(f'answer_research: no AI pick yet for {_pend}. Write authoring/answer_research.json from answer_research/candidates.json in the author batch.')
 for k,it in S.items():
     vt=VT.get(k); qtype,reason=Q.classify(it,vt)
-    if vt and vt.get('held'):
-        held.append(dict(question_key=k,type='active_screen',reason=vt['reason'],stem=it['stem'],regions=vt.get('candidate_regions'))); continue
-    if it['options'] and not re.sub(r'[^A-H]','',it['answer_raw'].upper()):
-        held.append(dict(question_key=k,type=qtype,reason='no answer in the owner file; key not invented',stem=it['stem'],regions=[])); continue
+    if k in AR_R: continue
     if k not in EXP:
         raise SystemExit(f'author stage: no explanation for {k} in authoring/explanations_text.json or explanations_visual.json')
     e=EXP[k]; t=types[qtype]; text=it['stem']+' '+' '.join(it['options'].values())+' '+' '.join((vt or {}).get('rows',[]))+' '+(vt or {}).get('template','')
@@ -98,7 +103,7 @@ for k,it in S.items():
     srcs=[dict(source_url=BS[s]['url'],title=BS[s]['title'],evidence_key=f'qsrc-{s.lower()}') for s in e['s']]
     q=dict(question_key=k,question_version_key=f'{k}-v1',exam_key=exam_key,exam_version_key=ver,domain_key=dom_key(sk.split('.')[0]),topic_key=top_key(sk),
            question_type=qtype,type_reason=reason,source_markers=Q.markers(it['stem']),type_status='assigned',prompt_text=it['stem'],options=[dict(id=o['id'],option_letter=o['option_letter'],text=o['text']) for o in opts],
-           response_schema={'type':qtype,'content':content},answer_key=key,answer_key_status='flagged_for_owner' if e['a'] in ('key_wrong','key_outdated','key_arguable') else 'as_in_source_file',
+           response_schema={'type':qtype,'content':content},answer_key=key,answer_key_status='flagged_for_owner' if e['a'] in ('key_wrong','key_outdated','key_arguable') else 'as_in_source_file',key_source='owner_file',
            accuracy_status=e['a'],core_explanation=e['c'],explanations=expl,source_url=srcs[0]['source_url'],sources=srcs,
            media={'path':content['image_url'],'alt':content['image_alt']} if content.get('image_url') else {},
            human_review_required=hr or bool(flags and any(f.startswith(('accuracy','MARKER','SCRIPT')) for f in flags)),publication_state='draft',structural_gate='not_checked',review_gate='not_checked',
@@ -107,7 +112,65 @@ for k,it in S.items():
     qs.append(q)
     stems[k]=dict(stem=it['stem'],options={o['id']:o['text'] for o in opts},other_frozen_text=frozen,source=dict(file=src_pdf['name'],pages=it['pages'],marker=it['marker']))
     if flags: review.append((k,qtype,flags))
-json.dump(dict(status='draft',exam_key=exam_key,questions=qs,held_for_review=held),open(f'{OUT}/questions.json','w'),indent=1,ensure_ascii=False)
+def _researched_item(k, it, ar):
+    vt=VT.get(k) or {}; e=EXP.get(k) or ar.get('explanation') or {}
+    qtype=ar['type'] or Q.classify(it, None)[0]
+    found=ar['status']=='researched_official'
+    content={'prompt':it['stem']}; opts=[]; expl={}; key=ar['key'] or {}
+    core=e.get('c') or (f"Key researched from official vendor documentation (not in the owner file): \"{ar['quote']}\" Source: {ar['source_url']}" if found
+                        else 'No key: the owner file has no answer and no official vendor page among the searched URLs states it. Excluded from scoring until a reviewer adds a key.')
+    expl['core']=core
+    if it['options']:
+        letters=key.get('correct_option_ids',[])
+        for i,(lt,tx) in enumerate(it['options'].items()):
+            r=(e.get('o') or [None]*len(it['options']))[i] if e.get('o') else ('Correct per the cited official page.' if lt in letters else 'Not supported by the cited official page.' if found else 'Not checked: no official evidence found.')
+            opts.append(dict(id=lt,option_letter=lt.upper(),text=tx)); expl[lt]=r
+        content['options']=[dict(id=o['id'],text=o['text']) for o in opts]
+        if qtype=='multiple_select' and letters: content['constraints']={'min_choices':len(letters),'max_choices':len(letters)}
+    else:
+        if ar.get('content'): content.update({kk:v for kk,v in ar['content'].items() if kk!='prompt'})
+        imgs=it.get('question_images') or []
+        if imgs:
+            f=imgs[-1]; ext=f.rsplit('.',1)[1]; dst=f'media/{k}-answer-area.{ext}'; shutil.copy(f'{OUT}/media/src/{f}',f'{OUT}/{dst}')
+            content.setdefault('image_url',dst); content.setdefault('image_alt','Answer area image from the source question.')
+            from PIL import Image
+            im=Image.open(f'{OUT}/{dst}'); mt='image/png' if dst.endswith('png') else 'image/jpeg'
+            media_rows.append(dict(filename=os.path.basename(dst),original_name=dst,filepath=dst,mime_type=mt,file_size_bytes=os.path.getsize(f'{OUT}/{dst}'),width=im.width,height=im.height,alt_text=content['image_alt'],category='question_image',uploaded_by='',usage_count=0))
+            qma.append(dict(question_version_key=f'{k}-v1',path=dst,kind='diagram',mime_type=mt,sha256=sha(f'{OUT}/{dst}'),width=im.width,height=im.height,alt_text=content['image_alt'],rights_status='unverified',visibility='candidate',license_evidence_ref='intake/rights-confirmation.md',long_description='',human_review_required='yes'))
+        for r in content.get('regions') or []:
+            expl[r['id']]=(e.get('o') or {}).get(r['id']) if isinstance(e.get('o'),dict) else ('The cited official page supports this area.' if r['id'] in key.get('region_ids',[]) else 'Not the area the official page describes.')
+    sk=skill(it['stem']+' '+' '.join(it['options'].values()))
+    if found:
+        flags=[f"UNVERIFIED KEY: researched from official vendor documentation, not in the owner file (confidence {ar['confidence']}); reviewer needed"]
+        srcs=[dict(source_url=ar['source_url'],title='Official documentation used to research the key',evidence_key=f'qsrc-ar-{k}')]
+        ev=dict(source_url=ar['source_url'],saved_path=ar['saved_path'],sha256=ar['sha256'],quote=ar['quote'],confidence=ar['confidence'],reviewer_needed=True,searched_urls=ar['searched_urls'])
+    else:
+        flags=['ANSWER_NOT_FOUND: no answer in the owner file and no official page states it; excluded from scoring']
+        srcs=[dict(source_url=BS[s]['url'],title=BS[s]['title'],evidence_key=f'qsrc-{s.lower()}') for s in (e.get('s') or list(BS)[:1])]
+        ev=dict(searched_urls=ar['searched_urls'],rejected_urls=ar['rejected_urls'],reviewer_needed=True)
+    q=dict(question_key=k,question_version_key=f'{k}-v1',exam_key=exam_key,exam_version_key=ver,domain_key=dom_key(sk.split('.')[0]),topic_key=top_key(sk),
+           question_type=qtype,type_reason='answer_research: '+(vt.get('reason') or 'no answer in the owner file'),source_markers=Q.markers(it['stem']),type_status='assigned',prompt_text=it['stem'],
+           options=opts,response_schema={'type':qtype,'content':content},answer_key=key,
+           answer_key_status='researched_unverified' if found else 'answer_not_found',key_source='researched_official' if found else None,
+           verification_status='unverified',scoring_excluded=not found,research_evidence=ev,
+           accuracy_status=e.get('a') or ('key_researched_official' if found else 'key_could_not_be_checked'),core_explanation=core,explanations=expl,
+           source_url=srcs[0]['source_url'],sources=srcs,media={'path':content['image_url'],'alt':content['image_alt']} if content.get('image_url') else {},
+           human_review_required=True,publication_state='draft',structural_gate='not_checked',review_gate='not_checked',license_status='not_checked',rights_status='asserted_by_owner',
+           created_source=f'owner_file sha256:{src_pdf["sha256"][:16]} {it["marker"]} pages {it["pages"]}',
+           live_status='live' if types[qtype].get('enabled') and types[qtype].get('publishable') else 'staging only',flags=flags,difficulty='')
+    stems[k]=dict(stem=it['stem'],options={o['id']:o['text'] for o in opts},other_frozen_text={},source=dict(file=src_pdf['name'],pages=it['pages'],marker=it['marker']))
+    review.append((k,qtype,flags))
+    return q
+for k in sorted(AR_R, key=lambda x: list(S).index(x)):
+    qs.append(_researched_item(k, S[k], AR_R[k]))
+qs.sort(key=lambda q: list(S).index(q['question_key']))
+EXCL=[q['question_key'] for q in qs if q.get('scoring_excluded')]
+_simp=f'{OUT}/simulator_settings.json'
+if os.path.exists(_simp):
+    _sim=json.load(open(_simp)); _sim['scoring_excluded_question_keys']=EXCL
+    _sim['scoring_excluded_note']='Draft items with no key (answer_not_found) are shown for review but never scored.'
+    json.dump(_sim,open(_simp,'w'),indent=1)
+json.dump(dict(status='draft',exam_key=exam_key,questions=qs,held_for_review=held,scoring_excluded_question_keys=EXCL),open(f'{OUT}/questions.json','w'),indent=1,ensure_ascii=False)
 json.dump(stems,open(f'{EX}/stems.json','w'),indent=1,ensure_ascii=False)
 # CSVs
 write('questions.csv',[dict(question_key=q['question_key'],exam_key=exam_key,exam_version_key=ver,domain_key=q['domain_key'],topic_key=q['topic_key'],question_type=q['question_type'],difficulty='',
@@ -126,7 +189,7 @@ write('question_sources.csv',[dict(question_version_key=q['question_version_key'
 sc=cols('sources.csv'); sp=f'{OUT}/import/sources.csv'; old=[r for r in csv.DictReader(open(sp))] if os.path.exists(sp) else []; old=[r for r in old if not r['evidence_key'].startswith('qsrc-')]
 used={s['evidence_key']:s for q in qs for s in q['sources']}
 for ek,s in sorted(used.items()):
-    m=src_meta[s['source_url']]
+    m=src_meta.get(s['source_url']) or AR.fetch_sources.find_saved(R['vendor_slug'], s['source_url'], B)
     old.append(dict(evidence_key=ek,entity_type='question_bank',entity_key=exam_key,claim_or_field='question explanations',source_type='official_documentation',document_title=s['title'],source_url=s['source_url'],official='yes',
                     source_section='',retrieved_at=m['retrieved_at'],verified_by='',verified_at='',rights_reviewed='not_checked',rights_notes='',review_notes=f"saved copy sha256 {m['sha256']}",status='unverified'))
 write('sources.csv',old,sc)
@@ -144,8 +207,12 @@ L+=['','## Image text','','Text inside answer-area images was read by Tesseract 
 open(f'{OUT}/CLEANUP-LOG.md','w').write('\n'.join(L)+'\n')
 from collections import Counter
 cnt=Counter(q['question_type'] for q in qs)
-RV=['# REVIEW','',f'{len(S)} items in the file. {len(qs)} imported as drafts, {len(held)} held. {len(review)} imported items carry flags. '+(f'All {sum(1 for k in S if VT.get(k) and not VT[k].get("held"))} image-based items need human confirmation of text and key.' if any(VT.get(k) and not VT[k].get('held') for k in S) else 'No image-based items.'),'',
-    '## Held (not importable without owner input)','']+[f"* {h['question_key']}: {h['reason']}. Type would be {h['type']}. Visible clickable areas: {', '.join(h.get('regions') or []) or 'none'}." for h in held]
+RV=['# REVIEW','',f'{len(S)} items in the file. {len(qs)} imported as drafts ({sum(1 for r in AR_R.values() if r['status']=='researched_official')} with a researched UNVERIFIED key, {len(EXCL)} answer_not_found and excluded from scoring), {len(held)} held. {len(review)} imported items carry flags. '+(f'All {sum(1 for k in S if VT.get(k) and not VT[k].get("held"))} image-based items need human confirmation of text and key.' if any(VT.get(k) and not VT[k].get('held') for k in S) else 'No image-based items.'),'',
+    '## Keys researched from official documentation (UNVERIFIED, reviewer needed)','',
+    'These items had no answer in the owner file. The key was taken from an official vendor page (saved under sources/ with sha256) and is NOT owner-keyed.','']+\
+    [f"* {k}: UNVERIFIED key {json.dumps(r['key'])} (confidence {r['confidence']}). Source: {r['source_url']} (saved {r['saved_path']}, sha256 {r['sha256'][:16]}). Rejected (not official): {', '.join(x['url'] for x in r['rejected_urls']) or 'none'}. Quote: \"{r['quote']}\"" for k,r in AR_R.items() if r['status']=='researched_official'] or ['* none']
+RV+=['','## Answer not found (draft, excluded from scoring)','']+\
+    [f"* {k}: answer_not_found. Searched: {', '.join(r['searched_urls']) or 'none'}; rejected (not official): {', '.join(x['url'] for x in r['rejected_urls']) or 'none'}. {r.get('note','')}" for k,r in AR_R.items() if r['status']=='answer_not_found'] or ['* none']
 RV+=['','## Flagged items','','| Question | Type | Flags |','|---|---|---|']+[f"| {k} | {t} | {'; '.join(f).replace('|','/')} |" for k,t,f in review]
 RV+=['','## Accuracy review summary','']+[f'* {a}: {n}' for a,n in Counter(q['accuracy_status'] for q in qs).most_common()]
 RV+=['','Accuracy statuses come from a check against the saved official pages listed in import/sources.csv. "key_could_not_be_checked" means the saved pages did not settle it in this pass; an SME must check those.']
@@ -160,4 +227,4 @@ if cover:
 if skipped:
     RV+=['','## VCE file skipped' if any('.vce' in s.lower() for s in skipped) else '## Skipped source files','']+[f'* {s}' for s in skipped]
 open(f'{OUT}/REVIEW.md','w').write('\n'.join(RV)+'\n')
-print('imported',len(qs),'held',len(held),'flagged',len(review),dict(cnt))
+print('imported',len(qs),'held',len(held),'researched',sum(1 for r in AR_R.values() if r['status']=='researched_official'),'answer_not_found',len(EXCL),'flagged',len(review),dict(cnt))

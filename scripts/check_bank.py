@@ -464,11 +464,17 @@ def main(argv=None):
     for question in questions:
         key = question.get("question_key") or question.get("question_version_key") or "unknown"
         for field in REQUIRED_QUESTION_FIELDS:
+            if field == "answer_key" and question.get("answer_key_status") == "answer_not_found":
+                continue  # no key by design; covered by the answer_not_found check below
             rec(results, f"{key}_has_{field}", bool(str(question.get(field) or "").strip() or question.get(field) == 0), field)
         raw_type = question.get("question_type") or question.get("type") or ""
         typ, known_type = canonicalize(raw_type, aliases, known)
         rec(results, f"{key}_known_type", known_type, typ or raw_type)
-        rec(results, f"{key}_has_answer", answer_present(question), "answer_key")
+        if question.get("answer_key_status") == "answer_not_found":
+            # owner rule v1.1.0: kept as a draft, never scored; no key is expected
+            rec(results, f"{key}_answer_not_found_excluded", question.get("scoring_excluded") is True, "scoring_excluded")
+        else:
+            rec(results, f"{key}_has_answer", answer_present(question), "answer_key")
         n_expl = explanation_count(question)
         rec(results, f"{key}_has_explanations", n_expl >= 1, f"{n_expl} explanations")
         source = question.get("source_url") or ""
@@ -515,7 +521,7 @@ def main(argv=None):
                     if not media_path.is_file():
                         media_path = root / "media" / Path(path).name
                     rec(results, f"{key}_media_exists", media_path.is_file(), str(media_path))
-        if typ in HOTSPOT_TYPES:
+        if typ in HOTSPOT_TYPES and question.get("answer_key_status") != "answer_not_found":
             ok, detail = regions_ok(content)
             rec(results, f"{key}_regions_ok", ok, detail)
             region_ids = [r.get("id") for r in (content.get("regions") or []) if isinstance(r, dict)]

@@ -100,11 +100,11 @@ bp=[(k,b) for k,t in alltext.items() for b in S['banned_phrases'] if re.search(r
 chk('07 no banned filler phrases',not bp,bp)
 ph=[(k,x) for k,h in htmls.items() for x in S['placeholders'] if re.search(r'\b'+re.escape(x)+r'\b' if x.isalpha() else re.escape(x),h.lower())]
 chk('09 no placeholder text or placeholder links',not ph,ph)
-RAW=('/extracted/','/media/src/','/media/')
+RAW=('/extracted/','/media/src/','/media/','/answer_research/')
 TEXT_EXT=('.json','.csv','.md','.html','.txt','.sha256')
 scan=[f for f in glob.glob(f'{OUT}/**/*',recursive=True)+glob.glob(f'{B}/out/vendors/**/*',recursive=True)+glob.glob(f'{B}/out/certifications/**/*',recursive=True)+glob.glob(f'{B}/research/**/*.json',recursive=True)+glob.glob(f'{B}/config/*.json') if os.path.isfile(f)]
 scan=[f for f in scan if f.endswith(TEXT_EXT) and not any(r in f for r in RAW)]
-FROZEN_JSON=('prompt_text','text','label','prompt','prompt_template','stem')
+FROZEN_JSON=('prompt_text','text','label','prompt','prompt_template','stem','quote')  # quote: verbatim official text
 def prose_view(f):
     t=open(f,encoding='utf8',errors='ignore').read()
     if f.endswith('/questions.json'):
@@ -117,6 +117,8 @@ def prose_view(f):
     if f.endswith(('/import/questions.csv','/import/answer_options.csv')):
         rows=list(csv.DictReader(open(f)))
         return json.dumps([{k:('' if k in ('prompt_text','option_text') else v) for k,v in r.items()} for r in rows],ensure_ascii=False)
+    if f.endswith('/REVIEW.md'):
+        return re.sub(r'Quote: ".*?"(?=\s*$)','Quote: ""',t,flags=re.M)  # verbatim official quotes are exempt
     return t
 dash=[f for f in scan if re.search('[\u2013\u2014]',prose_view(f))]
 chk('08 no em or en dashes in any output, research or report file (owner stems and options exempt, raw extracts exempt)',not dash,dash)
@@ -178,7 +180,7 @@ for x in QS:
         if [ch['text'] for ch in b['choices']]!=v['blanks'][i]: mm.append(x['question_key']+' choices')
     if v.get('rows') and [r['text'] for r in c['rows']]!=v['rows']: mm.append(x['question_key']+' rows')
 chk('12g image text (rows, choices, labels, templates) matches the transcription exactly',not mm,mm)
-shape=[x['question_key'] for x in QS if (x['question_type'] in ('single_choice','image_based_choice') and len(x['answer_key']['correct_option_ids'])!=1) or (x['question_type']=='multiple_select' and not (2<=len(x['answer_key']['correct_option_ids'])<len(x['options']) and len(x['options'])>=3)) or (x['question_type']=='yes_no_matrix' and set(x['answer_key']['rows'])!={r['id'] for r in x['response_schema']['content']['rows']}) or (x['question_type'].endswith('dropdown') and set(x['answer_key']['slots'])!={b['id'] for b in x['response_schema']['content']['blanks']})]
+shape=[x['question_key'] for x in QS if x.get('answer_key_status')!='answer_not_found' and ((x['question_type'] in ('single_choice','image_based_choice') and len(x['answer_key']['correct_option_ids'])!=1) or (x['question_type']=='multiple_select' and not (2<=len(x['answer_key']['correct_option_ids'])<len(x['options']) and len(x['options'])>=3)) or (x['question_type']=='yes_no_matrix' and set(x['answer_key']['rows'])!={r['id'] for r in x['response_schema']['content']['rows']}) or (x['question_type'].endswith('dropdown') and set(x['answer_key']['slots'])!={b['id'] for b in x['response_schema']['content']['blanks']}))]
 chk('12h answer key shapes fit the publish gate rules per type',not shape,shape)
 vis=[x['question_key'] for x in QS if x['question_type'] in ('yes_no_matrix','inline_dropdown','multi_blank_dropdown') and not x['human_review_required']]
 chk('12i image-keyed items flagged human_review_required',not vis,vis)
@@ -211,6 +213,26 @@ if os.path.exists(f'{OUT}/intake/files.json'):
     _skip_vce=any('vce' in str(f).lower() or str(f.get('use','')).startswith('skipped') for f in (json.load(open(f'{OUT}/intake/files.json')).get('files') or []))
 _vce_ok=(not _skip_vce) or ('.vce' in rv or 'skipped' in rv.lower())
 chk('12j held items, flagged keys and skipped VCE listed in REVIEW.md',all(h['question_key'] in rv for h in QJ['held_for_review']) and _vce_ok and all(x['question_key'] in rv for x in QS if x['answer_key_status']=='flagged_for_owner'),'')
+# Owner rule v1.1.0: no-answer items are researched from official pages, never held or silently dropped.
+import vendor_reg as _VR, answer_research as _AR
+_arp=[]; _anf=[]
+for x in QS:
+    ev=x.get('research_evidence') or {}
+    if x.get('answer_key_status')=='researched_unverified':
+        sp=os.path.join(B, ev.get('saved_path',''))
+        ok=(x.get('key_source')=='researched_official' and x.get('verification_status')=='unverified' and x.get('human_review_required') is True
+            and ev.get('reviewer_needed') is True and ev.get('confidence') in ('high','medium','low')
+            and _VR.url_is_official(ev.get('source_url',''), R['vendor_slug']) and os.path.isfile(sp)
+            and __import__('hashlib').sha256(open(sp,'rb').read()).hexdigest()==ev.get('sha256')
+            and _AR.norm(ev.get('quote')) in _AR.page_text({'path':sp}) and x['question_key'] in rv and 'UNVERIFIED' in rv)
+        if not ok: _arp.append(x['question_key'])
+    elif x.get('answer_key_status')=='answer_not_found':
+        _sim=json.load(open(f'{OUT}/simulator_settings.json')) if os.path.exists(f'{OUT}/simulator_settings.json') else {}
+        if not (x.get('scoring_excluded') is True and x['question_key'] in rv and x['question_key'] in (_sim.get('scoring_excluded_question_keys') or [])):
+            _anf.append(x['question_key'])
+    elif x.get('scoring_excluded'): _arp.append(x['question_key']+' excluded but keyed')
+chk('12l researched keys: official domain, saved copy sha256, verbatim quote, unverified + reviewer flag, listed in REVIEW.md',not _arp,_arp or f"{sum(1 for x in QS if x.get('answer_key_status')=='researched_unverified')} researched")
+chk('12m answer_not_found items kept as drafts, listed in REVIEW.md, excluded from scoring in simulator settings; nothing held',not _anf and not QJ['held_for_review'],_anf or f"{sum(1 for x in QS if x.get('answer_key_status')=='answer_not_found')} answer_not_found, {len(QJ['held_for_review'])} held")
 chk('12b practice page states the bank is not ready',"practice bank is not ready" in text(htmls['practice_test']),'')
 sim=json.load(open(f'{OUT}/simulator_settings.json'))
 chk('12c simulator: official time and pass mark, question count marked site choice',sim['time_limit_minutes']['value']==R['facts']['duration_minutes']['value'] and sim['passing_score']['value']==R['facts']['passing_score']['value'] and sim['question_count']['basis']=='site_choice' and sim['question_count']['value'] is None,'')
