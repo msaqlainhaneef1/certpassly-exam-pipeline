@@ -46,6 +46,13 @@ pip install "git+https://github.com/<owner>/<repo>.git"
 certpassly-pipeline --help
 ```
 
+Optional, for JavaScript-built official pages (Salesforce exam guides, for example):
+
+```bash
+pip install -e ".[render]"
+python -m playwright install chromium
+```
+
 A non-editable `pip install git+...` puts the code in site-packages and does not ship `reference/` next to the module unless you set `CERTPASSLY_SKILL_ROOT` to a clone of this repo. For a full pipeline run, use `pip install -e .` inside a clone, or set that variable.
 
 ### From a local clone, with pip

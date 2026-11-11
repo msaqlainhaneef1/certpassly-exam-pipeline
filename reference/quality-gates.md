@@ -10,7 +10,7 @@ Pages stay in draft. A human still has to pass the site's publish gates.
 - If the vendor does not publish a value, the page says "not published by the vendor" (or the equivalent configured phrase). The adapter lists those fields as gaps.
 - Simulator time limit and pass mark match the official page, not a cover page on an owner file.
 - Questions come only from owner PDFs. Exact types are never merged.
-- Keys that were flagged stay unchanged. Items without an official-style answer stay held (see lessons learned).
+- Keys that were flagged stay unchanged. Items without an answer in the owner file get a key only from a saved official vendor page (verbatim quote, unverified, reviewer needed) or are flagged answer_not_found and excluded from scoring (validate 12l, 12m).
 - Banned terms, contact lines and typographic dashes are absent from pages, shared blocks and import files.
 - Official vendor brand is present on every page.
 - `page_meta_extras.csv` exists.

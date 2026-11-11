@@ -32,7 +32,7 @@ If the text layer has no stem or only empty option letters, the item is image-ke
 
 ## Keys that were flagged are never changed (rule, bank)
 
-If a key is flagged, leave it. Do not "fix" an answer because it looks wrong. Hold an item that has no usable answer (the first finished bank held one item for a missing answer) instead of guessing.
+If a key is flagged, leave it. Do not "fix" an answer because it looks wrong. Never guess a missing answer. Since v1.1.0 an item with no answer goes to answer_research: a key only from a saved official page with a verbatim quote, flagged unverified; otherwise answer_not_found and excluded from scoring (replaces the old hold rule).
 
 ## Questions only from owner PDFs; exact types never merged (gate in check_bank / site-format)
 
@@ -92,9 +92,20 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 - A stage that only prints "write this file by hand" is a manual step. Intake now builds `files.json` from the owner folder. If you catch yourself hand-writing pipeline inputs other than the author files and research JSON, that is a defect: fix the script and add a test.
 - Do not let a gate pass only because the first exam's author happened to hand-write HTML. Tables are rendered from research rows (check 11b), and the demo test proves it for an exam with plain prose.
 - Vendors that do not publish a pass mark are normal. Record the reason in research; pages say "not published by the vendor" and 01c accepts it. Never print a Python `None` on a page.
-- Hold items with no answer. Never key them, never crash on them.
+- (Replaced in v1.1.0) Items with no answer are researched from official pages, never held; never crash on them.
 - Never hardcode counts or names from one exam in report text (the "41 image-based items" line).
 - Generic official-page parsing must work per block line, with plural units and capitalised labels. Regression tests cover "105 minutes", "Languages: English" and "Name (40-50%)" lines.
 - JavaScript-rendered vendor pages (seen on an academy exam page) give an empty plain fetch. Save a rendered copy with its sha256 sidecar or expect every fact to be a gap.
 - Windows: assume a legacy code page. The CLI forces UTF-8 mode; tests read and write with `encoding="utf-8"`. Tesseract may be missing from PATH; OCR degrades to "author transcribes".
 - CI must show 0 skipped. Optional local-only suites are not collected when their data is absent, instead of being skipped. Real owner extracts never go into Git.
+
+## v1.1.0 lessons (real Data-Con-101 run, AB-730 q089)
+
+- Salesforce exam guides are JavaScript pages: a plain fetch returned 62 text characters. Render with headless Chromium when the text is short; save the rendered HTML, visible text and sha256.
+- "Passing score: 70%" has the same shape as an outline line "Solution Positioning: 14%". Fact labels (score, fee, time, minutes) are never domains; weights must sum to about 100.
+- "maintainable" matched a renewal regex. Match whole words (renewal, recertification, maintenance) and require a time period or expiry in the sentence.
+- Sidecars store absolute paths; a copied workspace must resolve them next to the sidecar, or offline reruns silently miss saved pages.
+- A SystemExit with a message must be logged by the runner; "exit 1" alone hid the render-missing reason.
+- Bordered answer-area boxes can have one faint (anti-aliased) edge. Accept three dark edges plus the faint one at a lighter threshold (vision_util.boxes) so region coordinates come from the script, not from AI.
+- The answer for a no-answer item can come from an official screenshot as well as text (AB-730 q089: the Sources information icon). Save the screenshot with sha256 too, but the verifiable quote must be page text.
+- Web search from scripts is often blocked (DuckDuckGo returned 0 results). Always seed answer_research with the exam's official sources and listed URLs; log the failed search.
