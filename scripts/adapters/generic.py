@@ -11,7 +11,14 @@ import glob, html, json, os, re, sys
 NP_REASON='not published by the vendor'
 
 def _clean(x):
-    return html.unescape(re.sub(r'\s+',' ',re.sub(r'<[^>]+>','',x or ''))).strip()
+    x=re.sub(r'(?is)<(script|style)\b.*?</\1>',' ',x or '')
+    return html.unescape(re.sub(r'\s+',' ',re.sub(r'<[^>]+>',' ',x))).strip()
+
+def _lines(raw):
+    """One text line per block element (headings, paragraphs, list items, table cells)."""
+    raw=re.sub(r'(?is)<(script|style)\b.*?</\1>',' ',raw or '')
+    raw=re.sub(r'(?i)<(?:/?(?:p|div|li|ul|ol|h[1-6]|tr|td|th|br|section|article|dt|dd)\b[^>]*)>','\n',raw)
+    return [l for l in (_clean(x) for x in raw.split('\n')) if l]
 
 def _load_sources(research, workspace):
     vendor=research.get('vendor_slug') or ''
@@ -28,7 +35,7 @@ def _load_sources(research, workspace):
             continue
         path=meta.get('path') or ''
         raw=open(path, errors='ignore').read() if path and os.path.exists(path) else ''
-        pages.append(dict(id=src.get('id'), url=src.get('url'), meta=meta, html=raw, text=_clean(raw)))
+        pages.append(dict(id=src.get('id'), url=src.get('url'), meta=meta, html=raw, text=_clean(raw), lines=_lines(raw)))
     return pages
 
 def _first(patterns, text, typ=str):
@@ -48,7 +55,7 @@ def parse(research, workspace):
     fields={}; gaps=[]; quotes={}
     # duration
     dur,q=_first([
-        r'(\d+)\s*(?:-|\u2013|to)?\s*(?:minute|min)\b',
+        r'(\d+)\s*(?:minutes?|mins?)\b',
         r'duration[:\s]+(\d+)',
         r'time\s*limit[:\s]+(\d+)',
     ], blob, int)
@@ -86,8 +93,8 @@ def parse(research, workspace):
         gaps.append('price')
     # languages
     langs=None
-    m=re.search(r'languages?(?: offered)?[:\s]+([A-Z][A-Za-z ,/]+)', blob)
-    if m and ',' in m.group(1):
+    m=re.search(r'[Ll]anguages?(?: offered)?[:\s]+([A-Z][A-Za-z ,/()]+)', blob)
+    if m:
         langs=[x.strip() for x in re.split(r',| and ', m.group(1)) if x.strip()]
         fields['languages']=langs; quotes['languages']=m.group(0)
     else:
@@ -124,13 +131,23 @@ def parse(research, workspace):
         gaps.append('renewal')
     # domains / weights: "Name (20-25%)" or "Name 20%"
     doms=[]
-    for m in re.finditer(r'([A-Z][^()\n]{3,80}?)\s*\((\d+)\s*[\u2013\-–to]+\s*(\d+)\s*%\)', blob):
+    all_lines=[l for p in pages for l in p['lines']]
+    for line in all_lines:
+        m=re.fullmatch(r'([A-Z][^()]{2,100}?)\s*[:\-]?\s*\((\d+)\s*(?:-|\u2013|to)\s*(\d+)\s*%\)', line)
+        if not m: continue
+        name=m.group(1).strip(' -:\t')
+        if name.lower() in ('note','example','total','weight'): continue
+        if name not in [d['name'] for d in doms]:
+            doms.append(dict(name=name, weight_min_pct=int(m.group(2)), weight_max_pct=int(m.group(3))))
+    for m in (re.finditer(r'([A-Z][^()\n]{3,80}?)\s*\((\d+)\s*[\u2013\-–to]+\s*(\d+)\s*%\)', blob) if not doms else []):
         name=m.group(1).strip(' -:\t')
         if name.lower() in ('note','example','total','weight'): continue
         if name not in [d['name'] for d in doms]:
             doms.append(dict(name=name, weight_min_pct=int(m.group(2)), weight_max_pct=int(m.group(3))))
     if not doms:
-        for m in re.finditer(r'([A-Z][^:\n]{3,80}?):\s*(\d+)\s*%', blob):
+        for line in all_lines:
+            m=re.fullmatch(r'([A-Z][^:]{3,80}?):\s*(\d+)\s*%', line)
+            if not m: continue
             name=m.group(1).strip()
             if name not in [d['name'] for d in doms]:
                 doms.append(dict(name=name, weight_min_pct=int(m.group(2)), weight_max_pct=int(m.group(2))))

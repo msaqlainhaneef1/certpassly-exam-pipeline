@@ -19,8 +19,12 @@ def ocr_lines(path, scale=2):
     g = cv2.imread(path, cv2.IMREAD_GRAYSCALE); H, W = g.shape
     big = cv2.resize(g, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
     tmp = path + '.ocr.png'; cv2.imwrite(tmp, big)
-    r = subprocess.run(['tesseract', tmp, '-', '--psm', '11' if False else '3', 'tsv'], capture_output=True, text=True)
-    import os; os.remove(tmp)
+    import os, shutil
+    if not shutil.which('tesseract'):
+        os.remove(tmp)
+        return [], (W, H)  # Tesseract missing: no OCR draft; the author stage transcribes the image
+    r = subprocess.run(['tesseract', tmp, '-', '--psm', '3', 'tsv'], capture_output=True, text=True, encoding='utf-8', errors='replace')
+    os.remove(tmp)
     rows = list(csv.DictReader(io.StringIO(r.stdout), delimiter='\t', quoting=csv.QUOTE_NONE))
     lines = {}
     for w in rows:

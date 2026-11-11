@@ -63,6 +63,16 @@ def table(cols,rows,caption):
     h=f'<table><caption>{esc(caption)}</caption><thead><tr>'+''.join(f'<th scope="col">{esc(c)}</th>' for c in cols)+'</tr></thead><tbody>'
     for r in rows: h+='<tr>'+''.join(f'<td>{c}</td>' for c in r)+'</tr>'
     return h+'</tbody></table>'
+def ensure_tables(body, specs):
+    """Render sourced tables from computed rows when the author prose did not include them.
+
+    specs: list of (columns, rows, caption). Prose that already carries <table> is kept as is.
+    """
+    if '<table' in body: return body
+    html_t=''.join(table(c,r,cap) for c,r,cap in specs if r)
+    if not html_t: return body
+    i=body.find('<nav class="exam-links">')
+    return body[:i]+html_t+body[i:] if i>=0 else body+html_t
 def inhash(*files):
     parts=[]
     for f in files:
@@ -106,6 +116,7 @@ def build_exam(rpath):
     asof=fmt_date(O['outline_as_of']); dur=F['duration_minutes']['value']; ps=F['passing_score']['value']; langs=F['languages']['value']
     def cell(fk,val):
         f=F[fk]; s=src[f['source_id']] if f.get('source_id') else None
+        if f.get('value') in (None,'',[]): val=None  # never render 'None or higher' for an unpublished fact
         v_=esc(val) if val not in (None,'') else esc(NP)
         return v_+(f' ({link(s["url"],"source")}, checked {fmt_date(s["retrieved_at"])})' if s else '')
     nav=lambda here: '<nav class="exam-links"><h2>More on '+esc(code)+'</h2><ul>'+''.join(f'<li>{link(BASE+P[k],t)}</li>' for k,t in [('exam_hub',f'{code} exam overview'),('objectives',f'{code} skills measured'),('study_guide',f'{code} study guide'),('faq',f'{code} FAQ'),('practice_test',f'{code} practice test'),('certification',C['name']),('vendor',f'All {V["name"]} exams on {BRAND}')] if k!=here)+'</ul></nav>'
@@ -123,14 +134,14 @@ def build_exam(rpath):
     pages.append(page('exam-hub','exam_hub',P['exam_hub'],
         prose['exam_hub']['title_candidates'], prose['exam_hub']['desc_candidates'],
         prose['exam_hub']['h1'], crumbs(None)[:-1]+[(code,P['exam_hub'])],
-        prose_body(prose,'exam_hub',nav('exam_hub'),ctx), hub_tables, [], list(src.values()), out, code))
+        ensure_tables(prose_body(prose,'exam_hub',nav('exam_hub'),ctx),[(['Fact','Official value'],kf_rows,f'{code} key facts')]), hub_tables, [], list(src.values()), out, code))
     wmin=sum(d['weight_min_pct'] for d in doms); wmax=sum(d['weight_max_pct'] for d in doms)
     ob_rows=[[esc(d['code']),esc(d['name']),f'{d["weight_min_pct"]} to {d["weight_max_pct"]} percent'] for d in doms]
     ob_tables=prose['objectives'].get('tables') or {'objectives':ob_rows,'weight_min_sum':wmin,'weight_max_sum':wmax}
     pages.append(page('objectives','objectives',P['objectives'],
         prose['objectives']['title_candidates'], prose['objectives']['desc_candidates'],
         prose['objectives']['h1'], crumbs(('Objectives',P['objectives'])),
-        prose_body(prose,'objectives',nav('objectives'),ctx), ob_tables, [], [src['sg']], out, code))
+        ensure_tables(prose_body(prose,'objectives',nav('objectives'),ctx),[(['Code','Skill area','Official weight'],ob_rows,f'{code} skill areas and weights')]), ob_tables, [], [src['sg']], out, code))
     plan_rows=[[esc(d['name']),f'{d["weight_min_pct"]} to {d["weight_max_pct"]} percent','<br>'.join(link(r['url'],r['title']) for r in R['learning_resources'] if d['code'] in r['domains'])] for d in doms]
     sg_tables=prose['study_guide'].get('tables') or {'study_plan':plan_rows}
     course={"@context":"https://schema.org","@type":"Course","name":f'{code} study guide',"description":prose['study_guide'].get('course_description') or f'Study plan for the {code} exam built from the official skills outline dated {asof}.',
@@ -139,7 +150,7 @@ def build_exam(rpath):
     pages.append(page('study-guide','study_guide',P['study_guide'],
         prose['study_guide']['title_candidates'], prose['study_guide']['desc_candidates'],
         prose['study_guide']['h1'], crumbs(('Study guide',P['study_guide'])),
-        prose_body(prose,'study_guide',nav('study_guide'),ctx), sg_tables, [course], [src['sg'],src['cp']], out, code))
+        ensure_tables(prose_body(prose,'study_guide',nav('study_guide'),ctx),[(['Skill area','Official weight','Official learning'],plan_rows,f'{code} study plan by skill area')]), sg_tables, [course], [src['sg'],src['cp']], out, code))
     # FAQ schema: sourced answers only
     faq_src=prose['faq'].get('faq_sourced') or []
     faq_uns=prose['faq'].get('faq_unsourced') or []
@@ -159,7 +170,7 @@ def build_exam(rpath):
     pages.append(page('practice-test','practice_test',P['practice_test'],
         prose['practice_test']['title_candidates'], prose['practice_test']['desc_candidates'],
         prose['practice_test']['h1'], crumbs(('Practice test',P['practice_test'])),
-        prose_body(prose,'practice_test',nav('practice_test'),ctx), pt_tables, [], [src['sg'],src['cp']], out, code))
+        ensure_tables(prose_body(prose,'practice_test',nav('practice_test'),ctx),[(['Skill area','Planned share'],mix_rows,f'{code} planned practice mix')]), pt_tables, [], [src['sg'],src['cp']], out, code))
     return R,V,C,P,pages,prose
 
 def build_vendor(V,catalog_rows,current_code,prose):
@@ -171,7 +182,8 @@ def build_vendor(V,catalog_rows,current_code,prose):
     built.add(current_code)
     rec=page('vendor','vendor',path,prose['vendor']['title_candidates'],prose['vendor']['desc_candidates'],
         prose['vendor']['h1'],[('Home','/'),(V['name'],path)],
-        prose_body(prose,'vendor',None,ctx), prose['vendor'].get('tables') or {'exams':[]}, [], list(vs.values()), out, V['vendor_slug'])
+        ensure_tables(prose_body(prose,'vendor',None,ctx),[(['Exam','Name'],[[link(BASE+route('exam_hub',vendor=V['vendor_slug'],exam=r['exam_code'].lower()),r['exam_code']),esc(r.get('exam_name') or '')] for r in catalog_rows if r['exam_code'] in built],f'{V["name"]} exams with a draft package')]),
+        prose['vendor'].get('tables') or {'exams':[]}, [], list(vs.values()), out, V['vendor_slug'])
     mark(out,'vendor',h); return rec
 
 def build_cert(C,V,P,R,prose):
@@ -183,7 +195,8 @@ def build_cert(C,V,P,R,prose):
           "url":cs['url'],"recognizedBy":{"@type":"Organization","name":V['name'],"url":V['official_site']},"competencyRequired":[d['name'] for d in R['objectives']['domains']]}
     rec=page('certification','certification',path,prose['certification']['title_candidates'],prose['certification']['desc_candidates'],
         prose['certification']['h1'],[('Home','/'),(V['name'],route('vendor',vendor=V['vendor_slug'])),(prose['certification'].get('crumb_name') or C['name'].split(':')[-1].strip(),path)],
-        prose_body(prose,'certification',None,ctx), prose['certification'].get('tables') or {'requirements':[]}, [cred], [cs], out, C['certification_slug'])
+        ensure_tables(prose_body(prose,'certification',None,ctx),[(['Exam','Requirement','Official wording'],[[link(BASE+P['exam_hub'],x['code']) if x.get('code')==R['exam_code'] else esc(x.get('code','')),esc(x.get('requirement_type','')),esc(x.get('quote',''))] for x in C.get('required_exams') or []],f'{C["name"]} requirements')]),
+        prose['certification'].get('tables') or {'requirements':[]}, [cred], [cs], out, C['certification_slug'])
     mark(out,'certification',h); return rec
 
 if __name__=='__main__':

@@ -42,6 +42,7 @@ def run_script(args, logf, extra_env=None):
     env=os.environ.copy()
     if extra_env: env.update(extra_env)
     env['CERTPASSLY_ROOT']=paths.root()
+    env['PYTHONUTF8']='1'; env['PYTHONIOENCODING']='utf-8'
     env['PYTHONPATH']=HERE+(os.pathsep+env['PYTHONPATH'] if env.get('PYTHONPATH') else '')
     log(logf, '  $ '+' '.join(args))
     r=subprocess.run(args, cwd=paths.root(), env=env)
@@ -97,20 +98,65 @@ def load_research(root, exam, logf):
 
 def stage_catalog(opts, logf):
     sheet=opts.sheet or os.environ.get('CERTPASSLY_SHEET') or ''
+    cfg=config_load.load(os.environ.get('CERTPASSLY_CONFIG'))
+    sheet=sheet or ((cfg.get('paths') or {}).get('sheet') or '')
+    if not sheet and not os.path.exists(os.path.join(paths.root(),'sheet.csv')):
+        if os.path.exists(os.path.join(paths.root(),'catalog.csv')):
+            log(logf, 'catalog: no owner sheet given; using the existing catalog.csv (pass --sheet to rebuild it).')
+            return
+        log(logf, 'catalog: no owner sheet and no catalog.csv. Pass --sheet FILE.'); sys.exit(2)
     cmd=[sys.executable, os.path.join(HERE,'build_catalog.py'), '--root', paths.root()]
     if sheet: cmd+=['--sheet', sheet]
     run_script(cmd, logf)
 
+BINARY_EXT=('.vce','.exe','.bin','.dat','.apkg')
+
+def build_intake_from_folder(exam, folder, out, cfg, logf):
+    """Write intake/files.json and rights-confirmation.md from owner files already on disk.
+
+    PDFs are marked use=extracted (first one is the bank source), binary files such
+    as VCE are marked skipped and never parsed. Rights text comes from config
+    owner_rights_statement; without it the stage stops (rights are the owner's call).
+    """
+    import hashlib
+    files=[]
+    for name in sorted(os.listdir(folder)):
+        p=os.path.join(folder,name)
+        if not os.path.isfile(p): continue
+        low=name.lower()
+        rec=dict(path=os.path.abspath(p), size=os.path.getsize(p), sha256=hashlib.sha256(open(p,'rb').read()).hexdigest(), name=name)
+        if low.endswith('.pdf'): rec['use']='extracted'
+        elif low.endswith(BINARY_EXT): rec['use']='skipped: binary '+low.rsplit('.',1)[-1].upper()+', not decrypted'
+        else: rec['use']='skipped: unsupported file type'
+        files.append(rec)
+    if not any(f['use']=='extracted' for f in files):
+        log(logf, f'intake: no PDF in {folder}'); sys.exit(2)
+    stmt=(cfg.get('owner_rights_statement') or '').strip()
+    if not stmt:
+        log(logf, 'intake: set owner_rights_statement in pipeline.yaml (the owner confirms rights to these files), then rerun.')
+        sys.exit(2)
+    os.makedirs(out, exist_ok=True)
+    json.dump(dict(files=files), open(os.path.join(out,'files.json'),'w',encoding='utf-8'), indent=1, ensure_ascii=False)
+    with open(os.path.join(out,'rights-confirmation.md'),'w',encoding='utf-8') as fh:
+        fh.write(f'# Rights confirmation for {exam}\n\n{stmt}\n\nrights_status: asserted_by_owner\nlicense_status: not_checked\n\n')
+        for f in files: fh.write(f"* {f['name']} sha256 {f['sha256']} use: {f['use']}\n")
+    log(logf, f'intake: wrote files.json from {folder} ({len(files)} files; '+', '.join(f["use"] for f in files)+')')
+
+def owner_folder(exam, cfg):
+    tmpl=((cfg.get('paths') or {}).get('owner_files') or 'owner-files/{exam}')
+    p=tmpl.format(exam=exam)
+    return p if os.path.isabs(p) else os.path.join(paths.root(), p)
+
 def stage_intake(opts, logf, exam):
-    # Inventory if a roots file exists; write or refresh intake from already-downloaded files when possible.
-    roots=os.path.join(paths.root(),'cache','drive_roots.json')
-    if os.path.exists(roots) and not opts.offline:
-        run_script([sys.executable, os.path.join(HERE,'drive_inventory.py'), '--cache-only' if opts.offline else ''], logf)
     out=os.path.join(paths.root(),'out',exam,'intake')
-    if os.path.exists(os.path.join(out,'files.json')):
-        log(logf, f'intake already present at {out} (idempotent skip of download)')
+    if os.path.exists(os.path.join(out,'files.json')) and not opts.force:
+        log(logf, f'intake already present at {out} (idempotent skip). Pass --force to rebuild it.')
         return
-    log(logf, 'intake: no files.json yet. Place owner files, write intake/files.json (sha256, use=extracted|skipped) and intake/rights-confirmation.md, then rerun.')
+    cfg=config_load.load(os.environ.get('CERTPASSLY_CONFIG'))
+    folder=owner_folder(exam, cfg)
+    if os.path.isdir(folder):
+        return build_intake_from_folder(exam, folder, out, cfg, logf)
+    log(logf, f'intake: no owner files. Download the owner files for {exam} into {folder} (PDF plus any VCE), set owner_rights_statement in pipeline.yaml, then rerun.')
     sys.exit(2)
 
 def stage_sources(opts, logf, exam):
@@ -299,7 +345,24 @@ def select_exams(opts):
             seen.add(c); out.append(c)
     return out
 
+def _ensure_utf8():
+    """Windows defaults to a legacy code page; saved official pages and owner text are UTF-8.
+
+    Re-run once in Python UTF-8 mode so every open() in this process and its child
+    scripts reads UTF-8. A no-op on Linux and macOS with a UTF-8 locale.
+    """
+    import locale
+    if sys.flags.utf8_mode or os.environ.get('CERTPASSLY_UTF8_CHILD'):
+        return None
+    if (locale.getpreferredencoding(False) or '').lower().replace('-','') in ('utf8',):
+        return None
+    env=os.environ.copy(); env['PYTHONUTF8']='1'; env['PYTHONIOENCODING']='utf-8'; env['CERTPASSLY_UTF8_CHILD']='1'
+    return subprocess.run([sys.executable,'-X','utf8',os.path.abspath(__file__)]+sys.argv[1:], env=env).returncode
+
 def main():
+    rc=_ensure_utf8()
+    if rc is not None:
+        return rc
 
     names=[s[0] for s in STAGES]
     ap=argparse.ArgumentParser(description='Run the CertPassly exam pipeline (scripts first, one AI stage).')

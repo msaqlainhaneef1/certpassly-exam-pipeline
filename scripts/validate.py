@@ -27,7 +27,8 @@ keys={'vendors.csv':'vendor_key','certifications.csv':'certification_key','exams
 bad=[(f,i) for f,k in keys.items() for i,r in enumerate(csv.DictReader(open(f'{imp}/{f}'))) if not r[k]]
 chk('01b import key columns filled',not bad,bad)
 ex=next(csv.DictReader(open(f'{imp}/exams.csv')))
-chk('01c exam row has code, name, duration, passing score, URLs',all(ex[k] for k in ['exam_code','official_exam_name','official_duration_minutes','official_passing_score','official_exam_url','official_guide_url']),'')
+_ps_np=R['facts'].get('passing_score',{}).get('value') in (None,'') and bool(R['facts'].get('passing_score',{}).get('reason'))
+chk('01c exam row has code, name, duration, passing score, URLs',all(ex[k] for k in ['exam_code','official_exam_name','official_duration_minutes','official_exam_url','official_guide_url']) and (ex['official_passing_score'] or _ps_np),'passing score not published by the vendor' if _ps_np else '')
 # 2 facts have source + hash + quote on saved page
 srcmeta={}
 for root,_,fs in os.walk(f'{B}/sources/{v}'):

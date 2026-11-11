@@ -19,7 +19,7 @@ EXP={**_loadj(f'{OUT}/authoring/explanations_text.json', {}), **_loadj(f'{OUT}/a
 _bs=f'{B}/research/{R["vendor_slug"]}/{code}-bank-sources.json'
 BS={s['id']:s for s in _loadj(_bs, {'sources':[]}).get('sources') or []}
 src_meta={json.load(open(m))['url']:json.load(open(m)) for m in glob.glob(f'{B}/sources/{R["vendor_slug"]}/*.json')}
-types,_=Q.registry(); src_pdf=json.load(open(f'{OUT}/intake/files.json'))['files'][0]
+types,_=Q.registry(); src_pdf=next(f for f in json.load(open(f'{OUT}/intake/files.json'))['files'] if f.get('use')=='extracted' or str(f.get('name','')).lower().endswith('.pdf'))
 exam_key=code.lower(); ver=f'{exam_key}-{R["objectives"]["outline_as_of"]}'
 dom_key=lambda d:f'{ver}-d{d}'; top_key=lambda t:f'{ver}-d{t.split(".")[0]}-t{t}'
 META_PATH=f'{OUT}/authoring/bank_meta.json'
@@ -41,6 +41,10 @@ for k,it in S.items():
     vt=VT.get(k); qtype,reason=Q.classify(it,vt)
     if vt and vt.get('held'):
         held.append(dict(question_key=k,type='active_screen',reason=vt['reason'],stem=it['stem'],regions=vt.get('candidate_regions'))); continue
+    if it['options'] and not re.sub(r'[^A-H]','',it['answer_raw'].upper()):
+        held.append(dict(question_key=k,type=qtype,reason='no answer in the owner file; key not invented',stem=it['stem'],regions=[])); continue
+    if k not in EXP:
+        raise SystemExit(f'author stage: no explanation for {k} in authoring/explanations_text.json or explanations_visual.json')
     e=EXP[k]; t=types[qtype]; text=it['stem']+' '+' '.join(it['options'].values())+' '+' '.join((vt or {}).get('rows',[]))+' '+(vt or {}).get('template','')
     sk=skill(text); flags=[]; hr=False
     content={'prompt':it['stem']}; key={}; expl={'core':e['c']}; frozen={}; opts=[]
@@ -140,14 +144,19 @@ L+=['','## Image text','','Text inside answer-area images was read by Tesseract 
 open(f'{OUT}/CLEANUP-LOG.md','w').write('\n'.join(L)+'\n')
 from collections import Counter
 cnt=Counter(q['question_type'] for q in qs)
-RV=['# REVIEW','',f'{len(S)} items in the file. {len(qs)} imported as drafts, {len(held)} held. {len(review)} imported items carry flags. All 41 image-based items need human confirmation of text and key.','',
-    '## Held (not importable without owner input)','']+[f"* {h['question_key']}: {h['reason']}. Type would be {h['type']}. Visible clickable areas: {', '.join(h['regions'])}." for h in held]
+RV=['# REVIEW','',f'{len(S)} items in the file. {len(qs)} imported as drafts, {len(held)} held. {len(review)} imported items carry flags. '+(f'All {sum(1 for k in S if VT.get(k) and not VT[k].get("held"))} image-based items need human confirmation of text and key.' if any(VT.get(k) and not VT[k].get('held') for k in S) else 'No image-based items.'),'',
+    '## Held (not importable without owner input)','']+[f"* {h['question_key']}: {h['reason']}. Type would be {h['type']}. Visible clickable areas: {', '.join(h.get('regions') or []) or 'none'}." for h in held]
 RV+=['','## Flagged items','','| Question | Type | Flags |','|---|---|---|']+[f"| {k} | {t} | {'; '.join(f).replace('|','/')} |" for k,t,f in review]
 RV+=['','## Accuracy review summary','']+[f'* {a}: {n}' for a,n in Counter(q['accuracy_status'] for q in qs).most_common()]
 RV+=['','Accuracy statuses come from a check against the saved official pages listed in import/sources.csv. "key_could_not_be_checked" means the saved pages did not settle it in this pass; an SME must check those.']
-cover=META.get('cover_facts_conflict'); skipped=META.get('skipped_files') or []
+cover=META.get('cover_facts_conflict'); skipped=list(META.get('skipped_files') or [])
+# Files the intake stage skipped (VCE and other binaries) are listed even if bank_meta forgot them.
+for f in json.load(open(f'{OUT}/intake/files.json')).get('files') or []:
+    if str(f.get('use','')).startswith('skipped') and not any(f.get('name','') in x for x in skipped):
+        skipped.append(f"{f.get('name')} (sha256 {str(f.get('sha256',''))[:16]}): {f.get('use')}")
 if cover:
-    RV+=['','## Cover facts in the file that differ from the official page','','* '+cover]
+    cover=[cover] if isinstance(cover,str) else [str(c) for c in cover]
+    RV+=['','## Cover facts in the file that differ from the official page','']+['* '+c for c in cover]
 if skipped:
     RV+=['','## VCE file skipped' if any('.vce' in s.lower() for s in skipped) else '## Skipped source files','']+[f'* {s}' for s in skipped]
 open(f'{OUT}/REVIEW.md','w').write('\n'.join(RV)+'\n')
