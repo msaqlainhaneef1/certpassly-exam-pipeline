@@ -12,6 +12,7 @@ import os, re
 
 LIGS = ('ffi', 'ffl', 'fi', 'fl', 'ff')
 _DATA = None
+_KNOWN = set()
 
 
 def _load(path=None):
@@ -19,7 +20,7 @@ def _load(path=None):
     if _DATA is not None and path is None:
         return _DATA
     path = path or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config', 'ligature_words.txt')
-    sec, lig, keep = None, set(), set()
+    sec, lig, keep, known = None, set(), set(), set()
     if os.path.exists(path):
         for line in open(path, encoding='utf-8'):
             line = line.strip()
@@ -28,7 +29,9 @@ def _load(path=None):
             if line.startswith('['):
                 sec = line.strip('[]')
                 continue
-            (lig if sec == 'ligature_words' else keep if sec == 'keep_short' else set()).add(line.lower())
+            (lig if sec == 'ligature_words' else keep if sec == 'keep_short' else known if sec == 'known_words' else set()).add(line.lower())
+    global _KNOWN
+    _KNOWN = known
     _DATA = (lig, keep)
     return _DATA
 
@@ -84,3 +87,27 @@ def repair(text: str, data=None):
     # Glyph lost at the start of a word: "the rst", "les", "ngerprint". Lower case only.
     text = re.sub(r'(?<![A-Za-z\-])([a-z]{2,})(?![A-Za-z\-])', lead, text)
     return text, changes
+
+
+def suspect_lost_ligatures(text: str, data=None, known=None):
+    """Words that repair() could not fix because the PDF left no gap ("unied" for "unified").
+
+    A token is suspect when it is not a known word but becomes a ligature word once fi, fl, ff,
+    ffi or ffl is put back inside it. Returns [(token, candidate), ...]. Nothing is changed:
+    the caller lists these for the owner. Data driven (config/ligature_words.txt), no names.
+    """
+    lig_words, keep = data or _load()
+    if known is None:
+        _load()
+        known = _KNOWN
+    out, seen = [], set()
+    for tok in re.findall(r'[A-Za-z]+', text or ''):
+        w = tok.lower()
+        if len(w) < 4 or w in lig_words or w in keep or w in known or w in seen:
+            continue
+        for i in range(1, len(w)):
+            c = next((w[:i] + L + w[i:] for L in LIGS if w[:i] + L + w[i:] in lig_words), None)
+            if c:
+                out.append((tok, _case(tok, c))); seen.add(w)
+                break
+    return out

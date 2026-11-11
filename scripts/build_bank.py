@@ -13,6 +13,14 @@ def sha(p): return hashlib.sha256(open(p,'rb').read()).hexdigest()
 def _loadj(path, default):
     return json.load(open(path,encoding='utf-8')) if os.path.exists(path) else default
 S=json.load(open(f'{EX}/split.json'))
+# Owner rule: spelling, grammar and punctuation fixes to stems and options (scripts/text_fixes.py).
+# Keys and option order never change; finalize() refuses to apply when the key identity digest moves.
+import text_fixes as TF
+TFX,TFR=TF.finalize(OUT, R['vendor_slug'], B)
+for _k,_fs in TFX.items():
+    for _f,_t in _fs.items():
+        if _f=='stem': S[_k]['stem']=_t
+        else: S[_k]['options'][_f.split('.',1)[1]]=_t
 VT=_loadj(f'{EX}/visual_transcription.json', {})
 VD=_loadj(f'{EX}/visual_draft.json', {})
 EXP={**_loadj(f'{OUT}/authoring/explanations_text.json', {}), **_loadj(f'{OUT}/authoring/explanations_visual.json', {})}
@@ -211,6 +219,9 @@ def mask(t):
 for c in cleanups: c['before']=mask(c['before'])
 L=['# CLEANUP LOG','','Every removal or repair between the raw PDF text layer and the imported text. Removals of seller branding, contact links, update offers and cover facts are owner-authorized (see intake/rights-confirmation.md).','',
    '| # | Question | Field | Before | After | Reason |','|---|---|---|---|---|---|']+[f"| {i} | {c['question_key']} | {c['field']} | {c['before'].replace('|','/')[:120]} | {c['after'] or '(removed)'} | {c['reason']} |" for i,c in enumerate(cleanups,1)]
+L+=['','## Spelling, grammar and punctuation fixes (text-fixes.json)','',
+    f"{TFR['fix_count']} fixes in {TFR['items_changed']} items, by kind: {json.dumps(TFR['counts_by_kind'])}. Keys and option order unchanged (key identity sha256 {TFR['key_identity']['after_sha256'][:16]}, before = after).",'',
+    '| Question | Field | Before | After | Kind | Source |','|---|---|---|---|---|---|']+[f"| {x['item']} | {x['field']} | {x['before'].replace('|','/')} | {x['after'].replace('|','/')} | {x['kind']} | {x['source']} |" for x in TFR['fixes']]
 L+=['','## Image text','','Text inside answer-area images was read by Tesseract OCR (scripts/vision_util.py) as a draft and then transcribed from the image into extracted/visual_transcription.json. Those items are marked human_review_required. Lone periods that sit after a drop-down box in the image are kept in the template.']
 open(f'{OUT}/CLEANUP-LOG.md','w').write('\n'.join(L)+'\n')
 from collections import Counter
@@ -224,6 +235,16 @@ RV+=['','## Answer not found (draft, excluded from scoring)','']+\
 RV+=['','## Flagged items','','| Question | Type | Flags |','|---|---|---|']+[f"| {k} | {t} | {'; '.join(f).replace('|','/')} |" for k,t,f in review]
 RV+=['','## Accuracy review summary','']+[f'* {a}: {n}' for a,n in Counter(q['accuracy_status'] for q in qs).most_common()]
 RV+=['','Accuracy statuses come from a check against the saved official pages listed in import/sources.csv. "key_could_not_be_checked" means the saved pages did not settle it in this pass; an SME must check those.']
+# Lost ligature glyphs the extract could not repair (no gap left in the text layer). Text is never changed here.
+import text_repair as _TR
+_lig=[(k,f,tok,c) for k,it in S.items() for f,txt in [('stem',it['stem'])]+[('option '+o.upper(),v) for o,v in it['options'].items()] for tok,c in _TR.suspect_lost_ligatures(txt)]
+RV+=['','## Text that needs owner attention: possible lost fi/fl ligature','',
+     'A script check (scripts/text_repair.py) on the text after the fixes above found words that are not known words but read as a common word once a lost fi, fl, ff, ffi or ffl glyph is put back. Confirm and correct in the source.','']+\
+    ([f'* {k} {f}: "{tok}" may be "{c}"' for k,f,tok,c in _lig] or ['* none'])
+RV+=['','## Spelling, grammar and punctuation fixes','',
+     f"{TFR['fix_count']} fixes applied to stems and options in {TFR['items_changed']} items (out/{code}/text-fixes.json). By kind: {json.dumps(TFR['counts_by_kind'])}; by source: {json.dumps(TFR['counts_by_source'])}. Proposals rejected in the author pass: {len(TFR['rejected_proposals'])}.",
+     f"Key identity (key letters, option ids in order, option count, visual key per item): {TFR['key_identity']['items']} items, sha256 before {TFR['key_identity']['before_sha256'][:16]} = after {TFR['key_identity']['after_sha256'][:16]}. No key or option order changed.",'']+\
+    [f"* {x['item']} {x['field']}: \"{x['before']}\" -> \"{x['after']}\" ({x['kind']}, {x['source']})" for x in TFR['fixes']]
 cover=META.get('cover_facts_conflict'); skipped=list(META.get('skipped_files') or [])
 # Files the intake stage skipped (VCE and other binaries) are listed even if bank_meta forgot them.
 for f in json.load(open(f'{OUT}/intake/files.json')).get('files') or []:

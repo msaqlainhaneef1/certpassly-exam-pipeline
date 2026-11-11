@@ -237,6 +237,18 @@ for x in QS:
             _anf.append(x['question_key'])
     elif x.get('scoring_excluded'): _arp.append(x['question_key']+' excluded but keyed')
 chk('12l researched keys: official domain, saved copy sha256, verbatim quote, unverified + reviewer flag, listed in REVIEW.md',not _arp,_arp or f"{sum(1 for x in QS if x.get('answer_key_status')=='researched_unverified')} researched")
+# 12n owner rule: text fixes never change keys or option order (digest recomputed from split.json vs questions.json)
+import text_fixes as _TF
+_tfp=f'{OUT}/text-fixes.json'
+if _have_bank:
+    _vt=json.load(open(f'{OUT}/extracted/visual_transcription.json')) if os.path.exists(f'{OUT}/extracted/visual_transcription.json') else {}
+    _bd=_TF.digests_from_split(SPL,_vt); _ad=_TF.digests_from_questions(QS,_vt)
+    _ar={k for k,x in ((x['question_key'],x) for x in QS) if x.get('answer_key_status') in ('researched_unverified','answer_not_found')}
+    _diff=[k for k in _bd if k not in _ar and _bd.get(k)!=_ad.get(k)]
+    _tf=json.load(open(_tfp)) if os.path.exists(_tfp) else None
+    _ok=not _diff and _tf is not None and _tf['key_identity']['identical'] and _tf['key_identity']['before_sha256']==_TF.overall(_bd)
+    chk('12n text fixes keep keys and option order (key letters + option ids + count per item, split.json vs questions.json)',_ok,
+        _diff[:10] if _diff else ('text-fixes.json missing' if _tf is None else f"{len(_bd)} items identical; {_tf['fix_count']} text fixes {_tf['counts_by_kind']}; digest {_TF.overall(_bd)[:16]}"))
 chk('12m answer_not_found items kept as drafts, listed in REVIEW.md, excluded from scoring in simulator settings; nothing held',not _anf and not QJ['held_for_review'],_anf or f"{sum(1 for x in QS if x.get('answer_key_status')=='answer_not_found')} answer_not_found, {len(QJ['held_for_review'])} held")
 chk('12b practice page states the bank is not ready',"practice bank is not ready" in text(htmls['practice_test']),'')
 sim=json.load(open(f'{OUT}/simulator_settings.json'))

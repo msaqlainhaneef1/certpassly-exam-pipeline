@@ -56,6 +56,30 @@ brand_denylist:
   - tutorialsdojo
   - "exam replay"
 
+# Raw extracts never ship in the package zip (globs relative to out/<CODE>/); the workspace keeps them
+# for audit. Files under extracted/ that still hold a removed seller line are dropped too, and the
+# finished zip is scanned against brand_denylist and contact_patterns (package stage fails on a hit).
+package_exclude:
+  - extracted/raw.xml
+  - "extracted/*.txt"
+  - extracted/cleanups.json
+  - extracted/unparsed.json
+  - extracted/visual_draft.json
+  - "media/src/*"
+
+# Owner rule: stems and options get spelling, grammar and punctuation fixes only. Never change meaning,
+# the correct answer, or option order. Official vendor product names stay exact. Every change is logged
+# in out/<CODE>/text-fixes.json and gated by the key and option-order identity check (validate 12n).
+# auto: kinds the script fixes on its own. Other kinds (article, typo) are decided in the author batch.
+text_fixes:
+  enabled: true
+  auto:
+    - lost_ligature
+    - repeated_word
+    - space_before_punct
+    - double_space
+  typo_min_length: 5
+
 banned_phrases:
   - "in today's fast paced world"
   - "in today's fast-paced world"

@@ -139,3 +139,15 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 - Fix only what is flagged. A part that passed and was rewritten in a fix round is flagged. A second check must run after every fix (validate check 19 when `writing.validate_gate` is true).
 - The first run of the long-sentence check found a 41-word sentence in the shared editorial-policy block. Shared blocks are checked once as their own part, so the fix goes to `shared/`, not to every page.
 - No writing change may alter a key. The demo `import/questions.csv` sha256 is the same before and after v1.2.0.
+
+## v1.2.0 lessons (real run: Microsoft SC-900 from the owner Drive folder)
+
+- A Drive folder may hold no owner sheet. Build a one-row sheet from the folder name and exam code, and say so in the report. A clean sheet must still write a header-only `review.csv` (it crashed on an empty review list).
+- Some owner PDFs put the keyed answer image before an empty "Correct Answer:" line. Promote that image to the answer image instead of treating the item as unanswered (33 SC-900 items).
+- Lost ligature glyphs: the text layer can drop fi/fl and leave a gap ("speci c") or no gap at all ("unied"). Gaps are repaired by `text_repair.py`; no-gap words are found by `suspect_lost_ligatures` and fixed by the `textfix` stage. Common words that equal a ligature word minus its ligature ("tracking") are listed under `[known_words]` so they are never flagged.
+- Stems and options get spelling, grammar and punctuation fixes only. Never change meaning, the correct answer, or option order. Official vendor product names stay exact. Every change is logged in `text-fixes.json` and gated by the key and option-order identity check (validate 12n).
+- Exam length must never come from the extra-time rule ("30 extra minutes"). Discovery must prefer the exam's own page over a generic scoring page, and links with a `#fragment` must be kept.
+- DRAG DROP items are `drag_drop` (tiles, targets, pairs), not drop-downs. The marker gate (12f) rightly fails a DRAG DROP item typed as a drop-down.
+- A fact the vendor does not publish (languages, format, level) must render as "not published by the vendor", not crash the page build.
+- The package zip must never ship raw extracts. `raw.xml` and `cleanups.json` held the removed seller lines verbatim, and `media/src/` held the cover logo. The package stage now leaves them out, ships a redacted cleanups log, and scans every file in the zip (nested archives and camelCase-glued brands too) against the config denylist. Any hit fails the stage. Reports name the file and rule number, never the term.
+- Owner keys that current docs contradict are flagged (`key_wrong`, `key_outdated`, `key_arguable`) with a note, never changed. SC-900: 11 flagged.

@@ -27,9 +27,10 @@ STAGES=[
     ('sources','no','Fetch and hash official vendor pages listed in research JSON. Reuses saved copies.'),
     ('research','parser first','Fill or check research JSON from official pages using the vendor adapter in scripts/adapters (chosen from config/vendors.yaml). AI is allowed only for official facts the adapter lists as gaps, each with a quote and source id. Not the author stage.'),
     ('extract','no','Split the owner PDF, write visual_draft from OCR and marker boxes. No AI.'),
+    ('textfix','decide only','Propose spelling, grammar and punctuation fixes for stems and options (scripts/text_fixes.py): lost ligatures, repeated words and stray spaces are fixed by script; a/an and possible typos are decided in the author batch (authoring/text_fixes_decisions.json). Never changes keys or option order; product names on the saved official pages are protected. Applied in the bank stage and logged in text-fixes.json.'),
     ('answer_research','pick only','Items with no answer in the owner file: find candidate OFFICIAL pages (research sources, listed URLs, site-restricted search on official_domains), save them with sha256, rank matching lines. The key is picked by AI in the author batch (authoring/answer_research.json) and re-verified by script: official domain, saved copy, verbatim quote. No evidence: item stays as draft flagged answer_not_found and is excluded from scoring.'),
     ('intent','no','Build research/<vendor>/<CODE>.search-intent.json from research facts only: the main query per page, people-also-ask questions from official facts and recorded gaps, and which page answers each. Competitor notes (research/<vendor>/<CODE>.competitor-notes.json) are read as topic labels only. Runs before author and pages. A person may edit the file.'),
-    ('author','YES','THE AI STAGE. Batched only: rewrite explanations, write original page prose (page_prose.json), finish visual_transcription.json where OCR is not enough, and write bank_meta.json. Never invent questions. Never change stems, options or keys. This script does not call a model; it checks the files are present and stops with instructions if they are not.'),
+    ('author','YES','THE AI STAGE. Batched only: rewrite explanations, write original page prose (page_prose.json), finish visual_transcription.json where OCR is not enough, and write bank_meta.json. Never invent questions. Never change keys or option order; stems and options change only through text_fixes (spelling, grammar, punctuation). This script does not call a model; it checks the files are present and stops with instructions if they are not.'),
     ('pages','no','Build exam (and shared vendor/cert) pages from research JSON + page_prose.json. Vendor and cert pages are skipped when their inputs have not changed.'),
     ('writing','no','Writing check after pages (scripts/check_writing.py, no AI): banned AI phrases, long sentences, dashes, unsourced numbers, grade and word count, search-intent coverage, competitor overlap. Writes writing-review.json and WRITING-REVIEW.md (failed checks only) and authoring/writing_fix_request.json. Only flagged parts go back for a fix, then pages and writing run again (the second check). Exit 1 on flags unless writing.fail_on_flags is false; open flags stay in REVIEW.md.'),
     ('import','no','Write workbook CSVs, sidecars (including page_meta_extras.csv) and simulator_settings.json from the generated pages.'),
@@ -75,7 +76,7 @@ def preflight(cfg, exam, logf, stages):
     for key in ('CERTPASSLY_APP','APP_REPO','CERTPASSLY_REPO'):
         if os.environ.get(key):
             log(logf, f'note: {key} is set but will be ignored; the skill is self-contained.')
-    later={'sources','research','extract','intent','author','bank','pages','writing','import','validate','package'}
+    later={'sources','research','extract','textfix','intent','author','bank','pages','writing','import','validate','package'}
     if later & set(stages) and not exam:
         problems.append('--exam CODE is required for this stage')
     if problems:
@@ -252,6 +253,12 @@ def stage_extract(opts, logf, exam):
     run_script([sys.executable, os.path.join(HERE,'extract_owner_pdf.py'), pdf, out], logf)
     run_script([sys.executable, os.path.join(HERE,'analyze_visual.py'), out], logf)
 
+def stage_textfix(opts, logf, exam):
+    import text_fixes
+    rpath,R=load_research(paths.root(), exam, logf)
+    r=text_fixes.propose(os.path.join(paths.root(),'out',exam), R['vendor_slug'], paths.root())
+    log(logf, f"textfix: {len(r['proposals'])} proposals {r['counts']}; {len(r['undecided'])} need an author decision; out/{exam}/text-fixes-proposals.json")
+
 def stage_answer_research(opts, logf, exam):
     import answer_research
     out=os.path.join(paths.root(),'out',exam)
@@ -303,10 +310,18 @@ def stage_author(opts, logf, exam):
         try: pend=[k for k,r in json.load(open(arp,encoding='utf-8')).items() if r.get('status')=='pending_ai_pick']
         except Exception: pend=[]
         if pend: missing.append('answer_research.json (pick keys for '+', '.join(pend)+' from answer_research/candidates.json; verbatim quotes only)')
+    tfp=os.path.join(paths.root(),'out',exam,'text-fixes-proposals.json')
+    if os.path.exists(tfp):
+        try:
+            und=json.load(open(tfp,encoding='utf-8')).get('undecided') or []
+            dec=json.load(open(os.path.join(out,'text_fixes_decisions.json'),encoding='utf-8')).get('decisions') or {} if os.path.exists(os.path.join(out,'text_fixes_decisions.json')) else {}
+        except Exception: und,dec=[],{}
+        und=[i for i in und if i not in dec]
+        if und: missing.append(f'text_fixes_decisions.json (accept or reject {len(und)} proposals from text-fixes-proposals.json: '+', '.join(und[:6])+(' ...' if len(und)>6 else '')+')')
     if missing:
         log(logf, 'AUTHOR STAGE (the only AI stage). Files still needed:')
         for m in missing: log(logf, '  - '+m)
-        log(logf, 'Write them in one batched pass: original page prose, rewritten explanations, bank_meta (skill map, skipped files, cover-fact notes), and visual transcription where OCR is not enough. Follow reference/writing-brief.md. Answer the questions research/<vendor>/'+exam+'.search-intent.json assigns to each page. Use competitor notes as topics only, never their wording. Do not invent questions. Do not change stems, options or keys. Then rerun --stage author (or the remaining stages).')
+        log(logf, 'Write them in one batched pass: original page prose, rewritten explanations, bank_meta (skill map, skipped files, cover-fact notes), and visual transcription where OCR is not enough. Follow reference/writing-brief.md. Answer the questions research/<vendor>/'+exam+'.search-intent.json assigns to each page. Use competitor notes as topics only, never their wording. Do not invent questions. Do not change keys or option order; stem and option text changes go through authoring/text_fixes_decisions.json only (spelling, grammar, punctuation). Then rerun --stage author (or the remaining stages).')
         sys.exit(2)
     # light presence check: explanations cover split items later in bank/validate
     log(logf, 'author: required files present (explanations, page_prose, bank_meta). AI is not invoked by this script.')
@@ -375,6 +390,10 @@ def stage_package(opts, logf, exam):
     def copytree(src, dst):
         if os.path.exists(src): shutil.copytree(src, dst, dirs_exist_ok=True)
     copytree(os.path.join(root,'out',exam), os.path.join(dest, exam))
+    # Owner rule: raw extracts and removed seller lines never ship (workspace copies stay for audit).
+    import package_guard as PG
+    S=site_settings.load(); cfg=config_load.load(os.environ.get('CERTPASSLY_CONFIG'))
+    PG.prepare(os.path.join(dest, exam), S, cfg, log=lambda m: log(logf, m))
     copytree(os.path.join(root,'out','vendors',R['vendor_slug']), os.path.join(dest,'vendors',R['vendor_slug']))
     copytree(os.path.join(root,'out','certifications',R['certification_slug']), os.path.join(dest,'certifications',R['certification_slug']))
     # include run.log if present
@@ -388,6 +407,16 @@ def stage_package(opts, logf, exam):
         shutil.move(archive, zip_path)
         archive=zip_path
     shutil.rmtree(staging, ignore_errors=True)
+    # Gate: scan every file in the finished zip against the config denylist.
+    res=PG.scan_zip(archive, S); rep=PG.write_report(res, archive+'.scan.json')
+    log(logf, f"package scan: {rep['members']} members, {rep['files_scanned']} text files scanned, {rep['images_skipped']} images skipped, {rep['nested_archives']} nested archives, {rep['hit_count']} denylist hits; report {archive}.scan.json")
+    if res['hits']:
+        for f,label,term in res['hits']:
+            log(logf, f'  DENYLIST HIT {f}: {label}')
+            print(f'  DENYLIST HIT {f}: {label} ({term})', file=sys.stderr, flush=True)
+        os.remove(archive)
+        log(logf, f'  package removed: it must not ship with denylist hits')
+        sys.exit(1)
     log(logf, f'package written: {archive}')
 
 HANDLERS={
@@ -396,6 +425,7 @@ HANDLERS={
     'sources': stage_sources,
     'research': stage_research,
     'extract': stage_extract,
+    'textfix': stage_textfix,
     'answer_research': stage_answer_research,
     'intent': stage_intent,
     'author': stage_author,

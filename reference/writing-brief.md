@@ -57,6 +57,16 @@ Bad and good examples:
 10. Bad: "Unlock the power of..." or "This game-changer..." or "Holistic approach."
     Good: Name the concrete skill or task from the outline.
 
+## Question stems and options: spelling, grammar and punctuation only
+
+Stems and options get spelling, grammar and punctuation fixes only. Never change meaning, the correct answer, or option order. Official vendor product names stay exact. Every change is logged in `text-fixes.json` and gated by the key and option-order identity check (validate 12n).
+
+- The `textfix` stage (`scripts/text_fixes.py`) proposes fixes. Lost fi/fl ligatures ("unied" for "unified"), repeated words and stray spaces are fixed by script. "a" or "an" and possible typos are decided by the writer in the author batch.
+- Decide in `out/<CODE>/authoring/text_fixes_decisions.json`: accept or reject each proposal by id, with a short note. Add an obvious grammar or punctuation fix the script missed under `extra` (item, field, exact before text, after text, kind, reason).
+- Reject a proposal when the text is already right ("a SIEM", "a user", "an SSH key") or when the change would alter meaning.
+- Do not rename a product, even to its newer name. Words on the saved official pages and words with a capital letter are protected; the guard rejects a fix that drops one.
+- Do not touch the key, the option letters or their order. The bank stage refuses to apply fixes if the key identity digest changes, and validate 12n checks it again.
+
 ## The check, then fix only what is flagged
 
 1. After the pages stage, the `writing` stage runs `scripts/check_writing.py`. The existing gates still run in `validate`.
@@ -75,5 +85,5 @@ Before an authoring batch is accepted, the writer confirms each line. The script
 3. No phrase from the banned AI list, unless it is inside a vendor quote. (Script.)
 4. Each page answers the search-intent questions assigned to it. (Script.)
 5. Competitor notes were used as topics only. No copied wording. (Script.)
-6. No invented key, no invented fact, no invented question. (Writer. Bank and validate gates keep stems, options and keys as they are in the source.)
+6. No invented key, no invented fact, no invented question. Stem and option text changed only for spelling, grammar or punctuation, each change in `text-fixes.json`. (Writer. Validate 12n proves keys and option order are unchanged.)
 7. Grade and word-count gates still pass. (Script.)

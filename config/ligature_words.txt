@@ -3433,3 +3433,27 @@ youth
 z
 zero
 zone
+
+[known_words]
+# Common words that equal a ligature word with its fi/fl/ff/ffi/ffl removed (e.g. a word that
+# reads like "trafficking" without "ffi"). The lost-ligature detector never flags these.
+# Generated once: interior ligature deletions of [ligature_words] intersected with a 20k common-word list.
+armed
+arms
+betting
+coin
+coins
+cons
+deed
+duel
+full
+grin
+human
+mist
+rule
+ruled
+rules
+species
+tracked
+tracking
+true

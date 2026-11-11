@@ -1,8 +1,28 @@
 # Changelog
 
-## Unreleased (1.2.0 draft, not tagged)
+## 1.2.0 (2026-11-11)
 
-Writing work from the v1.2.0 plan (HANDOVER.md section 8). The version in `pyproject.toml` stays 1.1.5 until the release is agreed and CI is green.
+Writing work from the v1.2.0 plan (HANDOVER.md section 8), plus the fixes found by the first real run (Microsoft SC-900 from the owner Drive folder: 253 imported, 0 held).
+
+### Owner rules
+
+- Stems and options get spelling, grammar and punctuation fixes only. Never change meaning, the correct answer, or option order. Official vendor product names stay exact. Every change is logged in `text-fixes.json` and gated by the key and option-order identity check (validate 12n).
+- The package zip never ships raw extracts or a denylist term. The package stage fails on a hit.
+
+### Real-run fixes and gates
+
+- Catalog: a sheet with nothing to review no longer crashes; `review.csv` is header only.
+- Extract: a keyed answer image placed before an empty "Correct Answer:" line becomes the answer image.
+- Extract: words whose fi/fl/ff/ffi/ffl glyph the PDF text layer lost are repaired when a gap is left (`scripts/text_repair.py`, `config/ligature_words.txt`).
+- Research: exam length is never taken from the extra-time rule; discovery prefers the exam's own page and keeps links with a `#fragment`.
+- Bank: DRAG DROP items become `drag_drop` (tiles as `left`, targets as `right`, key `pairs`). Validate 12f, 12g and 12h check them. Pages: unpublished languages, format and level render as "not published by the vendor".
+- New stage `textfix` and `scripts/text_fixes.py`: spelling, grammar and punctuation fixes for stems and options. Script rules (lost ligature with no gap, repeated word, space before punctuation, double space) and author decisions (`authoring/text_fixes_decisions.json` for a/an and possible typos, plus `extra` fixes). Protected words: vendor terms on the saved official pages and capitalized words. Applied in the bank stage, logged in `text-fixes.json`, summarized in REVIEW.md and CLEANUP-LOG.md. New `text_fixes:` block in `config/pipeline.example.yaml`.
+- Key identity gate: a digest of key letters, option ids in order, option count and the visual key per item, before and after text fixes. The bank stage refuses to apply a change that moves it; validate 12n recomputes it from `split.json` against `questions.json`.
+- `suspect_lost_ligatures` lists words still missing a ligature in REVIEW.md for the owner; `[known_words]` keeps common words from being flagged.
+- New `scripts/package_guard.py`: the package stage leaves out raw extracts (`package_exclude` in `pipeline.yaml`, plus any file under `extracted/` that still holds a removed seller line), ships `extracted/cleanups.redacted.json` and `PACKAGE-EXCLUDED.json`, then scans every file in the zip (nested archives, camelCase-glued brands) against `brand_denylist` and `contact_patterns`. Any hit fails the stage and removes the zip. `<zip>.scan.json` reports files and rule numbers, never the term.
+- Tests: `tests/test_v120_real.py`.
+
+### Writing brief and the check-then-fix loop
 
 - New `reference/writing-brief.md`: plain English, short sentences, a summary of Google's people-first guidance, the banned AI-phrase list with bad and good examples, the check-then-fix loop, and the self-check.
 - New `config/banned_ai_phrases.txt`: the banned AI-phrase list as data. A workspace can add `config/banned_ai_phrases.txt`. `banned_phrases` in `pipeline.yaml` are checked too.
@@ -15,7 +35,7 @@ Writing work from the v1.2.0 plan (HANDOVER.md section 8). The version in `pypro
 - `shared/site/editorial-policy.json` 1.1.0: one 41-word sentence split into three short ones (found by the new long-sentence check).
 - `config/pipeline.example.yaml`: new `writing:` block.
 - Demo kit: each demo now has a synthetic competitor-notes file with a sentence that must never reach an output.
-- Tests: `tests/test_v120.py` and fixtures in `tests/fixtures/v120/`. Demo stems, options and keys are unchanged (same `import/questions.csv` sha256 as v1.1.5).
+- Tests: `tests/test_v120.py` and fixtures in `tests/fixtures/v120/`. Demo keys and option order are unchanged.
 
 ## 1.1.5
 
