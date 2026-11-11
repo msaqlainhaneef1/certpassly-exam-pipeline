@@ -18,6 +18,7 @@ Scripts-first skill for draft, site-ready exam pages and question-import files. 
 10. Pages stay draft. No Course schema on the practice-test page. Twitter / og:image / last-checked go in `page_meta_extras.csv`.
 11. Batch AI. The only AI stage is `author`. Research uses a vendor adapter first; AI may fill only listed official gaps, each with a quote.
 12. This pipeline never reads the site application, artisan or GitHub. It reads `reference/site-format/` (version from `site_format_version`, default `v1`).
+13. All page prose and explanations follow [reference/writing-brief.md](reference/writing-brief.md): plain English, short sentences, people first, no banned AI phrases. Competitor notes are topics only. Never copy their wording.
 
 ## When to use
 
@@ -48,12 +49,25 @@ If the zip does not open from a chat window, copy it to the Desktop and unzip th
 | research | parser first | `research_init.py build` writes `research/<vendor>/<CODE>.json` (plus vendor/cert files when missing) from the adapter output: every fact has source_id, url, sha256 and a verbatim quote, otherwise "not published by the vendor". Gaps go to `research/gaps.json` for one optional batched gap pass. Hand-written research files are never overwritten. |
 | extract | no | Split the owner PDF (layout detected). Write `layout.json` and `unparsed.json`. |
 | answer_research | pick only | No-answer items: candidate OFFICIAL pages (research sources, `authoring/answer_research_urls.json`, site-restricted search on `official_domains`), saved with sha256; matching lines ranked; region boxes proposed by script for image items. Non-official URLs are rejected and logged. |
+| intent | no | `search_intent.py` writes `research/<vendor>/<CODE>.search-intent.json` from research facts only: the main query for each page, people-also-ask questions from official facts and recorded gaps, and which page answers each one. No number is invented. Topic labels from `research/<vendor>/<CODE>.competitor-notes.json` are recorded as topics only, each marked with whether a saved official page supports it. A person may edit the file (set `edited_by_person: true` to keep the edits). |
 | author | YES | The AI stage. Batched: original page prose, rewritten explanations, `bank_meta`, visual transcription where OCR fails. Does not invent questions or change stems, options or keys. Also writes `answer_research.json` (key, source_url, verbatim quote, confidence) from `answer_research/candidates.json` in the same batch. `run_pipeline` only checks that the files exist. |
 | pages | no | Build exam pages from research + `page_prose`. Insert shared sections by key. Render the five sourced tables (key facts, objectives, study plan, vendor exams, certification requirements) from research when the prose has none. Skip vendor/cert pages when unchanged. |
+| writing | no | `check_writing.py` (no AI) applies the writing brief to the built pages and the explanations. Writes `writing-review.json` and `WRITING-REVIEW.md` (failed checks only) and `authoring/writing_fix_request.json` (only the flagged parts). Exit 1 on flags unless `writing.fail_on_flags` is false. Also runs after every pages rebuild. |
 | import | no | Workbook CSVs, `page_meta_extras.csv`, simulator settings. |
 | bank | no | `questions.json`, question CSVs, media, REVIEW.md, CLEANUP-LOG.md. No-answer items: researched key re-verified by script (official domain, saved copy, verbatim quote) and imported as `researched_unverified` / `key_source=researched_official` / `verification_status=unverified`; no evidence gives `answer_not_found`, listed in REVIEW.md and in `simulator_settings.json` `scoring_excluded_question_keys`. Intake-skipped files are listed in REVIEW.md automatically. |
 | validate | no | Manifest, `validate.py`, `check_bank.py`. Exit 1 on a failed check. |
 | package | no | Zip the exam package plus shared vendor and certification pages. |
+
+## Writing brief, search intent and the check-then-fix loop
+
+Read [reference/writing-brief.md](reference/writing-brief.md) before the author stage. It holds the plain-English rules, a short summary of Google's people-first guidance, the banned AI-phrase list with bad and good examples, and the self-check. The phrase list is data in `config/banned_ai_phrases.txt` (a workspace can add its own `config/banned_ai_phrases.txt`).
+
+- Inputs for the author: the research file, the search-intent file `research/<vendor>/<CODE>.search-intent.json` (built by the `intent` stage), and the optional competitor-notes file `research/<vendor>/<CODE>.competitor-notes.json` from the CertPassly Researcher. Competitor notes are topics only. Cover a topic only when a saved official page supports it; otherwise skip it or say the vendor did not publish it.
+- `build_pages.py` copies each page's main query and assigned questions into the page JSON (`search_intent`). It never reads competitor notes.
+- The `writing` stage flags: banned AI phrases (vendor quotes found word for word on a saved official page are exempt), long sentences, typographic dashes, numbers that are not in the research files, thin pages, a high reading grade, search-intent questions a page does not answer (topic, official answer, source link), invented numbers in the search-intent file, and runs of 8 or more words copied from the competitor notes.
+- Only the flagged parts go back for a fix (`authoring/writing_fix_request.json`). A part that had no flag and was rewritten in a fix round is flagged too. Then rerun `--stage pages --stage writing`. A second check is required: with `writing.validate_gate: true`, validate check 19 fails unless the latest writing check ran on the current files and found zero flags.
+- Open flags stay in `REVIEW.md`. Never mark a record published or verified to clear a flag. The writing check never changes stems, options or keys.
+- Settings live under `writing:` in `pipeline.yaml` (`fail_on_flags`, `validate_gate`, `max_sentence_words`, `competitor_overlap_words`, `min_words`, `max_grade`, `answer_window_chars`).
 
 ## Vendor adapters
 
@@ -77,12 +91,13 @@ Reusable blocks under `shared/` (site, vendor, certification, question-type). Te
 
 - `tests/test_demo_end_to_end.py` builds two synthetic demo workspaces with `tests/demo_kit.py` (one per adapter path: the Microsoft adapter and the generic adapter) and runs every default stage through the CLI with no manual step. Each demo PDF carries seller branding, a social link, a phone, an email and a free-update line (stripping is checked), six items (single choice, multiple select, Yes/No matrix, inline drop-down, one image-only item with no evidence (answer_not_found), one no-answer item keyed by answer_research from a saved official page) and a skipped VCE file.
 - `tests/test_v110.py`: answer_research (researched key + quote, answer_not_found, rejected non-official pick / non-verbatim quote / bad key), Drive download against a local mock (hash, resume, HTML error), render fallback, research JSON generation, and a grep gate for exam literals in scripts.
+- `tests/test_v120.py`: writing brief file, banned-phrase checker (bad and good examples, vendor quotes), search intent from research facts only, intent coverage, competitor overlap, no model calls in the runner, and the full check-then-fix loop on a demo workspace (flags, fix request, unflagged change, second check, identical stems, options and keys).
 - Try a demo yourself: `python tests/demo_kit.py microsoft DEMO_DIR` then `certpassly-pipeline --exam DM-101 --root DEMO_DIR --offline --date 2026-11-11` (generic path: profile `salesforce`, exam `Demo-Admn-101`).
 - The gold-package regression on a real finished exam runs only when `CERTPASSLY_GOLD` points at a local gold workspace (real owner extracts are never committed). Without it, the regression is not collected, so it never shows as skipped.
 
 ## Limits
 
-- The author stage is not a model call. Someone (or a separate batched job) must write the authoring files.
+- The author stage is not a model call. Someone (or a separate batched job) must write the authoring files. The writing check flags problems; it does not rewrite text.
 - Generic official-page parsing will miss facts that are not stated clearly. Those become gaps, not guesses.
 - Owner PDFs with unusual layouts may leave items in `unparsed.json`.
 - Drive download needs folders shared as "Anyone with the link". Private folders stop with a clear error.

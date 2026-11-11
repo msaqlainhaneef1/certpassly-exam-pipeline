@@ -129,3 +129,13 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 - Poppler version matters more than Tesseract for text-layer PDFs. Windows Poppler 25.07.0 `pdftohtml -xml` kept XML document order correct but wrote unusable `top` attributes (collapsed duplicates; some markers near the page max). A global `(page, top, left)` sort then assigned options and "Correct Answer:" to the wrong items and left `answer_raw` empty, so `answer_research` treated almost every item as unanswered. Trust XML order when tops collide or look flipped; keep the Y-sort only when coordinates are consistent, so a same-line letter to the right of "Correct Answer:" still attaches. Normalise CRLF even when a given dump is LF-only.
 - Do not check owner-exam `raw.xml` into git. Synthetic pdf2xml fixtures must reproduce the coordinate pathology.
 
+
+## v1.2.0 lessons (writing brief and the check-then-fix loop, draft)
+
+- Write for people first. Plain English, short sentences, no typographic dashes, and no stock AI phrases. The list lives in `config/banned_ai_phrases.txt` and the brief in `reference/writing-brief.md`. Add a phrase to the data file when a run finds a new one (gate: writing stage).
+- A vendor quote may sound formal. It is exempt only when it is found word for word on a saved official page. Never rewrite a quote to dodge the list.
+- Search intent comes from research facts, not from guesses. The script never invents a number; an edited intent file with a number that is not in research is flagged.
+- Competitor notes are topics only. A run of 8 or more words copied from them fails the writing check, unless the same words are on a saved official page.
+- Fix only what is flagged. A part that passed and was rewritten in a fix round is flagged. A second check must run after every fix (validate check 19 when `writing.validate_gate` is true).
+- The first run of the long-sentence check found a 41-word sentence in the shared editorial-policy block. Shared blocks are checked once as their own part, so the fix goes to `shared/`, not to every page.
+- No writing change may alter a key. The demo `import/questions.csv` sha256 is the same before and after v1.2.0.

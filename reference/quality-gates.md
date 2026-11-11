@@ -20,6 +20,13 @@ Pages stay in draft. A human still has to pass the site's publish gates.
 - Shared blocks are at most the configured share of each page body (default 0.4).
 - Duplicate-content shingle check across pages of the same exam.
 
+## Writing (v1.2.0)
+
+- The `writing` stage (`scripts/check_writing.py`) applies `reference/writing-brief.md` after pages: banned AI phrases from `config/banned_ai_phrases.txt`, long sentences, typographic dashes, numbers not in research, word count and grade, search-intent coverage, and wording copied from competitor notes.
+- Findings list only failed checks. Only the flagged parts go back for a fix, and a second check must run after the fix.
+- With `writing.validate_gate: true`, validate check 19 fails unless the latest writing check ran on the current files and left zero flags.
+- Open flags stay in REVIEW.md. Records are never marked published or verified to clear a flag.
+
 ## Offline
 
 `--offline` or `CERTPASSLY_OFFLINE=1` skips network. The link-check cache and saved sources must already be complete.

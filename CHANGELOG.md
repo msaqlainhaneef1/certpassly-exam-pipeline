@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased (1.2.0 draft, not tagged)
+
+Writing work from the v1.2.0 plan (HANDOVER.md section 8). The version in `pyproject.toml` stays 1.1.5 until the release is agreed and CI is green.
+
+- New `reference/writing-brief.md`: plain English, short sentences, a summary of Google's people-first guidance, the banned AI-phrase list with bad and good examples, the check-then-fix loop, and the self-check.
+- New `config/banned_ai_phrases.txt`: the banned AI-phrase list as data. A workspace can add `config/banned_ai_phrases.txt`. `banned_phrases` in `pipeline.yaml` are checked too.
+- New stage `intent` and `scripts/search_intent.py`: builds `research/<vendor>/<CODE>.search-intent.json` from research facts only (main query per page, people-also-ask questions from official facts and recorded gaps, and which page answers each). It never invents a number. Topic labels from the optional `research/<vendor>/<CODE>.competitor-notes.json` are recorded as topics only, marked with official support. Labels that are long or name a banned brand are dropped.
+- New stage `writing` and `scripts/check_writing.py`: flags banned AI phrases (vendor quotes found word for word on a saved official page are exempt), long sentences, typographic dashes, unsourced numbers, thin pages, reading grade, missed search-intent questions, invented numbers in the intent file, copied competitor wording (8 or more words), and unflagged parts rewritten during a fix round. Writes `writing-review.json`, `WRITING-REVIEW.md` (failed checks only), `writing-self-check.json`, and `authoring/writing_fix_request.json` (only the flagged parts). Shared blocks are checked once as their own part.
+- `run_pipeline.py`: `intent` runs before author and pages (and is built on demand if missing); `writing` runs after pages, and a pages rebuild always runs the writing check again (the second check after a fix). The runner still never calls a model.
+- `build_pages.py`: each page JSON carries its `search_intent` (main query and assigned questions). It never reads competitor notes.
+- `validate.py`: optional check 19 (`writing.validate_gate: true`) requires a current, clean writing review. Competitor-notes files are inputs and are left out of the output scans.
+- `build_bank.py`: open writing flags are listed in `REVIEW.md`.
+- `shared/site/editorial-policy.json` 1.1.0: one 41-word sentence split into three short ones (found by the new long-sentence check).
+- `config/pipeline.example.yaml`: new `writing:` block.
+- Demo kit: each demo now has a synthetic competitor-notes file with a sentence that must never reach an output.
+- Tests: `tests/test_v120.py` and fixtures in `tests/fixtures/v120/`. Demo stems, options and keys are unchanged (same `import/questions.csv` sha256 as v1.1.5).
+
 ## 1.1.5
 
 - Fix Windows: `generic._load_sources`, the Microsoft adapter and `validate.py` now resolve saved-source `path` and `text_path` through a shared `fetch_sources.resolve_sidecar_paths` / `load_sidecar` helper (the same remap `find_saved` already used). A workspace copied from another machine no longer reads empty official pages, so research can find official skill weights without a hand-edited sidecar.

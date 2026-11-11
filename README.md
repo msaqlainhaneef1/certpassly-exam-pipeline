@@ -101,7 +101,7 @@ certpassly-pipeline --exam EXAM-CODE --root /path/to/workspace --offline
 
 Useful flags: `--vendor SLUG`, `--all`, `--batch`, `--stage NAME` (repeatable), `--date YYYY-MM-DD`, `--list-stages`, `--force`.
 
-Default stages: catalog, intake, sources, research, extract, author, pages, import, bank, validate, package.
+Default stages: catalog, intake, sources, research, extract, answer_research, intent, author, pages, writing, import, bank, validate, package. `intent` builds the search-intent file from research facts; `writing` runs the writing check after pages (see `reference/writing-brief.md`).
 
 Vendor and certification pages are built once and reused when their inputs have not changed.
 
@@ -139,7 +139,7 @@ python scripts/check_import_conformance.py --root /path/to/workspace --exam EXAM
 
 This is not a live run of the site importer.
 
-`tests/test_demo_end_to_end.py` builds two synthetic demo exams (Microsoft adapter and generic adapter) with `tests/demo_kit.py` and runs every stage through the CLI. Try it: `python tests/demo_kit.py microsoft /tmp/demo` then `certpassly-pipeline --exam DM-101 --root /tmp/demo --offline --date 2026-11-11`.
+`tests/test_demo_end_to_end.py` builds two synthetic demo exams (Microsoft adapter and generic adapter) with `tests/demo_kit.py` and runs every stage through the CLI. `tests/test_v120.py` covers the writing brief, the banned AI-phrase list, search intent, competitor notes as topics only, and the check-then-fix loop. Try it: `python tests/demo_kit.py microsoft /tmp/demo` then `certpassly-pipeline --exam DM-101 --root /tmp/demo --offline --date 2026-11-11`.
 
 The gold-package regression rebuilds a finished real exam from a cached workspace. It runs only when `CERTPASSLY_GOLD` points at that workspace and is not collected otherwise, so CI shows 0 skipped. That workspace is not committed (see `tests/fixtures/README.md`).
 
