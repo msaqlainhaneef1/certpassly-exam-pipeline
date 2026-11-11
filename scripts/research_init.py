@@ -42,6 +42,13 @@ def links(meta):
         if u not in out: out.append(u)
     return out
 
+def pick_link(urls, pat, seed, code):
+    """First link matching pat, preferring one that names this exam (an exam or credential page)
+    over generic policy pages that also match (score reports, retake policy, accommodations)."""
+    cands=[u for u in urls if re.fullmatch(pat, u) and u.rstrip('/')!=seed.rstrip('/')]
+    code_rx=re.compile(r'(?:^|[/=_-])'+re.escape(code.lower())+r'(?:$|[/?#&_.-])')
+    return next((u for u in cands if code_rx.search(urllib.parse.urlsplit(u).path.lower()+'/')), None) or (cands[0] if cands else None)
+
 def discover(code):
     row=catalog_row(code); v=row['vendor_slug']; meta=vendor_reg.vendor(v)
     seed=(row.get('official_exam_url') or '').strip() or ((lookup(code).get('urls') or [''])[0])
@@ -53,7 +60,7 @@ def discover(code):
     pat=meta.get('discover_'+other)
     note=''
     if pat:
-        hit=next((u for u in links(m0) if re.fullmatch(pat, u) and u.rstrip('/')!=seed.rstrip('/')), None)
+        hit=pick_link(links(m0), pat, seed, code)
         if hit:
             m1=fetch_sources.ensure(hit, v, render=render and other=='cp')
             srcs[other]=dict(id=other, url=hit, sha256=m1['sha256'], method=m1.get('method',''))

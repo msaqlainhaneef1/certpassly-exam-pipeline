@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fixes found by the first real v1.2.0 run (synthetic inputs only, offline)."""
 from __future__ import annotations
-import csv, hashlib, json, os, shutil, subprocess, sys, tempfile, unittest
+import csv, hashlib, json, os, re, shutil, subprocess, sys, tempfile, unittest
 from pathlib import Path
 
 SKILL=Path(__file__).resolve().parents[1]
@@ -116,6 +116,43 @@ class LostLigatureRepair(unittest.TestCase):
         self.assertEqual(s['q001']['answer_raw'],'A')
         fixes=[x for x in c if 'ligature' in x['reason']]
         self.assertEqual(sorted((x['field'],x['after']) for x in fixes),[('option.a','Define'),('option.b','files'),('stem','first'),('stem','workflow')])
+
+
+class ExamLengthNotExtraTime(unittest.TestCase):
+    """Real run: research took "you can request an additional 30 minutes" as the exam length, and
+    discovery picked a generic score-report page as the credential page."""
+    def setUp(self):
+        sys.path.insert(0, str(SKILL/'scripts')); sys.path.insert(0, str(SKILL/'scripts'/'adapters'))
+
+    def test_generic_scan_skips_extra_time(self):
+        import re, generic
+        pages=[dict(id='sg', lines=['If the exam is not in your language, you can request an additional 30 minutes to complete the exam.',
+                                    'Some candidates get 25 extra minutes.']),
+               dict(id='cp', lines=['Take the exam', 'You will have 45 minutes to complete this assessment.'])]
+        v,q,sid=generic._scan(pages, generic.DURATION_PATTERNS, check=lambda v: 15<=v<=360)
+        self.assertEqual((v,sid),(45,'cp')); self.assertIn('45 minutes', q)
+
+    def test_vendor_adapter_cp_duration(self):
+        import microsoft
+        m=microsoft.cp_duration('You can request an additional 30 minutes. Take the exam. You will have 45 minutes to complete this assessment.')
+        self.assertEqual(m.group(1),'45')
+        self.assertIsNone(microsoft.cp_duration('You can request an additional 30 minutes to complete the exam.'))
+
+    def test_discovery_prefers_link_that_names_the_exam(self):
+        import research_init, vendor_reg
+        pat=r'https://learn\.example\.com/[a-z-]*/?credentials/certifications/(?:exams/[A-Za-z0-9-]+|(?!resources/)[a-z0-9-]+)/?'
+        seed='https://learn.example.com/en-us/credentials/certifications/resources/study-guides/zz-101'
+        urls=['https://learn.example.com/en-us/credentials/certifications/exam-scoring-reports',
+              'https://learn.example.com/en-us/credentials/certifications/request-accommodations',
+              'https://learn.example.com/en-us/credentials/certifications/exams/ZZ-101', seed]
+        self.assertEqual(research_init.pick_link(urls, pat, seed, 'ZZ-101'), urls[2])
+        # No exam-named link: keep the old first-match behaviour.
+        self.assertEqual(research_init.pick_link(urls[:2], pat, seed, 'ZZ-101'), urls[0])
+        self.assertIsNone(research_init.pick_link([seed], pat, seed, 'ZZ-101'))
+        # The shipped Microsoft pattern accepts exam links.
+        mp=(vendor_reg.vendors().get('vendors') or {}).get('microsoft',{}).get('discover_cp')
+        if mp:
+            self.assertTrue(re.fullmatch(mp, 'https://learn.microsoft.com/en-us/credentials/certifications/exams/AB-123'))
 
 
 if __name__=='__main__':

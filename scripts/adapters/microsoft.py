@@ -20,6 +20,13 @@ def _page(research, workspace, source_id):
 def _clean(x):
     return html.unescape(re.sub(r'\s+',' ',re.sub('<[^>]+>','',x))).strip()
 
+def cp_duration(text):
+    """Exam length on a credential page: "You will have N minutes" first; never the extra-time rule
+    ("you can request an additional N minutes"). Returns a match whose group(1) is N, or None."""
+    return (re.search(r'(?:will have|duration|length)[^.]{0,30}?\b(\d+)\s*minutes', text, re.I)
+            or re.search(r'(?<!additional )(?<!extra )(?<!more )(?<!up to )\b(\d+)\s*minutes(?! extra)', text))
+
+
 def parse(research, workspace):
     """Extract skill areas, weights, tasks, passing score, extra time, duration from saved HTML."""
     out={'adapter':'microsoft','fields':{},'gaps':[],'source_sha256':{}}
@@ -51,7 +58,7 @@ def parse(research, workspace):
         cp,cpm=_page(research, workspace, 'cp')
         out['source_sha256']['cp']=cpm['sha256']
         ct=_clean(cp)
-        m=re.search(r'(\d+)\s*minutes',ct)
+        m=cp_duration(ct)
         out['fields']['duration_minutes_candidate']=int(m.group(1)) if m else None
         if not m: out['gaps'].append('duration_minutes')
     except StopIteration:

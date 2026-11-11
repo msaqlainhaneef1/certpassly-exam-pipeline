@@ -272,7 +272,7 @@ vendors:
     official_page_link_label: "Official study guide"
     # Research discovery: the catalog URL is the study guide (sg); the credential page (cp) is linked from it.
     seed_role: sg
-    discover_cp: "https://learn\\.microsoft\\.com/[a-z-]*/?credentials/certifications/(?!resources/)[a-z0-9-]+/?"
+    discover_cp: "https://learn\\.microsoft\\.com/[a-z-]*/?credentials/certifications/(?:exams/[A-Za-z0-9-]+|(?!resources/)[a-z0-9-]+)/?"
     in_catalog: true
     official_domains:
       - learn.microsoft.com

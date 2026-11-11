@@ -110,6 +110,13 @@ def _domains(pages):
             return doms, p['id']
     return [], None
 
+# Exam length: labelled lines first, then any "N minutes". Never the extra-time rule
+# ("you can request an additional 30 minutes", "30 extra minutes").
+DURATION_PATTERNS=[
+    r'(?:time allotted|duration|time limit|exam length|length)[^0-9]{0,60}?(\d+)\s*(?:minutes?|mins?)\b',
+    r'(?<!additional )(?<!extra )(?<!more )(?<!another )(?<!up to )(\d+)\s*(?:minutes?|mins?)\b(?! and \d+ seconds)(?! extra)(?! of extra)',
+]
+
 def parse(research, workspace):
     pages=_load_sources(research, workspace)
     fields={}; gaps=[]; quotes={}; src={}
@@ -118,10 +125,7 @@ def parse(research, workspace):
             gaps.append(k); fields[k]=None; return
         fields[k]=v; quotes[k]=q; src[k]=sid
     # duration: labelled lines first, then any "N minutes" in a plausible range
-    put('duration_minutes', *_scan(pages, [
-        r'(?:time allotted|duration|time limit|exam length|length)[^0-9]{0,60}?(\d+)\s*(?:minutes?|mins?)\b',
-        r'(\d+)\s*(?:minutes?|mins?)\b(?! and \d+ seconds)',
-    ], check=lambda v: 15<=v<=360))
+    put('duration_minutes', *_scan(pages, DURATION_PATTERNS, check=lambda v: 15<=v<=360))
     # passing score: number or percent
     ps, q, sid=_scan(pages, [r'pass(?:ing)? (?:score|mark)\s*(?:is|:)?\s*(\d+)\s*%?', r'score of (\d+)\s+or (?:greater|higher|more)'], check=lambda v: 1<=v<=1000)
     put('passing_score', ps, q, sid)
