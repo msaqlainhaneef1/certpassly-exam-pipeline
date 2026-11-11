@@ -85,5 +85,38 @@ class ExtractKeyedImageBeforeEmptyMarker(unittest.TestCase):
         self.assertEqual(s['q001']['answer_images'],[]); self.assertEqual(s['q001']['question_images'],['p-1_1.png'])
 
 
+class LostLigatureRepair(unittest.TestCase):
+    """Real run: the PDF font had no Unicode map for fi/fl/ff/ffi glyphs, so stems read "De ne", "speci c"."""
+    def setUp(self):
+        sys.path.insert(0, str(SKILL/'scripts'))
+        import text_repair
+        self.T=text_repair
+
+    def test_gap_inside_word_and_lost_leading_glyph(self):
+        cases={'De ne the plan':'Define the plan','a speci c word':'a specific word','for O ce use':'for Office use',
+               'in a review work ow, then':'in a review workflow, then','the rst step':'the first step',
+               'how long les are kept':'how long files are kept','Con gure it':'Configure it','A. ngerprint':'A. fingerprint',
+               'noti cation and certi cate':'notification and certificate'}
+        for src,want in cases.items():
+            got,ch=self.T.repair(src)
+            self.assertEqual(got,want,src); self.assertTrue(ch,src)
+
+    def test_real_words_are_left_alone(self):
+        for src in ['a re is lit','do the work now','the risk is low','Yes or No','use SSO on the app','the best one']:
+            got,ch=self.T.repair(src)
+            self.assertEqual(got,src); self.assertEqual(ch,[])
+
+    def test_extract_logs_each_repair_in_cleanups(self):
+        import extract_owner_pdf as E, site_settings
+        xml=_xml([(1,_t(50,'QUESTION 1')+_t(70,'Which step comes rst in the work ow?')+_t(90,'A. De ne the scope')+_t(110,'B. Delete les')+_t(130,'Correct Answer: A'))])
+        els=E.load_elements(xml); lay=E.detect_layout(els)
+        s,c,u=E.split_items(els, lay, E.compile_deny(site_settings.load()))
+        self.assertEqual(s['q001']['stem'],'Which step comes first in the workflow?')
+        self.assertEqual(s['q001']['options'],{'a':'Define the scope','b':'Delete files'})
+        self.assertEqual(s['q001']['answer_raw'],'A')
+        fixes=[x for x in c if 'ligature' in x['reason']]
+        self.assertEqual(sorted((x['field'],x['after']) for x in fixes),[('option.a','Define'),('option.b','files'),('stem','first'),('stem','workflow')])
+
+
 if __name__=='__main__':
     unittest.main(verbosity=2)

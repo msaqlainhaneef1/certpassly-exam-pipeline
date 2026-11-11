@@ -265,8 +265,10 @@ def split_items(els, layout, deny):
                                  before=' '.join(o[0].upper() + '.' for o in opts), after='',
                                  reason='empty option letters left by the text layer; the real choices are in the answer area image'))
             opts = []
+        stem_txt = _lig_fix(key, 'stem', ' '.join(stem), cleanups)
+        opts = [[k, _lig_fix(key, f'option.{k}', v, cleanups)] for k, v in opts]
         rec = dict(question_key=key, source_number=n, marker=f"{layout['start']} {n}",
-                   pages=sorted(pages), stem=' '.join(stem), options={k: v for k, v in opts},
+                   pages=sorted(pages), stem=stem_txt, options={k: v for k, v in opts},
                    answer_raw=' '.join(ans), question_images=qimg, answer_images=aimg,
                    layout_profile=layout['profile'])
         if seen_marker:
@@ -293,6 +295,16 @@ def split_items(els, layout, deny):
             if imgs and len(' '.join(txts)) < 40:
                 unparsed.append(dict(reason='image_only_page_unassigned', page=p, images=imgs, text=txts[:8]))
     return split, cleanups, unparsed
+
+
+def _lig_fix(key, field, text, cleanups):
+    """Repair words whose ligature glyph the PDF text layer lost (see text_repair.py); log each change."""
+    import text_repair
+    fixed, changes = text_repair.repair(text)
+    for before, after in changes:
+        cleanups.append(dict(question_key=key, field=field, before=before, after=after,
+                             reason='lost ligature glyph (fi, fl, ff, ffi, ffl) in the PDF text layer restored from config/ligature_words.txt'))
+    return fixed
 
 
 def promote_answer_copies(split, cleanups):
