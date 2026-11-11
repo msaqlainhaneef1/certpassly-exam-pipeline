@@ -125,7 +125,8 @@ for d in dc['rows']:
 F=['vendor','vendor_slug','certification','exam_code','exam_name','sheet_status','drive_folder_url','sheet_cell','sheet_label','official_exam_url','url_http','page_names_exam','url_sha256','source_path','empty_reason']
 with open(f'{B}/catalog.csv','w',newline='') as f: w=csv.DictWriter(f,F); w.writeheader(); w.writerows(out)
 json.dump(dict(generated=time.strftime('%Y-%m-%d %H:%M %Z'),status='draft',exams=out),open(f'{B}/catalog.json','w'),indent=1)
-with open(f'{B}/review.csv','w',newline='') as f: w=csv.DictWriter(f,list(review[0])); w.writeheader(); w.writerows(review)
+REVIEW_COLS=['reason','raw_label','drive_link','sheet_cell','context_vendor','note']
+with open(f'{B}/review.csv','w',newline='') as f: w=csv.DictWriter(f,REVIEW_COLS); w.writeheader(); w.writerows(review)  # header even when nothing needs review
 print('exams',len(out),'vendors',len({r['vendor'] for r in out}),'review',len(review))
 import collections; print(collections.Counter(r['reason'] for r in review))
 print('url200',sum(r['url_http']=='200' for r in out),'cert',sum(bool(r['certification']) for r in out),'name',sum(bool(r['exam_name']) for r in out))
