@@ -40,5 +40,50 @@ class CatalogCleanSheet(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+def _xml(pages):
+    out=['<?xml version="1.0"?><pdf2xml>']
+    for n,body in pages:
+        out.append(f'<page number="{n}" position="absolute" top="0" left="0" height="1000" width="800">{body}</page>')
+    out.append('</pdf2xml>'); return ''.join(out)
+
+
+def _t(top,txt): return f'<text top="{top}" left="50" width="400" height="12" font="0">{txt}</text>'
+def _i(top,src): return f'<image top="{top}" left="50" width="400" height="100" src="x/{src}"/>'
+
+
+class ExtractKeyedImageBeforeEmptyMarker(unittest.TestCase):
+    """Real run: 33 hotspot items had the keyed answer area image BEFORE an empty "Correct Answer:" line."""
+    def _split(self, xml):
+        sys.path.insert(0, str(SKILL/'scripts'))
+        import extract_owner_pdf as E, site_settings
+        els=E.load_elements(xml); lay=E.detect_layout(els)
+        s,c,u=E.split_items(els, lay, E.compile_deny(site_settings.load()))
+        m=E.promote_answer_copies(s,c)
+        return s,c,m
+
+    def test_last_image_becomes_answer_image(self):
+        xml=_xml([(1,_t(50,'QUESTION 1')+_t(70,'HOTSPOT -')+_t(90,'Select the answer that correctly completes the sentence.')+_i(120,'p-1_1.png')),
+                  (2,_i(40,'p-2_1.png')+_t(160,'A.')+_t(180,'B.')+_t(200,'Correct Answer:')+_t(220,'Section: (none)')),
+                  (3,_t(50,'QUESTION 2')+_t(70,'Which service stores keys?')+_t(90,'A. Key Vault')+_t(110,'B. Blob storage')+_t(130,'Correct Answer: A')),
+                  (4,_t(50,'QUESTION 3')+_t(70,'HOTSPOT -')+_t(90,'Pick the right setting.')+_i(120,'p-4_1.png')+_t(240,'Correct Answer:')+_i(260,'p-4_2.png'))])
+        s,c,m=self._split(xml)
+        self.assertEqual(m,1)
+        q1=s['q001']
+        self.assertEqual(q1['question_images'],['p-1_1.png']); self.assertEqual(q1['answer_images'],['p-2_1.png'])
+        self.assertTrue(q1.get('answer_image_inferred'))
+        self.assertTrue(any(x['question_key']=='q001' and x['field']=='answer_images' for x in c))
+        # Text-keyed and normally image-keyed items are untouched; no private marker leaks out.
+        self.assertEqual(s['q002']['answer_raw'],'A'); self.assertEqual(s['q002']['answer_images'],[])
+        self.assertEqual(s['q003']['answer_images'],['p-4_2.png']); self.assertNotIn('answer_image_inferred', s['q003'])
+        self.assertFalse(any('_answer_marker' in r for r in s.values()))
+
+    def test_single_image_without_key_is_left_for_answer_research(self):
+        xml=_xml([(1,_t(50,'QUESTION 1')+_t(70,'HOTSPOT -')+_t(90,'Pick one.')+_i(120,'p-1_1.png')+_t(240,'Correct Answer:')),
+                  (2,_t(50,'QUESTION 2')+_t(70,'Which one?')+_t(90,'A. One')+_t(110,'B. Two')+_t(130,'Correct Answer: B'))])
+        s,c,m=self._split(xml)
+        self.assertEqual(m,0)
+        self.assertEqual(s['q001']['answer_images'],[]); self.assertEqual(s['q001']['question_images'],['p-1_1.png'])
+
+
 if __name__=='__main__':
     unittest.main(verbosity=2)

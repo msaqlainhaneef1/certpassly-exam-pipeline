@@ -216,6 +216,7 @@ def split_items(els, layout, deny):
         key = f'q{n:03d}'
         state = 'stem'
         stem, opts, ans, qimg, aimg, pages = [], [], [], [], [], set()
+        seen_marker = False
         if it.get('rest'):
             stem.append(it['rest'])
         for e in it['els']:
@@ -233,6 +234,7 @@ def split_items(els, layout, deny):
             am = ans_rx.match(t)
             if am:
                 state = 'answer'
+                seen_marker = True
                 if am.group(1).strip():
                     ans.append(am.group(1).strip())
                 continue
@@ -267,6 +269,8 @@ def split_items(els, layout, deny):
                    pages=sorted(pages), stem=' '.join(stem), options={k: v for k, v in opts},
                    answer_raw=' '.join(ans), question_images=qimg, answer_images=aimg,
                    layout_profile=layout['profile'])
+        if seen_marker:
+            rec['_answer_marker'] = True
         if not rec['stem'] and not rec['options'] and (qimg or aimg):
             rec['image_only'] = True
             unparsed.append(dict(reason='image_only_item', question_key=key, pages=rec['pages'],
@@ -291,6 +295,35 @@ def split_items(els, layout, deny):
     return split, cleanups, unparsed
 
 
+def promote_answer_copies(split, cleanups):
+    """Some owner PDFs put the keyed answer area image BEFORE an empty "Correct Answer:" line.
+
+    The extractor then files the blank answer area and the keyed copy as question images, and the
+    item looks unanswered. When an item reached its answer marker but the marker has no text, there
+    is no answer image, and there are two or more question images, the last image is the owner's key
+    image: move it to answer_images and mark the item answer_image_inferred so the visual pass
+    confirms it. Generic: no exam, vendor or page numbers.
+    """
+    moved = 0
+    for key, rec in split.items():
+        if not rec.get('_answer_marker') or rec.get('answer_images'):
+            continue
+        if re.sub(r'[^A-H]', '', (rec.get('answer_raw') or '').upper()) or rec.get('options'):
+            continue
+        q = list(rec.get('question_images') or [])
+        if len(q) < 2:
+            continue
+        rec['answer_images'] = [q[-1]]
+        rec['question_images'] = q[:-1]
+        rec['answer_image_inferred'] = True
+        cleanups.append(dict(question_key=key, field='answer_images', before=q[-1], after=q[-1],
+                             reason='empty "Correct Answer:" line after the images: the last image is the keyed answer area; moved to answer images (visual pass confirms)'))
+        moved += 1
+    for rec in split.values():
+        rec.pop('_answer_marker', None)
+    return moved
+
+
 def main(argv=None):
     argv = list(sys.argv if argv is None else argv)
     if len(argv) < 3:
@@ -309,6 +342,9 @@ def main(argv=None):
     S = site_settings.load()
     deny = compile_deny(S)
     split, cleanups, unparsed = split_items(els, layout, deny)
+    moved = promote_answer_copies(split, cleanups)
+    if moved:
+        print(moved, 'items: keyed answer-area copy moved from question images to answer images')
     for rec in split.values():
         json.dump(rec, open(f"{ex}/items/{rec['question_key']}.json", 'w'), indent=1, ensure_ascii=False)
     json.dump(split, open(f'{ex}/split.json', 'w'), indent=1, ensure_ascii=False)
