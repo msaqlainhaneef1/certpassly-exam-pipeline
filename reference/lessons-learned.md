@@ -112,3 +112,4 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 
 - Python 3.11 is the oldest supported version: never reuse the outer quote type inside an f-string expression (3.12+ only). Run `py_compile` on 3.11 before pushing. (v1.1.1, CI run 42975699520)
 - Path filters must normalise `os.sep` to `/` before matching; Windows CI caught a filter that only worked on Linux. (v1.1.2, CI run 42976175004)
+- Paths written into JSON/evidence must be POSIX (`/`), never `os.sep`. (v1.1.3, CI run 42976591708)

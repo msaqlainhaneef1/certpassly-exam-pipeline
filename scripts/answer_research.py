@@ -123,8 +123,8 @@ def discover(out, vendor, code, offline=False, root=None):
             except Exception as e:
                 searched.append(dict(url=u, result=f'fetch failed: {e}')); continue
             lines=rank(m, it)
-            searched.append(dict(url=u, saved_path=os.path.relpath(m['path'], root), sha256=m['sha256'], result=f'{len(lines)} matching lines'))
-            if lines: cands.append(dict(url=u, saved_path=os.path.relpath(m['path'], root), sha256=m['sha256'], lines=lines))
+            searched.append(dict(url=u, saved_path=os.path.relpath(m['path'], root).replace(os.sep, '/'), sha256=m['sha256'], result=f'{len(lines)} matching lines'))
+            if lines: cands.append(dict(url=u, saved_path=os.path.relpath(m['path'], root).replace(os.sep, '/'), sha256=m['sha256'], lines=lines))
         boxes=[]
         if it['kind']=='image' and it['images']:
             # scripted region proposals (bordered boxes in the answer-area image) so the pick only maps labels to boxes
@@ -169,7 +169,7 @@ def verify(out, vendor, code, root=None):
             if p.get('confidence') not in CONF: problems.append('confidence must be high, medium or low')
             if not problems:
                 R[k]=dict(base, status='researched_official', key=key, key_source='researched_official', source_url=u,
-                          saved_path=os.path.relpath(m['path'], root), sha256=m['sha256'], quote=p['quote'], confidence=p['confidence'],
+                          saved_path=os.path.relpath(m['path'], root).replace(os.sep, '/'), sha256=m['sha256'], quote=p['quote'], confidence=p['confidence'],
                           content=p.get('content'), explanation=p.get('explanation'), note=p.get('note',''))
                 continue
             raise SystemExit(f'answer_research {k}: pick rejected: {"; ".join(problems)}. Fix authoring/answer_research.json (official saved page + verbatim quote).')

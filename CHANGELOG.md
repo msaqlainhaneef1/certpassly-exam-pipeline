@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.3
+
+- Fix Windows: answer_research stored saved_path with backslashes; evidence paths are now always written with forward slashes so files are portable across OSes.
+
 ## 1.1.2
 
 - Fix Windows: validate skip list for raw folders (extracted, media, answer_research) used forward slashes only, so the denylist scan flagged the stripped-text audit file on Windows.
