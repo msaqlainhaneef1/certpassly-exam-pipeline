@@ -1,0 +1,11 @@
+{
+ "note": "Synthetic competitor notes for tests. Topics only. Not real content from any site.",
+ "topics": [
+  {"label": "renewal steps", "notes": "Renewal is a yearly task that you finish online before the end of your credential year."},
+  {"label": "exam length", "notes": "Pages tend to bury the time limit under a long intro about pressure."},
+  {"label": "a label that is far too long to be a topic label at all", "notes": "dropped"}
+ ],
+ "observations": [
+  "Candidates who skim the outline twice and then sit three timed mock rounds usually report the calmest exam day."
+ ]
+}

@@ -17,3 +17,4 @@ Place a gold workspace, if you have one, at one of:
 A gold workspace is a completed pipeline root with `catalog.csv`, `research/`, `sources/`, `cache/linkcheck.json`, and `out/<exam>/{intake,extracted,authoring,media,pages,questions.json,validation.json}` plus shared vendor and certification pages. Do not copy seller-branded PDFs or Facebook / Innovior / social content into git. If a fixture would still contain that material, keep it outside the repo and point `CERTPASSLY_GOLD` at it.
 
 Without `CERTPASSLY_GOLD` (or `tests/fixtures/gold/`), the gold regression is not collected at all, so CI reports 0 skipped tests.
+- `v120/`: synthetic writing-check fixtures for `tests/test_v120.py` (competitor notes, a synthetic official page, and small page HTML that answers, misses, copies, or covers a topic in original words). Not real content.

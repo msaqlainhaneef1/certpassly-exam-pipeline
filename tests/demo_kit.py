@@ -29,6 +29,8 @@ SOCIAL='http://www.face'+'book.com/'+SELLER.replace(' ','')
 PHONE='+1 555 010 9999'
 EMAIL='sales'+'@'+'example-seller.com'
 FREE='We Offer Free Update Service For One Year.'
+# Synthetic competitor notes (v1.2.0): used as topics only. This sentence must never reach an output.
+COMPETITOR_PHRASE='Most candidates say the scenario questions in the final third of the test take far longer than they expect, so they bank time early.'
 
 PROFILES={
   'microsoft':dict(
@@ -213,6 +215,12 @@ def build(profile: str, dest: Path) -> dict:
            objectives=dict(outline_as_of='2026-10-20', source_id='sg', domains=doms, changes_from_previous=None),
            learning_resources=[], serp=[], blurbs={}, unknowns=[], gaps=[])
     (dest/'research'/V/f'{E}.json').write_text(json.dumps(R, indent=1, ensure_ascii=False), encoding='utf-8')
+    (dest/'research'/V/f'{E}.competitor-notes.json').write_text(json.dumps(dict(
+        note='Synthetic demo notes from the CertPassly Researcher. Topics only. Never copy this wording.',
+        topics=[dict(label='exam length', notes='Readers often ask how long they get, and pages tend to bury the answer under a long intro about time pressure.'),
+                dict(label='renewal steps', notes='Several pages describe a renewal checklist with reminders sent ninety days before the credential lapses.'),
+                dict(label='what the exam is not', notes='It is not a coding test, according to a forum thread that many study pages repeat.')],
+        observations=[COMPETITOR_PHRASE]), indent=1), encoding='utf-8')
     (dest/'research'/V/f'{E}-bank-sources.json').write_text(json.dumps({'sources':[dict(id='SG',title=f'{E} official page',url=P['sg_url'])]}, indent=1), encoding='utf-8')
     (dest/'research'/'vendors'/f'{V}.json').write_text(json.dumps(dict(
         vendor_slug=V, name=P['vendor_name'], official_site=P['site'], official_learning_url=P['site'],
