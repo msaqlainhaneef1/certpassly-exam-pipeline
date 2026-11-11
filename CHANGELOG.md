@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.0.2 (2026-11-11)
+
+Demo end-to-end runs on two synthetic exams (Microsoft adapter and generic adapter) found and fixed these defects:
+
+- intake: the stage never built `intake/files.json`; it only told you to write it by hand. It now reads `owner-files/<CODE>/` (or `paths.owner_files`), hashes every file, marks PDFs extracted and VCE/binaries skipped, and writes `rights-confirmation.md` from `owner_rights_statement`.
+- catalog: the default run failed with "Sheet not found" even when `catalog.csv` existed (the README quick start path). It now keeps the existing catalog when no sheet is given.
+- pages: the five sourced tables were computed but never rendered to HTML, so any exam whose author prose had no hand-written tables failed check 11b. Tables are now rendered from research rows when the prose has none (prose that already has tables is unchanged, so the gold rebuild still matches).
+- pages: an unpublished pass mark rendered as "None or higher". Unpublished facts now show "not published by the vendor".
+- validate 01c: failed every exam whose vendor does not publish a pass mark. It now accepts an empty pass mark when research records the not-published reason.
+- bank: an item with no answer in the owner file crashed the key-shape gate instead of being held. It is now held with the reason "no answer in the owner file; key not invented". A missing explanation now stops with a clear author-stage message instead of a KeyError.
+- bank: `cover_facts_conflict` given as a list crashed REVIEW.md; REVIEW.md also hardcoded "All 41 image-based items" from the first exam. Both fixed; the count is computed.
+- bank: files skipped at intake (VCE) are listed in REVIEW.md even if `bank_meta.skipped_files` omits them. The bank source is the first extracted PDF, not simply the first file.
+- import: crashed when a certification research file had no `last_updated`.
+- generic adapter: "105 minutes" was never read (regex required `minute\b`), "Languages:" with a capital L was never read, a single language was ignored, and HTML tags were removed without a space so headings merged into domain names. Domains are now parsed per block line.
+- vision: OCR crashed when Tesseract was not on PATH (common on Windows). It now returns no OCR draft and the author stage transcribes.
+- Windows: the CLI re-runs itself in Python UTF-8 mode when the locale is not UTF-8, and child scripts get `PYTHONUTF8=1`, so UTF-8 official pages (en dashes in weight ranges) parse the same as on Linux.
+- tests: the gold regression silently used a hardcoded `/workspace/certpassly` path and showed 8 skipped tests in CI. It now runs only with `CERTPASSLY_GOLD` and is not collected otherwise (0 skipped). New `tests/demo_kit.py`, `tests/test_demo_end_to_end.py` (both adapters, every stage through the CLI) and `tests/test_regressions_v102.py`.
+- docs: SKILL_BODY.md had drifted from SKILL.md; a test now keeps them identical. SKILL.md documents the intake folder, the demo, and the remaining limits honestly.
+
 ## 1.0.1 (2026-11-11)
 
 - Declare numpy, opencv-python-headless and Pillow as dependencies. The extract stage imports them; 1.0.0 wrongly said stdlib only, which failed on clean CI runners.

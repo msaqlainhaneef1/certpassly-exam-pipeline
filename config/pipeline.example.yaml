@@ -109,6 +109,12 @@ catalog:
 paths:
   sheet: ""
   workspace: ""
+  # Folder the intake stage reads owner files from ({exam} is replaced).
+  owner_files: "owner-files/{exam}"
+
+# Owner statement of rights to the owner question files. The intake stage copies it
+# into out/<CODE>/intake/rights-confirmation.md and stops when it is empty.
+owner_rights_statement: ""
 
 not_published_label: "not published by the vendor"
 

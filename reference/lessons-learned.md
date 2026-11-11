@@ -85,3 +85,16 @@ Nothing in `scripts/` is hardcoded to one exam, one vendor, or one certification
 ## CI lesson (v1.0.1)
 
 - A clean machine failed because `vision_util.py` imports `cv2` and `numpy` that were never declared. Every third-party import must be listed in `pyproject.toml` and `requirements.txt`. Enforced by the GitHub Actions run on a fresh runner.
+
+
+## Demo run lessons (v1.0.2)
+
+- A stage that only prints "write this file by hand" is a manual step. Intake now builds `files.json` from the owner folder. If you catch yourself hand-writing pipeline inputs other than the author files and research JSON, that is a defect: fix the script and add a test.
+- Do not let a gate pass only because the first exam's author happened to hand-write HTML. Tables are rendered from research rows (check 11b), and the demo test proves it for an exam with plain prose.
+- Vendors that do not publish a pass mark are normal. Record the reason in research; pages say "not published by the vendor" and 01c accepts it. Never print a Python `None` on a page.
+- Hold items with no answer. Never key them, never crash on them.
+- Never hardcode counts or names from one exam in report text (the "41 image-based items" line).
+- Generic official-page parsing must work per block line, with plural units and capitalised labels. Regression tests cover "105 minutes", "Languages: English" and "Name (40-50%)" lines.
+- JavaScript-rendered vendor pages (seen on an academy exam page) give an empty plain fetch. Save a rendered copy with its sha256 sidecar or expect every fact to be a gap.
+- Windows: assume a legacy code page. The CLI forces UTF-8 mode; tests read and write with `encoding="utf-8"`. Tesseract may be missing from PATH; OCR degrades to "author transcribes".
+- CI must show 0 skipped. Optional local-only suites are not collected when their data is absent, instead of being skipped. Real owner extracts never go into Git.

@@ -88,6 +88,7 @@ Copy `.env.example` and export any values you need. The scripts read process env
 cp config/pipeline.example.yaml /path/to/workspace/config/pipeline.yaml
 cp config/vendors.example.yaml /path/to/workspace/config/vendors.yaml
 # add catalog.csv (or run the catalog stage from the owner sheet)
+# put the owner files in owner-files/EXAM-CODE/ and set owner_rights_statement in pipeline.yaml
 certpassly-pipeline --exam EXAM-CODE --root /path/to/workspace --offline
 ```
 
@@ -122,7 +123,9 @@ Vendor and certification pages are built once and reused when their inputs have 
 python -m unittest discover -s tests -v
 ```
 
-The gold-package regression copies a cached workspace (official pages, extracts, author files) and rebuilds pages, import files, the bank and validation with no network and no AI. It is skipped unless `CERTPASSLY_GOLD` is set or a local gold workspace is present. That workspace is not committed (see `tests/fixtures/README.md`).
+`tests/test_demo_end_to_end.py` builds two synthetic demo exams (Microsoft adapter and generic adapter) with `tests/demo_kit.py` and runs every stage through the CLI. Try it: `python tests/demo_kit.py microsoft /tmp/demo` then `certpassly-pipeline --exam DM-101 --root /tmp/demo --offline --date 2026-11-11`.
+
+The gold-package regression rebuilds a finished real exam from a cached workspace. It runs only when `CERTPASSLY_GOLD` points at that workspace and is not collected otherwise, so CI shows 0 skipped. That workspace is not committed (see `tests/fixtures/README.md`).
 
 ## License
 
