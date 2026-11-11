@@ -1,0 +1,71 @@
+# Banned AI stock phrases for page prose and explanations.
+# One phrase per line. Lines that start with # are comments. Matching ignores case,
+# treats curly and straight apostrophes the same, and matches whole words only.
+# The list is about wording, not about official vendor terms. Text inside a vendor
+# quote that is found word for word on a saved official page is never flagged.
+# Add a line when a run finds a new stock phrase. See reference/writing-brief.md.
+
+# Openers
+in today's digital world
+in today's fast paced world
+in today's fast-paced world
+more important than ever
+in the ever-changing world
+in the ever-evolving world
+
+# Hype
+unlock your potential
+unlock the power of
+take your career to the next level
+to the next level
+game changer
+game-changer
+cutting edge
+cutting-edge
+look no further
+elevate your
+supercharge
+
+# Filler about the page itself
+comprehensive guide
+ultimate guide
+everything you need to know
+delve
+delve into
+dive in
+dive into
+let's dive in
+deep dive
+let's get started
+embark
+journey
+navigate the complexities
+
+# Audience fluff
+whether you are a beginner or an expert
+whether you're a beginner or an expert
+whether you are a beginner
+whether you're a beginner
+
+# Corporate buzzwords
+leverage
+robust
+seamless
+seamlessly
+empower
+holistic approach
+synergy
+
+# Connectors that add nothing
+it is important to note
+it's important to note
+it should be noted
+additionally, it should be noted
+moreover
+furthermore
+in conclusion
+
+# Vague change talk
+the landscape of
+constantly evolving
+ever-evolving

@@ -2,8 +2,8 @@
  "level": "site",
  "key": "editorial-policy",
  "title": "How we update these pages",
- "body_html": "<p>Every official fact on a page (duration, passing score, languages, skill areas and weights, price, renewal) is taken from a saved copy of the vendor's current official page and is shown with a source link and the date we checked it. If the vendor does not publish a value, we say so. We do not invent a question count or a fixed price. When a vendor changes an outline, we update the page and record the new official date. Draft pages stay unpublished until a human checks the sources.</p>",
- "version": "1.0.0",
+ "body_html": "<p>Every official fact on a page is taken from a saved copy of the vendor's current official page. That covers duration, passing score, languages, skill areas and weights, price and renewal. Each fact is shown with a source link and the date we checked it. If the vendor does not publish a value, we say so. We do not invent a question count or a fixed price. When a vendor changes an outline, we update the page and record the new official date. Draft pages stay unpublished until a human checks the sources.</p>",
+ "version": "1.1.0",
  "last_updated": "2026-11-11",
  "sources": [],
  "slug": null
