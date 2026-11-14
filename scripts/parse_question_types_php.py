@@ -81,7 +81,7 @@ def parse_question_types_php(text: str, source_path: str | None = None) -> dict:
 
 def flag_registry_mismatches(registry: dict, requested_types=None) -> list:
     """Return mismatch records. Never insert a missing type into the registry."""
-    requested_types = requested_types or ['image_legacy']
+    requested_types = list(requested_types or [])
     keys = set(registry['types'])
     aliases = registry.get('aliases') or {}
     mismatches = []
@@ -109,7 +109,7 @@ def main(argv=None):
     ap.add_argument('php', help='Path to question_types.php')
     ap.add_argument('-o', '--output', help='Write registry JSON here')
     ap.add_argument('--mismatch-out', help='Write mismatch report JSON here')
-    ap.add_argument('--request', action='append', default=['image_legacy'], help='Extra type names to check (default: image_legacy)')
+    ap.add_argument('--request', action='append', default=[], help='Extra type names to check against the registry (none by default).')
     args = ap.parse_args(argv)
     p = Path(args.php)
     text = p.read_text(encoding='utf-8')

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://certpassly.local/site-format/v2/question.schema.json",
   "title": "CertPassly question format v2",
-  "description": "Author and import document for one question. schema_version is a const. question_key plus integer version identify a record so a re-import updates and never duplicates. The learner block must never contain answers. The type enum is exactly the 30 keys parsed from question_types.php. image_legacy is not in that enum.",
+  "description": "Author and import document for one question. schema_version is a const. question_key plus integer version identify a record so a re-import updates and never duplicates. The learner block must never contain answers. The type enum is exactly the 30 keys parsed from question_types.php. answer_key_status is owner_key, researched_official, researched_unverified, or answer_not_found. The v1 spelling as_in_source_file is not valid in this schema; scripts/migrate_v1_to_v2.py maps it to owner_key. Free-trial caps belong in site entitlements. This schema has no trial fields.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -284,7 +284,8 @@
             "researched_official",
             "researched_unverified",
             "answer_not_found"
-          ]
+          ],
+          "description": "Canonical v2 status. as_in_source_file is not valid here; a one-time migration script maps that v1 spelling to owner_key."
         },
         "key_source": {
           "type": "string",
@@ -380,7 +381,102 @@
         },
         "legacy_answer_key_status": {
           "type": "string",
-          "description": "Original v1 field, if mapped (for example as_in_source_file)."
+          "description": "Optional audit field. After a v1-to-v2 migration this may record the original v1 status spelling (for example as_in_source_file or flagged_for_owner). The stored answer_key_status must still be a canonical v2 value."
+        },
+        "conversion_exact": {
+          "type": "boolean",
+          "description": "True when a v1-to-v2 migration confirmed the HTML or SVG transcription with a deterministic check. False when the item is listed in the cannot-convert report."
+        },
+        "conversion_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional notes from scripts/migrate_v1_to_v2.py, for example a type remap from image_based_choice to single_choice."
+        },
+        "reference_media": {
+          "type": "array",
+          "description": "Reviewer-only original images (answer-area or marked-key shots) kept as reference assets. Never used as the learner question and never placed in the learner payload.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "alt",
+              "sha256"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "image",
+                  "svg"
+                ]
+              },
+              "alt": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "href": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mime": {
+                "type": "string"
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "exhibit",
+                  "diagram",
+                  "option",
+                  "reference"
+                ]
+              },
+              "original_asset": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "sha256"
+                ],
+                "properties": {
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "href": {
+                    "type": "string"
+                  },
+                  "mime": {
+                    "type": "string"
+                  },
+                  "alt": {
+                    "type": "string"
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

@@ -513,11 +513,13 @@ Then follow section 8. Keep scripts first. Keep one batched AI author step. Do n
 
 Branch `feat/question-format-v2` adds site-format v2 next to the unchanged v1 snapshot. Package version on this branch is `1.2.0.dev0` (a pre-release, not a tagged release, and not a 1.1.6 patch).
 
+Owner update at 14:30 on 14 Nov 2026 (Asia/Karachi) supersedes the earlier 14:29 note on this branch.
+
 ### What v2 is and why
 
 The site already has a Universal Question Engine with 30 type keys, server-side scoring, and a candidate-safe `public_view`. What it did not have is a formal, versioned JSON Schema for one question, a sanitizer allow-list, written reveal rules, and a clear split between what a learner may see and what must stay on the server.
 
-v2 is that contract. It extends the engine. It is not a rewrite of the website. Stems may be plain text or sanitized HTML or SVG. Photos stay images. Keys never go in the learner block. The current pipeline still builds v1 workbooks. v2 is for import and review of structured question JSON.
+v2 is that contract. It extends the engine. It is not a rewrite of the website. Every question, including items that started as images, must be a real v2 HTML or SVG type. Images are supporting media only, with alt text, and are never the question itself. Keys never go in the learner block. The current pipeline still builds v1 workbooks. v2 is for import and review of structured question JSON. Use `scripts/migrate_v1_to_v2.py` to map a v1 bank.
 
 ### File map
 
@@ -525,14 +527,14 @@ All of this sits under `reference/site-format/v2/` (v1 is not edited):
 
 - `question.schema.json`: Draft 2020-12 schema. `schema_version` is the const `question.v2`.
 - `question_types.json`: the 30 keys, aliases, and publishable / staging / blocked lists, parsed by script from site `config/question_types.php`.
-- `registry-mismatch.json`: `image_legacy` is requested but not in the PHP file, so it is flagged and not added to the enum.
+- `registry-mismatch.json`: has zero mismatches. The enum is exactly the 30 PHP keys. There is no `image_legacy` type. Old image items are migrated to a real interactive type, not dumped onto `image_based_choice`.
 - `sanitizer-allowlist.json`: allowed HTML tags and attributes, allowed SVG elements and attributes, and differences from `sanitizeSvgContent`.
 - `reveal-rules.md`: learner versus answer, practice versus exam, offline rule 143, free trial rule 216, rule 21, and the three known site key-leak bugs.
-- `image-questions.md`: tables and text become HTML; diagrams become SVG only when they can be transcribed exactly; photos and UI screenshots stay images; the original file is always kept.
-- `examples/`: eight valid core-type files, one `image_legacy` mismatch, two invalid files.
+- `image-questions.md`: tables, text, and choices become HTML; diagrams become exact SVG; photos and UI screenshots stay supporting media; the original file is always kept; inexact items go on the cannot-convert list.
+- `examples/`: valid core-type files (including a `single_choice` item with a supporting image) and two invalid files.
 - `README.md`: commands and how this fits the site importer.
 
-Scripts in `scripts/`: `parse_question_types_php.py`, `validate_question_v2.py`, `export_question_v2.py`. Tests in `tests/test_question_v2.py`.
+Scripts in `scripts/`: `parse_question_types_php.py`, `validate_question_v2.py`, `export_question_v2.py`, `migrate_v1_to_v2.py`. Tests in `tests/test_question_v2.py`.
 
 ### Exact commands
 
@@ -542,21 +544,29 @@ python scripts/parse_question_types_php.py /path/to/config/question_types.php \
   -o reference/site-format/v2/question_types.json \
   --mismatch-out reference/site-format/v2/registry-mismatch.json
 
-# validate bundled examples (valid must pass; invalid and mismatch must fail)
+# validate bundled examples (valid must pass; invalid examples must fail)
 python scripts/validate_question_v2.py --examples reference/site-format/v2/examples
 
-# export a draft bank and validate the pilot
-python scripts/export_question_v2.py \
+# migrate a v1 bank (maps statuses, converts image items, writes cannot-convert)
+python scripts/migrate_v1_to_v2.py \
   --bank /workspace/runs/dc101/out/Data-Con-101/questions.json \
-  --out /workspace/deliverables/question-v2/pilot/Data-Con-101
+  --out /workspace/deliverables/question-v2/migrated/Data-Con-101 \
+  --cannot-convert /workspace/deliverables/question-v2/cannot-convert
 
-python scripts/validate_question_v2.py --dir /workspace/deliverables/question-v2/pilot/Data-Con-101
+python scripts/migrate_v1_to_v2.py \
+  --package-zip /workspace/runs/ab730/AB-730-package.zip \
+  --out /workspace/deliverables/question-v2/migrated/AB-730 \
+  --cannot-convert /workspace/deliverables/question-v2/cannot-convert \
+  --append
+
+python scripts/validate_question_v2.py --dir /workspace/deliverables/question-v2/migrated/Data-Con-101
+python scripts/validate_question_v2.py --dir /workspace/deliverables/question-v2/migrated/AB-730
 
 # unit tests
 python -m unittest tests.test_question_v2 -v
 ```
 
-The 14 Nov 2026 Data-Con-101 pilot wrote 65 draft files, all type `single_choice`, all `answer_key_status=owner_key` (mapped from v1 `as_in_source_file`), 0 held, 0 scoring excluded. All 65 passed validation. Those exam files are not committed in git.
+Do not run `export_question_v2.py` on a raw v1 bank. The exporter expects canonical v2 statuses. Migration exam files and the cannot-convert report are not committed in git.
 
 ### How it fits the site importer
 
@@ -565,7 +575,8 @@ The 14 Nov 2026 Data-Con-101 pilot wrote 65 draft files, all type `single_choice
 - Re-import is keyed by `question_key` plus integer `version`. A new version updates the same record. It must not create a duplicate key.
 - Unknown or disabled types stay quarantined drafts. Do not coerce them to MCQ.
 - `choose_n` / `max_choices` are authored in the learner block. Do not compute them from the number of correct options.
-- v2 status values are `owner_key`, `researched_official`, `researched_unverified`, and `answer_not_found`. The site importer still needs to accept the researched and `answer_not_found` fields (open item from v1.1.0).
+- Canonical `answer_key_status` is `owner_key`. The v1 spelling `as_in_source_file` is not valid in v2. `scripts/migrate_v1_to_v2.py` maps it to `owner_key` (it may record the original spelling in `meta.legacy_answer_key_status`). The other stored values are `researched_official`, `researched_unverified`, and `answer_not_found`. The site importer still needs to accept the researched and `answer_not_found` fields (open item from v1.1.0).
+- Free-trial caps live in site entitlements, not in question JSON. The schema has no trial fields.
 - Run `sanitizeSvgContent` (and an HTML sanitizer) on the server at ingest, even when this schema already passed.
 - Do not deploy v2 items to production until the three reveal bugs are fixed and the owner has approved tests. This skill does not change site code.
 
@@ -580,10 +591,12 @@ The 14 Nov 2026 Data-Con-101 pilot wrote 65 draft files, all type `single_choice
 
 ### Image-question guide
 
-- Tables, text, and choices become HTML (or plain text) when they can be transcribed exactly.
-- Diagrams become SVG only when every label and shape can be transcribed exactly, and only after the allow-list passes.
-- Photos and real UI screenshots stay raster images, using existing types such as `image_based_choice` or hotspot types, with transcribed alt text that does not state the key.
-- The original image is always kept as a reference asset (`media[].original_asset` with sha256).
+- Every question must be a real v2 type. Nothing stays in the old image-as-question format.
+- Tables, text, and choices become HTML when they can be transcribed exactly, then checked (OCR or pdftotext versus the text, table cell counts).
+- Diagrams become SVG only when every label and shape can be transcribed exactly, and only after the allow-list passes. Do not invent an SVG.
+- Photos and real UI screenshots stay raster images as supporting media (or as the background of a hotspot / `active_screen` item), with transcribed alt text that does not state the key. They are never the question itself. Do not map those items to `image_based_choice` as a shortcut.
+- The original image is always kept as a reference asset (`media[].original_asset` or `meta.reference_media` with sha256). Answer-area and marked-key images stay reviewer-only.
+- If a conversion is not exact, list it for the owner in `cannot-convert.json` and `.md` (question_key, image path, sha256, reason, suggested option). Never guess content.
 
 ### Known site bugs (compatible format, not a site fix)
 
@@ -595,7 +608,7 @@ These were found in a read-only review of `wt-merge-1114-fixes2`. v2 stays compa
 
 ### Next steps
 
-- Site team: close the three reveal bugs, enforce rule 216, accept the new status fields in the live importer, and decide whether to add `image_legacy` to `question_types.php` or to map those items to `image_based_choice`.
-- Skill team: keep building v1 packages for remaining exams. Use the v2 exporter when a bank should be reviewed in the new format. Do not merge this branch to `main` until CI is green and the team agrees. Do not tag `v1.2.0` from this pre-release.
-- Owner / Ori: confirm the status name `owner_key` (mapped from `as_in_source_file`), the `image_legacy` decision, and that trial caps stay in entitlements rather than in question JSON.
+- Site team: close the three reveal bugs, enforce rule 216 in entitlements, and accept the new status fields (including canonical `owner_key`) in the live importer.
+- Skill team: keep building v1 packages for remaining exams. Use `scripts/migrate_v1_to_v2.py` when a bank should be reviewed in the new format. Do not merge this branch to `main` until CI is green and the team agrees. Do not tag `v1.2.0` from this pre-release.
+- Owner update (14 Nov 2026, 14:30): v2 for everything; no `image_legacy`; no `image_based_choice` shortcut; `owner_key` only in v2 (migrate v1 statuses in the one-time script); trial caps stay in entitlements.
 

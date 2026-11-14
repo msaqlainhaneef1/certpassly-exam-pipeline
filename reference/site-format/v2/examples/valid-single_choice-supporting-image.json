@@ -1,12 +1,12 @@
 {
   "schema_version": "question.v2",
-  "question_key": "ex-imgleg-001",
+  "question_key": "ex-img-001",
   "version": 1,
-  "type": "image_legacy",
+  "type": "single_choice",
   "learner": {
     "stem": {
-      "format": "plain",
-      "text": "What does this screenshot show?"
+      "format": "html",
+      "text": "<p>What does the settings page in the exhibit show?</p>"
     },
     "media": [
       {
@@ -18,7 +18,7 @@
         "role": "exhibit",
         "original_asset": {
           "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "note": "The original screenshot is the item itself."
+          "note": "Original UI screenshot kept as supporting media, not as the question."
         }
       }
     ],
@@ -34,6 +34,9 @@
         }
       ],
       "choose_n": 1
+    },
+    "constraints": {
+      "choose_n": 1
     }
   },
   "answer": {
@@ -43,7 +46,7 @@
       ]
     },
     "explanation": {
-      "core": "Compatibility example only. Type is not in the PHP registry."
+      "core": "Toy example: the question is HTML single_choice; the screenshot is supporting media only. Not a real exam item."
     },
     "partial_credit": {
       "mode": "all_or_nothing",
@@ -55,12 +58,9 @@
     "key_source": "owner_file",
     "research_evidence": [],
     "verification_status": "unverified",
-    "reviewer_needed": true,
+    "reviewer_needed": false,
     "question_sources": [],
     "scoring_excluded": false,
-    "record_status": "draft",
-    "flags": [
-      "registry_mismatch_image_legacy"
-    ]
+    "record_status": "draft"
   }
 }

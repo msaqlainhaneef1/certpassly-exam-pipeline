@@ -4,6 +4,9 @@
 Uses the jsonschema package when it is installed (Draft 2020-12). Otherwise a
 minimal built-in checker covers required fields, the type enum, learner/answer
 separation, scoring_excluded, and the sanitizer allow-list.
+
+v2 rejects the v1 status spelling as_in_source_file. Use scripts/migrate_v1_to_v2.py
+to map a v1 bank first.
 """
 from __future__ import annotations
 import argparse, json, re, sys
@@ -16,6 +19,26 @@ FORBIDDEN_LEARNER_KEYS = {
     'answer_key', 'correct_option_ids', 'is_correct', 'server_only_answer_key',
     'correct_answer', 'partial_credit', 'option_rationales',
 }
+
+CANONICAL_STATUS = {
+    'owner_key', 'researched_official', 'researched_unverified', 'answer_not_found',
+}
+
+def check_status(doc: dict) -> list[str]:
+    """v2 rejects v1 status spellings. Do not normalize them here."""
+    meta = doc.get('meta')
+    if not isinstance(meta, dict):
+        return []
+    raw = meta.get('answer_key_status')
+    if raw == 'as_in_source_file':
+        return [
+            'answer_key_status as_in_source_file is not valid in v2; '
+            'run scripts/migrate_v1_to_v2.py to map v1 statuses to owner_key'
+        ]
+    if raw not in (None, *CANONICAL_STATUS):
+        return [f'invalid answer_key_status {raw!r}']
+    return []
+
 
 def load_json(p: Path):
     return json.loads(p.read_text(encoding='utf-8'))
@@ -59,8 +82,6 @@ def check_registry(doc, registry) -> list[str]:
     aliases = registry.get('aliases') or {}
     if typ in keys:
         return []
-    if typ == 'image_legacy':
-        return [f'registry mismatch: type {typ!r} is not in question_types.php (not added to the enum)']
     if typ in aliases:
         return [f'registry mismatch: type {typ!r} is an alias for {aliases[typ]!r}; use the canonical key']
     return [f'registry mismatch: type {typ!r} is not in the 30-key enum']
@@ -176,6 +197,7 @@ def minimal_check(doc, registry) -> list[str]:
 
 def validate_doc(doc, schema, registry, allow, use_jsonschema=True) -> list[str]:
     errs = []
+    errs.extend(check_status(doc))
     typ = doc.get('type')
     if typ not in (registry.get('types') or {}):
         errs.extend(check_registry(doc, registry))

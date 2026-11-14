@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Export a pipeline questions.json bank to question format v2 draft files.
 
-Does not invent keys. Maps v1 answer_key_status as_in_source_file to owner_key.
+Does not invent keys. Expects canonical v2 answer_key_status values.
 Writes one JSON file per question. Record status is always draft.
+
+Do not use this script on a raw v1 bank. Use scripts/migrate_v1_to_v2.py, which
+maps v1 statuses (including as_in_source_file) and converts image items.
 """
 from __future__ import annotations
 import argparse, json, sys
@@ -12,14 +15,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 
-STATUS_MAP = {
-    'as_in_source_file': 'owner_key',
-    'owner_key': 'owner_key',
-    'researched_official': 'researched_official',
-    'researched_unverified': 'researched_unverified',
-    'answer_not_found': 'answer_not_found',
-    'flagged_for_owner': 'owner_key',
+CANONICAL_STATUS = {
+    'owner_key', 'researched_official', 'researched_unverified', 'answer_not_found',
 }
+V1_ONLY_STATUS = {'as_in_source_file', 'flagged_for_owner'}
 KEY_SOURCE_MAP = {
     'owner_file': 'owner_file',
     'researched_official': 'researched_official',
@@ -52,9 +51,17 @@ def options(item):
         out.append({'id': str(o.get('id')), 'text': o.get('text') or ''})
     return out
 
+def iter_media(item):
+    raw = item.get('media') or []
+    if isinstance(raw, dict):
+        raw = [raw]
+    for i, m in enumerate(raw, 1):
+        if isinstance(m, dict):
+            yield i, m
+
 def media(item):
     assets = []
-    for i, m in enumerate(item.get('media') or [], 1):
+    for i, m in iter_media(item):
         alt = (m.get('alt') or m.get('alt_text') or m.get('description') or '').strip()
         sha = (m.get('sha256') or '').lower()
         href = m.get('href') or m.get('path') or m.get('url') or ''
@@ -86,7 +93,12 @@ def media(item):
 def export_item(item: dict) -> dict:
     typ = item.get('question_type') or item.get('type') or 'single_choice'
     aks_raw = item.get('answer_key_status') or 'owner_key'
-    aks = STATUS_MAP.get(aks_raw, 'owner_key')
+    if aks_raw in V1_ONLY_STATUS or aks_raw not in CANONICAL_STATUS:
+        raise ValueError(
+            f"v1 answer_key_status {aks_raw!r} is not valid in v2; "
+            'use scripts/migrate_v1_to_v2.py'
+        )
+    aks = aks_raw
     ks_raw = item.get('key_source') or ('owner_file' if aks == 'owner_key' else 'none')
     ks = KEY_SOURCE_MAP.get(ks_raw, 'owner_file' if aks == 'owner_key' else 'none')
     scoring = aks == 'answer_not_found' or (item.get('question_key') in (item.get('scoring_excluded_question_keys') or []))
@@ -141,7 +153,7 @@ def export_item(item: dict) -> dict:
             'topic_key': item.get('topic_key'),
             'type_reason': item.get('type_reason'),
             'created_source': item.get('created_source'),
-            'legacy_answer_key_status': aks_raw if aks_raw != aks else None,
+            'legacy_answer_key_status': item.get('legacy_answer_key_status') or None,
         },
     }
     assets = media(item)
@@ -170,7 +182,11 @@ def main(argv=None):
         if item['question_key'] in excluded:
             item = dict(item)
             item['scoring_flag'] = True
-        doc = export_item(item)
+        try:
+            doc = export_item(item)
+        except ValueError as e:
+            print(e, file=sys.stderr)
+            return 2
         if item['question_key'] in excluded:
             doc['meta']['scoring_excluded'] = True
         types[doc['type']] += 1

@@ -32,7 +32,9 @@ The current site service worker already lists `/api`, `/practice/`, `/exam/`, `/
 
 The owner rule is: 1 week, 10 questions, and 2 simulator uses.
 
-The site worktree reviewed on 14 Nov 2026 still used a code default of 3 free questions (`EntitlementService::FREE_PREVIEW_QUESTIONS_LIMIT`), overridable by platform settings, and no complete enforcement of the 1-week and 2-use caps was found. Configure and enforce rule 216 in the site before HTML or SVG items go to trial users. This format does not encode those caps in the question JSON (they are entitlement rules, not per-question fields).
+Those caps live in site entitlements, not in question JSON. `question.schema.json` has no trial fields. Do not add per-question trial flags.
+
+The site worktree reviewed on 14 Nov 2026 still used a code default of 3 free questions (`EntitlementService::FREE_PREVIEW_QUESTIONS_LIMIT`), overridable by platform settings, and no complete enforcement of the 1-week and 2-use caps was found. Configure and enforce rule 216 in the site entitlement layer before HTML or SVG items go to trial users.
 
 ## No hardcoding (owner rule 21)
 
@@ -57,3 +59,7 @@ Until the site fixes these three bugs, keep scoring on the server, keep keys out
 - Existing `public_view` fields (`question_type`, `schema_version`, `stimulus`, `response_schema`, `renderer`) can be filled from the v2 `learner` block plus the type registry.
 - Encrypted `question_answer_keys` on the server remains the store for `answer.answer_key`.
 - Draft-only `meta.record_status` stays `draft`. This pipeline never sets verified, reviewed, approved, published, or active flags.
+
+## Status alias
+
+Canonical `answer_key_status` is `owner_key`. The other stored values are `researched_official`, `researched_unverified`, and `answer_not_found`. The v1 spelling `as_in_source_file` is not valid in v2. `scripts/migrate_v1_to_v2.py` maps it to `owner_key`. The schema and the validator reject the alias.

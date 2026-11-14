@@ -1,11 +1,5 @@
 {
-  "site_format_version": "v2",
-  "mismatches": [
-    {
-      "requested_type": "image_legacy",
-      "status": "not_in_registry",
-      "maps_to": null,
-      "note": "Not in question_types.php. Flagged as a mismatch. Not added to the v2 enum."
-    }
-  ]
+  "source": "config/question_types.php",
+  "mismatches": [],
+  "note": "The type enum is exactly the 30 keys parsed from question_types.php. No extra types are added. image_legacy is not a type. Old image items are migrated to a real interactive type (for example single_choice or yes_no_matrix) with HTML or exact SVG; images are supporting media only. Do not map those items to image_based_choice as a shortcut."
 }

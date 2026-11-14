@@ -6,11 +6,13 @@ Question format v2 is added next to the unchanged v1 snapshot. This is a pre-rel
 
 - `reference/site-format/v2/`: JSON Schema Draft 2020-12 (`question.schema.json`), type registry parsed from site `config/question_types.php` (exactly 30 keys), sanitizer allow-list, reveal rules, and an image-question guide.
 - Stable `question_key` plus integer `version` so a re-import updates and never duplicates. Learner and answer blocks are separate. Partial credit is defined in the schema per type. `scoring_excluded` must be true when `answer_key_status` is `answer_not_found`.
-- `image_legacy` was requested for compatibility and is flagged in `registry-mismatch.json`. It is not in the PHP registry and was not added to the enum.
-- Scripts: `parse_question_types_php.py`, `validate_question_v2.py` (jsonschema, with a minimal fallback), `export_question_v2.py`.
-- Tests: `tests/test_question_v2.py`. Bundled valid examples pass; invalid examples and the image_legacy mismatch fail.
+- Owner update (14 Nov 2026, 14:30, supersedes the earlier 14:29 note): v2 is required for every question. Tables, text, and choices become HTML; diagrams become exact SVG. Images are supporting media only, with alt text, and are never the question itself. There is no `image_legacy` type. Do not map old image questions to `image_based_choice` as a shortcut; pick the real interactive type from the registry. `registry-mismatch.json` has zero mismatches.
+- Owner update: canonical `answer_key_status` is `owner_key`. The v1 spelling `as_in_source_file` is not valid in the v2 schema or validator. `scripts/migrate_v1_to_v2.py` is the one-time mapper for v1 statuses and items. Anything that cannot be converted exactly is listed in a cannot-convert report (question_key, image path, sha256, reason, suggested option). Deterministic checks only; content is never guessed.
+- Owner decision: free-trial caps live in site entitlements, not in question JSON. The schema has no trial fields.
+- Scripts: `parse_question_types_php.py`, `validate_question_v2.py` (jsonschema, with a minimal fallback), `export_question_v2.py` (canonical v2 statuses only), `migrate_v1_to_v2.py`.
+- Tests: `tests/test_question_v2.py`. Bundled valid examples pass; invalid examples fail. The alias is rejected; empty-mismatch and migration cases are covered.
 - CI now also runs on pushes to `feat/**` so this branch is tested without merging to main.
-- A draft-only Data-Con-101 pilot (65 `single_choice` items, all `owner_key`) validates. Those exam files are not committed.
+- Draft-only migrations of existing v1 runs (Data-Con-101, and AB-730 when the package is present) are validated. Those exam files and the cannot-convert report are not committed.
 
 
 ## 1.1.5
