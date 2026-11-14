@@ -1,0 +1,11 @@
+{
+  "site_format_version": "v2",
+  "mismatches": [
+    {
+      "requested_type": "image_legacy",
+      "status": "not_in_registry",
+      "maps_to": null,
+      "note": "Not in question_types.php. Flagged as a mismatch. Not added to the v2 enum."
+    }
+  ]
+}

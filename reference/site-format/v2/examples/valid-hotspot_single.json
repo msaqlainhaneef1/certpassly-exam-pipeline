@@ -1,0 +1,89 @@
+{
+  "schema_version": "question.v2",
+  "question_key": "ex-hot-001",
+  "version": 1,
+  "type": "hotspot_single",
+  "learner": {
+    "stem": {
+      "format": "plain",
+      "text": "Select the region that marks the Sources information icon."
+    },
+    "interaction": {
+      "media_id": "img1",
+      "regions": [
+        {
+          "id": "r1",
+          "shape": "rect",
+          "coords": [
+            10,
+            10,
+            40,
+            40
+          ],
+          "label": "Home"
+        },
+        {
+          "id": "r2",
+          "shape": "rect",
+          "coords": [
+            80,
+            10,
+            40,
+            40
+          ],
+          "label": "Sources"
+        },
+        {
+          "id": "r3",
+          "shape": "rect",
+          "coords": [
+            10,
+            80,
+            40,
+            40
+          ],
+          "label": "Settings"
+        }
+      ]
+    },
+    "media": [
+      {
+        "id": "img1",
+        "kind": "image",
+        "alt": "A settings window with Home, Sources, and Settings icons.",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "href": "/storage/examples/hotspot-demo.png",
+        "role": "exhibit",
+        "original_asset": {
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "href": "/storage/examples/hotspot-demo-original.png",
+          "note": "Original screenshot kept as a reference asset."
+        }
+      }
+    ]
+  },
+  "answer": {
+    "answer_key": {
+      "region_ids": [
+        "r2"
+      ]
+    },
+    "explanation": {
+      "core": "Toy explanation for a format example. Not a real exam item."
+    },
+    "partial_credit": {
+      "mode": "all_or_nothing",
+      "max_points": 1
+    }
+  },
+  "meta": {
+    "answer_key_status": "owner_key",
+    "key_source": "owner_file",
+    "research_evidence": [],
+    "verification_status": "unverified",
+    "reviewer_needed": false,
+    "question_sources": [],
+    "scoring_excluded": false,
+    "record_status": "draft"
+  }
+}

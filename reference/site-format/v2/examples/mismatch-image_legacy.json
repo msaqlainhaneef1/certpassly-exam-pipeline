@@ -1,0 +1,66 @@
+{
+  "schema_version": "question.v2",
+  "question_key": "ex-imgleg-001",
+  "version": 1,
+  "type": "image_legacy",
+  "learner": {
+    "stem": {
+      "format": "plain",
+      "text": "What does this screenshot show?"
+    },
+    "media": [
+      {
+        "id": "shot1",
+        "kind": "image",
+        "alt": "A vendor settings page with a Sources icon in the toolbar.",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "href": "/storage/examples/ui-shot.png",
+        "role": "exhibit",
+        "original_asset": {
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "note": "The original screenshot is the item itself."
+        }
+      }
+    ],
+    "interaction": {
+      "options": [
+        {
+          "id": "a",
+          "text": "A login form"
+        },
+        {
+          "id": "b",
+          "text": "A settings page with a Sources icon"
+        }
+      ],
+      "choose_n": 1
+    }
+  },
+  "answer": {
+    "answer_key": {
+      "correct_option_ids": [
+        "b"
+      ]
+    },
+    "explanation": {
+      "core": "Compatibility example only. Type is not in the PHP registry."
+    },
+    "partial_credit": {
+      "mode": "all_or_nothing",
+      "max_points": 1
+    }
+  },
+  "meta": {
+    "answer_key_status": "owner_key",
+    "key_source": "owner_file",
+    "research_evidence": [],
+    "verification_status": "unverified",
+    "reviewer_needed": true,
+    "question_sources": [],
+    "scoring_excluded": false,
+    "record_status": "draft",
+    "flags": [
+      "registry_mismatch_image_legacy"
+    ]
+  }
+}

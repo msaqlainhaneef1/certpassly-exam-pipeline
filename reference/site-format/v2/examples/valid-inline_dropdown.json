@@ -1,0 +1,78 @@
+{
+  "schema_version": "question.v2",
+  "question_key": "ex-drop-001",
+  "version": 1,
+  "type": "inline_dropdown",
+  "learner": {
+    "stem": {
+      "format": "plain",
+      "text": "The official duration is {{dur}} minutes and the pass mark is {{pass}} percent."
+    },
+    "interaction": {
+      "prompt_with_slots": "The official duration is {{dur}} minutes and the pass mark is {{pass}} percent.",
+      "slots": [
+        {
+          "id": "dur",
+          "input": "dropdown",
+          "choices": [
+            {
+              "id": "60",
+              "text": "60"
+            },
+            {
+              "id": "105",
+              "text": "105"
+            },
+            {
+              "id": "180",
+              "text": "180"
+            }
+          ]
+        },
+        {
+          "id": "pass",
+          "input": "dropdown",
+          "choices": [
+            {
+              "id": "50",
+              "text": "50"
+            },
+            {
+              "id": "70",
+              "text": "70"
+            },
+            {
+              "id": "90",
+              "text": "90"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "answer": {
+    "answer_key": {
+      "slots": {
+        "dur": "105",
+        "pass": "70"
+      }
+    },
+    "explanation": {
+      "core": "Toy explanation for a format example. Not a real exam item."
+    },
+    "partial_credit": {
+      "mode": "per_item",
+      "max_points": 1
+    }
+  },
+  "meta": {
+    "answer_key_status": "owner_key",
+    "key_source": "owner_file",
+    "research_evidence": [],
+    "verification_status": "unverified",
+    "reviewer_needed": false,
+    "question_sources": [],
+    "scoring_excluded": false,
+    "record_status": "draft"
+  }
+}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "certpassly-exam-pipeline"
-version = "1.1.5"
+version = "1.2.0.dev0"
 description = "Scripts-first pipeline that builds CertPassly exam pages and question import files from official vendor sources and owner PDFs."
 readme = "README.md"
 requires-python = ">=3.10"

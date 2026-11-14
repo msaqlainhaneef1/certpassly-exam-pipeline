@@ -1,0 +1,59 @@
+{
+  "schema_version": "question.v2",
+  "question_key": "ex-order-001",
+  "version": 1,
+  "type": "ordering",
+  "learner": {
+    "stem": {
+      "format": "plain",
+      "text": "Put the pipeline stages in the stable import order."
+    },
+    "interaction": {
+      "items": [
+        {
+          "id": "s1",
+          "text": "pages"
+        },
+        {
+          "id": "s2",
+          "text": "import"
+        },
+        {
+          "id": "s3",
+          "text": "bank"
+        },
+        {
+          "id": "s4",
+          "text": "validate"
+        }
+      ]
+    }
+  },
+  "answer": {
+    "answer_key": {
+      "order": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+      ]
+    },
+    "explanation": {
+      "core": "Toy explanation for a format example. Not a real exam item."
+    },
+    "partial_credit": {
+      "mode": "ordered_pairs",
+      "max_points": 1
+    }
+  },
+  "meta": {
+    "answer_key_status": "owner_key",
+    "key_source": "owner_file",
+    "research_evidence": [],
+    "verification_status": "unverified",
+    "reviewer_needed": false,
+    "question_sources": [],
+    "scoring_excluded": false,
+    "record_status": "draft"
+  }
+}

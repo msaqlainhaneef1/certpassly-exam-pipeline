@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.0.dev0 (pre-release)
+
+Question format v2 is added next to the unchanged v1 snapshot. This is a pre-release of 1.2.0, not a 1.1.6 patch, because it adds a new site-format version. It is not tagged.
+
+- `reference/site-format/v2/`: JSON Schema Draft 2020-12 (`question.schema.json`), type registry parsed from site `config/question_types.php` (exactly 30 keys), sanitizer allow-list, reveal rules, and an image-question guide.
+- Stable `question_key` plus integer `version` so a re-import updates and never duplicates. Learner and answer blocks are separate. Partial credit is defined in the schema per type. `scoring_excluded` must be true when `answer_key_status` is `answer_not_found`.
+- `image_legacy` was requested for compatibility and is flagged in `registry-mismatch.json`. It is not in the PHP registry and was not added to the enum.
+- Scripts: `parse_question_types_php.py`, `validate_question_v2.py` (jsonschema, with a minimal fallback), `export_question_v2.py`.
+- Tests: `tests/test_question_v2.py`. Bundled valid examples pass; invalid examples and the image_legacy mismatch fail.
+- CI now also runs on pushes to `feat/**` so this branch is tested without merging to main.
+- A draft-only Data-Con-101 pilot (65 `single_choice` items, all `owner_key`) validates. Those exam files are not committed.
+
+
 ## 1.1.5
 
 - Fix Windows: `generic._load_sources`, the Microsoft adapter and `validate.py` now resolve saved-source `path` and `text_path` through a shared `fetch_sources.resolve_sidecar_paths` / `load_sidecar` helper (the same remap `find_saved` already used). A workspace copied from another machine no longer reads empty official pages, so research can find official skill weights without a hand-edited sidecar.

@@ -1,0 +1,63 @@
+{
+  "schema_version": "question.v2",
+  "question_key": "ex-invalid-learner-key",
+  "version": 1,
+  "type": "single_choice",
+  "learner": {
+    "stem": {
+      "format": "plain",
+      "text": "Which option names the official passing score source?"
+    },
+    "interaction": {
+      "options": [
+        {
+          "id": "a",
+          "text": "The seller cover page"
+        },
+        {
+          "id": "b",
+          "text": "The official vendor exam guide"
+        },
+        {
+          "id": "c",
+          "text": "A forum post"
+        },
+        {
+          "id": "d",
+          "text": "An unsourced blog"
+        }
+      ],
+      "choose_n": 1,
+      "correct_option_ids": [
+        "b"
+      ]
+    },
+    "constraints": {
+      "choose_n": 1
+    }
+  },
+  "answer": {
+    "answer_key": {
+      "correct_option_ids": [
+        "b"
+      ]
+    },
+    "explanation": {
+      "core": "Toy explanation for a format example. Not a real exam item."
+    },
+    "partial_credit": {
+      "mode": "all_or_nothing",
+      "max_points": 1
+    }
+  },
+  "meta": {
+    "answer_key_status": "owner_key",
+    "key_source": "owner_file",
+    "research_evidence": [],
+    "verification_status": "unverified",
+    "reviewer_needed": false,
+    "question_sources": [],
+    "scoring_excluded": false,
+    "record_status": "draft"
+  }
+}

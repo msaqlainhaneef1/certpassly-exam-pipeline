@@ -1,0 +1,63 @@
+{
+  "schema_version": "question.v2",
+  "question_key": "ex-multi-001",
+  "version": 1,
+  "type": "multiple_select",
+  "learner": {
+    "stem": {
+      "format": "plain",
+      "text": "Select the two official facts you must save with a hash."
+    },
+    "interaction": {
+      "options": [
+        {
+          "id": "a",
+          "text": "The passing score if the vendor publishes it"
+        },
+        {
+          "id": "b",
+          "text": "A guess from a practice dump"
+        },
+        {
+          "id": "c",
+          "text": "The exam duration if the vendor publishes it"
+        },
+        {
+          "id": "d",
+          "text": "An unsourced tip"
+        }
+      ],
+      "choose_n": 2,
+      "max_choices": 2
+    },
+    "constraints": {
+      "choose_n": 2,
+      "max_choices": 2
+    }
+  },
+  "answer": {
+    "answer_key": {
+      "correct_option_ids": [
+        "a",
+        "c"
+      ]
+    },
+    "explanation": {
+      "core": "Toy explanation for a format example. Not a real exam item."
+    },
+    "partial_credit": {
+      "mode": "per_item",
+      "max_points": 1
+    }
+  },
+  "meta": {
+    "answer_key_status": "owner_key",
+    "key_source": "owner_file",
+    "research_evidence": [],
+    "verification_status": "unverified",
+    "reviewer_needed": false,
+    "question_sources": [],
+    "scoring_excluded": false,
+    "record_status": "draft"
+  }
+}
