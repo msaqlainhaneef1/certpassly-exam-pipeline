@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 """Orchestrate the CertPassly exam pipeline.
 
-    python3 run_pipeline.py --exam CODE [--root DIR] [--config FILE] [--stage NAME] [--date YYYY-MM-DD] [--offline] [--sheet FILE] [--zip]
+    python3 run_pipeline.py --exam CODE [--root DIR] [--offline] [--force]
+    python3 run_pipeline.py research --exam CODE ...
+    python3 run_pipeline.py verify --exam CODE ...
 
-Stages run in order. Use --stage NAME to run one stage, or repeat --stage.
-The run is idempotent: vendor and certification pages are skipped when unchanged,
-and saved official sources are reused. Failed checks exit with status 1.
+The default run is technical only: intake, extract (including local OCR),
+export (site v2 exam file), validate_site (Python, and the site PHP checker
+when SchemaValidator.php is present), package. No web, no AI, no explanations.
 
-The only stage that calls AI is `author` (batched explanations and original page
-prose). This script never talks to the app repo, GitHub or artisan.
+`research` runs catalog, sources, research, answer_research, author, pages,
+import and bank (intake and extract too if the technical files are missing).
+`verify` runs the bank validate and full package stages.
+
+Use --stage NAME to run one stage, or repeat --stage. This script never talks
+to the app repo, GitHub or artisan.
 """
 from __future__ import annotations
 import argparse, csv, json, os, shutil, subprocess, sys, time
@@ -18,19 +24,26 @@ HERE=os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import paths, site_settings, config_load, shared_sections
 
+TECHNICAL_STAGES=['intake','extract','export','validate_site','package']
+RESEARCH_STAGES=['catalog','intake','sources','research','extract','answer_research','author','pages','import','bank']
+VERIFY_STAGES=['validate','package']
+COMMANDS=('technical','research','verify')
+
 STAGES=[
-    ('catalog','no','Build catalog.csv and review.csv from the owner sheet. Network only to check official exam URLs (skipped when a saved copy exists).'),
-    ('intake','no','Inventory Drive folders, download owner files, run provenance, write intake/. Network for Drive only.'),
-    ('sources','no','Fetch and hash official vendor pages listed in research JSON. Reuses saved copies.'),
-    ('research','parser first','Fill or check research JSON from official pages using the vendor adapter in scripts/adapters (chosen from config/vendors.yaml). AI is allowed only for official facts the adapter lists as gaps, each with a quote and source id. Not the author stage.'),
-    ('extract','no','Split the owner PDF, write visual_draft from OCR and marker boxes. No AI.'),
-    ('answer_research','pick only','Items with no answer in the owner file: find candidate OFFICIAL pages (research sources, listed URLs, site-restricted search on official_domains), save them with sha256, rank matching lines. The key is picked by AI in the author batch (authoring/answer_research.json) and re-verified by script: official domain, saved copy, verbatim quote. No evidence: item stays as draft flagged answer_not_found and is excluded from scoring.'),
-    ('author','YES','THE AI STAGE. Batched only: rewrite explanations, write original page prose (page_prose.json), finish visual_transcription.json where OCR is not enough, and write bank_meta.json. Never invent questions. Never change stems, options or keys. This script does not call a model; it checks the files are present and stops with instructions if they are not.'),
-    ('pages','no','Build exam (and shared vendor/cert) pages from research JSON + page_prose.json. Vendor and cert pages are skipped when their inputs have not changed.'),
-    ('import','no','Write workbook CSVs, sidecars (including page_meta_extras.csv) and simulator_settings.json from the generated pages.'),
-    ('bank','no','Assemble questions.json, question import CSVs, media, CLEANUP-LOG.md and REVIEW.md. Runs after import so page sources.csv is merged, not wiped.'),
-    ('validate','no','Refresh MANIFEST.json, then run validate.py and check_bank.py. Exit 1 on any failed check.'),
-    ('package','no','Zip the exam package plus shared vendor and certification pages.'),
+    ('intake','no','Inventory Drive folders, download owner files, run provenance, write intake/. Network for Drive only. Default technical path.'),
+    ('extract','no','Split the owner PDF, run local Tesseract OCR (installs if missing), detect answer marks with pixel rules, write visual_draft. No AI. Default technical path.'),
+    ('export','no','Build the site v2 exam file from the extract, catalog, OCR and type rules. No explanations, no web, no AI. Default technical path.'),
+    ('validate_site','no','Check the site v2 file with the Python schema checker, and with the site PHP SchemaValidator when that class file is present. Default technical path.'),
+    ('package','no','Zip the exam output. Vendor and certification pages are included when a research JSON exists.'),
+    ('catalog','no','Build catalog.csv and review.csv from the owner sheet. Network only to check official exam URLs (skipped when a saved copy exists). research command.'),
+    ('sources','no','Fetch and hash official vendor pages listed in research JSON. Reuses saved copies. research command.'),
+    ('research','parser first','Fill or check research JSON from official pages using the vendor adapter in scripts/adapters (chosen from config/vendors.yaml). AI is allowed only for official facts the adapter lists as gaps, each with a quote and source id. Not the author stage. research command.'),
+    ('answer_research','pick only','Items with no answer in the owner file: find candidate OFFICIAL pages (research sources, listed URLs, site-restricted search on official_domains), save them with sha256, rank matching lines. The key is picked by AI in the author batch (authoring/answer_research.json) and re-verified by script: official domain, saved copy, verbatim quote. No evidence: item stays as draft flagged answer_not_found and is excluded from scoring. research command.'),
+    ('author','YES','THE AI STAGE. Batched only: rewrite explanations, write original page prose (page_prose.json), finish visual_transcription.json where OCR is not enough, and write bank_meta.json. Never invent questions. Never change stems, options or keys. This script does not call a model; it checks the files are present and stops with instructions if they are not. research command.'),
+    ('pages','no','Build exam (and shared vendor/cert) pages from research JSON + page_prose.json. Vendor and cert pages are skipped when their inputs have not changed. research command.'),
+    ('import','no','Write workbook CSVs, sidecars (including page_meta_extras.csv) and simulator_settings.json from the generated pages. research command.'),
+    ('bank','no','Assemble questions.json, question import CSVs, media, CLEANUP-LOG.md and REVIEW.md. Runs after import so page sources.csv is merged, not wiped. research command.'),
+    ('validate','no','Refresh MANIFEST.json, then run validate.py and check_bank.py. Exit 1 on any failed check. verify command.'),
 ]
 
 def log(fh, msg):
@@ -70,7 +83,7 @@ def preflight(cfg, exam, logf, stages):
     for key in ('CERTPASSLY_APP','APP_REPO','CERTPASSLY_REPO'):
         if os.environ.get(key):
             log(logf, f'note: {key} is set but will be ignored; the skill is self-contained.')
-    later={'sources','research','extract','author','bank','pages','import','validate','package'}
+    later={'sources','research','extract','export','validate_site','author','bank','pages','import','validate','package'}
     if later & set(stages) and not exam:
         problems.append('--exam CODE is required for this stage')
     if problems:
@@ -245,7 +258,7 @@ def stage_extract(opts, logf, exam):
     if not os.path.exists(pdf):
         log(logf, f'extract: PDF not found: {pdf}'); sys.exit(2)
     run_script([sys.executable, os.path.join(HERE,'extract_owner_pdf.py'), pdf, out], logf)
-    run_script([sys.executable, os.path.join(HERE,'analyze_visual.py'), out], logf)
+    run_script([sys.executable, os.path.join(HERE,'ocr_extract.py'), out, pdf], logf)
 
 def stage_answer_research(opts, logf, exam):
     import answer_research
@@ -315,7 +328,50 @@ def stage_import(opts, logf, exam):
     rpath,_=load_research(paths.root(), exam, logf)
     run_script([sys.executable, os.path.join(HERE,'emit_import.py'), rpath], logf)
 
+def find_site_validator():
+    env=os.environ.get('CERTPASSLY_SITE_VALIDATOR') or ''
+    if env and os.path.isfile(env):
+        return env
+    cfg=config_load.load(os.environ.get('CERTPASSLY_CONFIG'))
+    p=((cfg.get('paths') or {}).get('site_validator') or '')
+    if p and not os.path.isabs(p):
+        p=os.path.join(paths.root(), p)
+    if p and os.path.isfile(p):
+        return p
+    return None
+
+def stage_export(opts, logf, exam):
+    out=os.path.join(paths.root(),'out',exam)
+    catalog=os.path.join(paths.root(),'catalog.csv')
+    cmd=[sys.executable, os.path.join(HERE,'build_technical_export.py'),
+         '--exam', exam, '--out-dir', out, '--root', paths.root()]
+    if os.path.isfile(catalog):
+        cmd += ['--catalog', catalog]
+    run_script(cmd, logf)
+    report=os.path.join(out,'export','technical_report.json')
+    if os.path.isfile(report):
+        r=json.load(open(report,encoding='utf-8'))
+        log(logf, f"export: detected={r.get('detected')} held={r.get('held')} total={r.get('total')} types={r.get('by_type')}")
+
+def stage_validate_site(opts, logf, exam):
+    out=os.path.join(paths.root(),'out',exam)
+    site=os.path.join(out, f'{exam}.site-format.v2.json')
+    if not os.path.isfile(site):
+        log(logf, f'validate_site: missing {site}'); sys.exit(2)
+    schema=os.path.join(paths.skill_root(),'reference','site-format','v2','question.schema.json')
+    run_script([sys.executable, os.path.join(HERE,'validate_question_v2.py'), site], logf)
+    php=shutil.which('php')
+    validator=find_site_validator()
+    if php and validator:
+        run_script([php, os.path.join(HERE,'validate_site_schema.php'),
+                    '--schema', schema, '--validator', validator, site], logf)
+    elif validator and not php:
+        log(logf, 'validate_site: SchemaValidator.php is present but php is not on PATH; Python checker only.')
+    else:
+        log(logf, 'validate_site: site PHP SchemaValidator not found (set CERTPASSLY_SITE_VALIDATOR); Python checker only.')
+
 def stage_validate(opts, logf, exam):
+
     rpath,_=load_research(paths.root(), exam, logf)
     run_script([sys.executable, os.path.join(HERE,'manifest.py'), rpath], logf)
     out=os.path.join(paths.root(),'out',exam,'SITE-QUESTION-TYPES.md')
@@ -328,8 +384,14 @@ def stage_validate(opts, logf, exam):
     run_script([sys.executable, os.path.join(HERE,'check_bank.py'), bank, '--registry', reg], logf)
 
 def stage_package(opts, logf, exam):
-    rpath,R=load_research(paths.root(), exam, logf)
     root=paths.root()
+    R=None
+    rpath=research_path(root, exam)
+    if rpath:
+        try:
+            R=json.load(open(rpath,encoding='utf-8'))
+        except Exception:
+            R=None
     zip_path=opts.zip or os.path.join(root,f'{exam}-package.zip')
     staging=os.path.join(root,'out','.package-staging',exam)
     if os.path.exists(staging): shutil.rmtree(staging)
@@ -338,8 +400,11 @@ def stage_package(opts, logf, exam):
     def copytree(src, dst):
         if os.path.exists(src): shutil.copytree(src, dst, dirs_exist_ok=True)
     copytree(os.path.join(root,'out',exam), os.path.join(dest, exam))
-    copytree(os.path.join(root,'out','vendors',R['vendor_slug']), os.path.join(dest,'vendors',R['vendor_slug']))
-    copytree(os.path.join(root,'out','certifications',R['certification_slug']), os.path.join(dest,'certifications',R['certification_slug']))
+    if R:
+        copytree(os.path.join(root,'out','vendors',R.get('vendor_slug') or ''), os.path.join(dest,'vendors',R.get('vendor_slug') or ''))
+        copytree(os.path.join(root,'out','certifications',R.get('certification_slug') or ''), os.path.join(dest,'certifications',R.get('certification_slug') or ''))
+    else:
+        log(logf, 'package: no research JSON; zipping the exam output only (technical package).')
     # include run.log if present
     rl=os.path.join(root,'run.log')
     if os.path.exists(rl): shutil.copy2(rl, os.path.join(dest,'run.log'))
@@ -359,6 +424,8 @@ HANDLERS={
     'sources': stage_sources,
     'research': stage_research,
     'extract': stage_extract,
+    'export': stage_export,
+    'validate_site': stage_validate_site,
     'answer_research': stage_answer_research,
     'author': stage_author,
     'bank': stage_bank,
@@ -407,12 +474,22 @@ def main():
     if rc is not None:
         return rc
 
+    argv=sys.argv[1:]
+    command='technical'
+    if argv and argv[0] in COMMANDS and not argv[0].startswith('-'):
+        command=argv[0]
+        argv=argv[1:]
     names=[s[0] for s in STAGES]
-    ap=argparse.ArgumentParser(description='Run the CertPassly exam pipeline (scripts first, one AI stage).')
+    default={
+        'technical': list(TECHNICAL_STAGES),
+        'research': list(RESEARCH_STAGES),
+        'verify': list(VERIFY_STAGES),
+    }[command]
+    ap=argparse.ArgumentParser(description='Run the CertPassly exam pipeline. Default: technical PDF to site v2 (no AI).')
     ap.add_argument('--exam', action='append', dest='exams', help='Exam code. Repeat to run more than one.')
     ap.add_argument('--root', help='Workspace root (default: CERTPASSLY_ROOT or cwd)')
     ap.add_argument('--config', help='Path to pipeline.yaml')
-    ap.add_argument('--stage', action='append', dest='stages', help='Run one stage (repeatable). Default: all.')
+    ap.add_argument('--stage', action='append', dest='stages', help='Run one stage (repeatable). Default depends on the command.')
     ap.add_argument('--date', help='Freeze the last-updated date (YYYY-MM-DD). Also honors CERTPASSLY_DATE.')
     ap.add_argument('--offline', action='store_true', help='No network. Use saved sources and the link-check cache only.')
     ap.add_argument('--sheet', help='Owner exam sheet (CSV) for the catalog stage.')
@@ -422,8 +499,14 @@ def main():
     ap.add_argument('--batch', action='store_true', help='Run exams in catalog (sheet) order. Combine with --vendor or use alone for all exams.')
     ap.add_argument('--force', action='store_true', help='Redo extract even if split.json exists.')
     ap.add_argument('--list-stages', action='store_true', help='Print the stage table and exit.')
-    opts=ap.parse_args()
+    opts=ap.parse_args(argv)
+    opts.command=command
     if opts.list_stages:
+        print('command\tstages')
+        print('technical (default)\t'+', '.join(TECHNICAL_STAGES))
+        print('research\t'+', '.join(RESEARCH_STAGES))
+        print('verify\t'+', '.join(VERIFY_STAGES))
+        print()
         print('stage\tAI?\twhat it does')
         for n,ai,desc in STAGES:
             print(f'{n}\t{ai}\t{desc}')
@@ -435,7 +518,7 @@ def main():
     if opts.config: os.environ['CERTPASSLY_CONFIG']=os.path.abspath(opts.config)
     cfg=config_load.load(opts.config)
     site_settings.reset(); site_settings.load(opts.config)
-    stages=opts.stages or names
+    stages=opts.stages or default
     for s in stages:
         if s not in HANDLERS:
             print('unknown stage:', s, file=sys.stderr); print('known:', ', '.join(names), file=sys.stderr); return 2

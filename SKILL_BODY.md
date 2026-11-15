@@ -31,10 +31,15 @@ See the README for Git, pip and zip instructions (`install.sh` / `install.ps1`, 
 
 ```bash
 certpassly-pipeline --help
+certpassly-pipeline --list-stages
 certpassly-pipeline --exam EXAM-CODE --root /path/to/workspace --offline
+certpassly-pipeline research --exam EXAM-CODE --root /path/to/workspace --offline
+certpassly-pipeline verify --exam EXAM-CODE --root /path/to/workspace --offline
 ```
 
-Also: `--vendor SLUG`, `--all`, `--batch`, `--stage NAME`, `--date YYYY-MM-DD`, `--list-stages`.
+The default command is technical: intake, extract (local Tesseract OCR), export (site v2), validate_site, package. No web, no AI, no explanations. `research` and `verify` are the later content path.
+
+Also: `--vendor SLUG`, `--all`, `--batch`, `--stage NAME`, `--date YYYY-MM-DD`, `--force`.
 
 If the zip does not open from a chat window, copy it to the Desktop and unzip there.
 
@@ -75,9 +80,10 @@ Reusable blocks under `shared/` (site, vendor, certification, question-type). Te
 
 `python -m unittest discover -s tests -v` (offline, no AI). CI runs it on Linux and Windows with 0 skipped tests.
 
-- `tests/test_demo_end_to_end.py` builds two synthetic demo workspaces with `tests/demo_kit.py` (one per adapter path: the Microsoft adapter and the generic adapter) and runs every default stage through the CLI with no manual step. Each demo PDF carries seller branding, a social link, a phone, an email and a free-update line (stripping is checked), six items (single choice, multiple select, Yes/No matrix, inline drop-down, one image-only item with no evidence (answer_not_found), one no-answer item keyed by answer_research from a saved official page) and a skipped VCE file.
+- `tests/test_technical_path.py` covers table-driven type rules, local OCR (Tesseract plus pixel answer marks), the technical exporter, and the default CLI stage list. No AI.
+- `tests/test_demo_end_to_end.py` builds two synthetic demo workspaces with `tests/demo_kit.py` (one per adapter path: the Microsoft adapter and the generic adapter) and runs the `research` and `verify` commands through the CLI with no manual step. Each demo PDF carries seller branding, a social link, a phone, an email and a free-update line (stripping is checked), six items (single choice, multiple select, Yes/No matrix, inline drop-down, one image-only item with no evidence (answer_not_found), one no-answer item keyed by answer_research from a saved official page) and a skipped VCE file.
 - `tests/test_v110.py`: answer_research (researched key + quote, answer_not_found, rejected non-official pick / non-verbatim quote / bad key), Drive download against a local mock (hash, resume, HTML error), render fallback, research JSON generation, and a grep gate for exam literals in scripts.
-- Try a demo yourself: `python tests/demo_kit.py microsoft DEMO_DIR` then `certpassly-pipeline --exam DM-101 --root DEMO_DIR --offline --date 2026-11-11` (generic path: profile `salesforce`, exam `Demo-Admn-101`).
+- Try a demo yourself: `python tests/demo_kit.py microsoft DEMO_DIR` then `certpassly-pipeline --exam DM-101 --root DEMO_DIR --offline --date 2026-11-11` for the technical path, or `certpassly-pipeline research` and `certpassly-pipeline verify` with the same flags for the content path (generic profile `salesforce`, exam `Demo-Admn-101`).
 - The gold-package regression on a real finished exam runs only when `CERTPASSLY_GOLD` points at a local gold workspace (real owner extracts are never committed). Without it, the regression is not collected, so it never shows as skipped.
 
 ## Limits
@@ -89,6 +95,6 @@ Reusable blocks under `shared/` (site, vendor, certification, question-type). Te
 - Rendering needs `pip install -e ".[render]"` and `python -m playwright install chromium`. Without it, JS-built pages stop with that instruction.
 - `scripts/check_import_conformance.py` checks import files against `reference/site-format/v1`, including `key_source`, `verification_status`, `researched_unverified`, `answer_not_found` and `scoring_excluded_question_keys`. It does not run the live site importer.
 - The site-restricted web search in answer_research may return nothing (search engines block scripts). Then only listed URLs and the exam's official sources are searched; the attempt is logged.
-- Real-exam proof: Data-Con-101 has now run live through every default stage, including one batched author pass (65 short explanations and page prose), pages, import, bank, validate, check_bank and package. 65 imported, 0 held. Official facts (105 minutes, 70 percent, 60 questions, USD 200) come from the saved Salesforce exam guide.
+- Real-exam proof: Data-Con-101 has run live through the earlier full content path (author, pages, import, bank, validate, check_bank and package). 65 imported, 0 held. Official facts (105 minutes, 70 percent, 60 questions, USD 200) come from the saved Salesforce exam guide. The default path is now the technical export (no AI).
 - A non-editable `pip install .` is enough for `--help`. Full runs need a clone (`pip install -e .`) or `CERTPASSLY_SKILL_ROOT`.
 - This skill does not publish pages, change site code, or write to the database.

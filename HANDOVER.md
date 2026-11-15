@@ -654,3 +654,31 @@ Demo result on this commit: Data-Con-101 65/65 and AB-730 92/92 pass both valida
 External official reference links are kept (Data-Con-101: 65 links, 1 unique host trailhead.salesforce.com; AB-730: 103 links, 13 unique learn.microsoft.com URLs). The site importer rejects those domains until `SITE_FORMAT_LINK_DOMAINS` includes them. Also still open with the site team: SVG as an image file, and confirming the fill-in-the-blank format.
 
 Do not merge this branch to main or tag `v1.2.0` until the owner agrees. v1 import files stay what is live until `SITE_FORMAT_EXAM_V2` is turned on.
+
+## 11. Technical default path and local OCR (1.2.0.dev2)
+
+The default run is now PDF to the site v2 exam file, scripts only, no web and no AI.
+
+Default command:
+
+```
+certpassly-pipeline --exam CODE --root WORKSPACE --offline --force
+```
+
+Stages: intake, extract, export, validate_site, package.
+
+Extract splits the owner PDF, then `ocr_extract.py` runs local Tesseract (install tesseract-ocr if it is missing). Images come from pdftohtml and, when needed, pdfimages or pdftoppm. OCR text is written into stems, choices, tables and matrix rows. Highlighted and checked boxes are read with pixel rules from `config/ocr.json`. Confidence is stored per item in `extracted/ocr.json` and `export/technical_report.json`.
+
+Export (`build_technical_export.py`) classifies each item from `config/question_type_rules.json` (first match wins, no exam-specific rules). The exam header comes from `catalog.csv` only (empty name fields use the sheet label or exam code; domain falls back to Unassigned). Explanation is omitted. Items with no key in the PDF go out as `answer_not_found` with `scoring_excluded` and `reviewer_needed`. Anything the rules cannot represent exactly, or whose OCR confidence is below the configured minimum, is listed in `export/cannot-convert.json` with a reason and the OCR confidence. Those items are not written into the site file.
+
+`validate_site` runs `validate_question_v2.py`. When `CERTPASSLY_SITE_VALIDATOR` points at the site `SchemaValidator.php` class file and `php` is on PATH, that checker runs too.
+
+Later work (search, answer research, explanations, page prose, AI) is a separate path:
+
+```
+certpassly-pipeline research --exam CODE --root WORKSPACE --offline
+certpassly-pipeline verify --exam CODE --root WORKSPACE --offline
+```
+
+Do not merge this branch to main or tag `v1.2.0` until the owner agrees.
+

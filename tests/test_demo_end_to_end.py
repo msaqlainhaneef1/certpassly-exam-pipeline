@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """End-to-end demo runs for both adapter paths (offline, no AI, no network).
 
-Builds the synthetic workspaces from tests/demo_kit.py and runs every default
-stage (catalog, intake, sources, research, extract, author, pages, import,
-bank, validate, package) through the CLI with no manual step. Runs in CI.
+Builds the synthetic workspaces from tests/demo_kit.py and runs the research
+and verify commands (catalog through bank, then validate and package) through
+the CLI with no manual step. The default CLI path is the technical export and
+is covered by tests/test_technical_path.py. Runs in CI.
 """
 from __future__ import annotations
 import json, os, re, shutil, subprocess, sys, tempfile, unittest, zipfile
@@ -23,9 +24,19 @@ def run_cli(root: Path, exam: str):
     env['PYTHONIOENCODING']='utf-8'
     env.pop('CERTPASSLY_ROOT', None)
     exe=shutil.which('certpassly-pipeline')
-    cmd=[exe] if exe else [sys.executable, str(SKILL/'scripts'/'run_pipeline.py')]
-    cmd+=['--exam', exam, '--root', str(root), '--offline', '--date', demo_kit.DATE]
-    return subprocess.run(cmd, cwd=str(root), env=env, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    base=[exe] if exe else [sys.executable, str(SKILL/'scripts'/'run_pipeline.py')]
+    def once(command):
+        cmd=base+[command,'--exam', exam, '--root', str(root), '--offline', '--date', demo_kit.DATE]
+        return subprocess.run(cmd, cwd=str(root), env=env, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    r1=once('research')
+    r2=once('verify') if r1.returncode==0 else None
+    class _R:
+        pass
+    r=_R()
+    r.returncode=r1.returncode if r2 is None else (r1.returncode or r2.returncode)
+    r.stdout=(r1.stdout or '') + ('\n'+(r2.stdout or '') if r2 else '')
+    r.stderr=(r1.stderr or '') + ('\n'+(r2.stderr or '') if r2 else '')
+    return r
 
 
 class _DemoBase:

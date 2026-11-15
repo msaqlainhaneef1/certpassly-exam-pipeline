@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0.dev2 (pre-release)
+
+The default pipeline run is now a technical, offline path from the owner PDF to one site v2 exam file. Search, explanations, page prose and AI stay on a separate command.
+
+- Default CLI: `certpassly-pipeline --exam CODE --offline` runs intake, extract, export, validate_site and package. No web, no AI, no explanations.
+- `certpassly-pipeline research` runs catalog, sources, research, answer_research, author, pages, import and bank (plus intake and extract if needed). `certpassly-pipeline verify` runs the bank validate and package stages.
+- Question type detection is table-driven from `config/question_type_rules.json`. First matching rule wins. No exam-specific rules. Anything the rules cannot represent exactly is held in `export/cannot-convert.json` with a reason. The type is never guessed.
+- Local OCR: extract runs Tesseract on images taken from the PDF (`pdftohtml`, and `pdfimages` / `pdftoppm` when needed). Settings live in `config/ocr.json`. OCR text is written into stems, choices, tables and matrix rows. The image is kept as supporting media when needed. Highlighted and checked boxes are detected with simple pixel rules. Per-item OCR confidence is recorded in `extracted/ocr.json` and `export/technical_report.json`. Low confidence or uncertain marks are held with a reason and the confidence value.
+- Exam header (vendor, certification, name, exam code) comes from `catalog.csv` only. Empty catalog name fields fall back to the sheet label or exam code. Domain falls back to Unassigned. Duration, passing score, last vendor update and simulator settings are omitted on this path.
+- Items with no owner key are exported as `answer_not_found` with `scoring_excluded` and `reviewer_needed`, not dropped.
+- Package zips the exam output without requiring vendor or certification pages. Those pages are included when a research JSON is present.
+- Tests: `tests/test_technical_path.py`. The demo end-to-end run now calls `research` then `verify`. Package version is `1.2.0.dev2`. Still a pre-release. Do not merge to main or tag `v1.2.0` from this commit.
+
+
 ## 1.2.0.dev1 (pre-release)
 
 The pipeline now exports the site's own v2 format, not the earlier pipeline-only schema.
