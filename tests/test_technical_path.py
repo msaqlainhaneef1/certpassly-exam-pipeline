@@ -218,5 +218,39 @@ class TestCliDefaultStages(unittest.TestCase):
         self.assertNotIn('sources', default_line)
 
 
+class TestChoiceImages(unittest.TestCase):
+    def _imgs(self, files_and_text):
+        recs=[]
+        for fn, text in files_and_text:
+            recs.append(dict(file=fn, role='question', lines=[{'t': line} for line in text.split('\n')]))
+        return recs
+
+    def test_last_page_images_become_lettered_options(self):
+        import ocr_extract as O
+        item=dict(stem='Based on the exhibit, which syntax is correct?', options={}, answer_raw='A')
+        recs=self._imgs([
+            ('p-2_1.png', '"result": { "avg": 0.026 }'),
+            ('p-3_1.png', 'publish: output: <% task().result %>'),
+            ('p-3_2.png', 'publish: output: <% task().result.RTT %>'),
+            ('p-3_3.png', 'publish: output: <% task().RTT %>'),
+            ('p-3_4.png', 'publish: output: <% RTT %>'),
+        ])
+        opts=O.options_from_choice_images(item, recs)
+        self.assertEqual(list(opts), ['a','b','c','d'])
+        self.assertIn('task().result %>', opts['a'])
+        self.assertIn('<% RTT %>', opts['d'])
+        # the earlier-page exhibit is not a choice
+        self.assertNotIn('avg', ' '.join(opts.values()))
+
+    def test_visual_marker_items_are_not_turned_into_choices(self):
+        import ocr_extract as O
+        item=dict(stem='For each of the following statements, select Yes if the statement is true. Otherwise, select No.',
+                  options={}, answer_raw='')
+        recs=self._imgs([('p-5_1.png','Yes No'),('p-5_2.png','row one')])
+        # even with a letter key, a Yes/No stem must not be flattened
+        item['answer_raw']='A'
+        self.assertIsNone(O.options_from_choice_images(item, recs))
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

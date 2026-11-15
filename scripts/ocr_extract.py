@@ -85,6 +85,63 @@ def parse_options_from_lines(lines):
     return opts
 
 
+PAGE_IN_NAME = re.compile(r'(?:^|/)p-(\d+)_')
+
+
+def _image_text(im):
+    parts = []
+    for ln in im.get('lines') or []:
+        t = (ln.get('t') or ln.get('text') or '').strip()
+        if t:
+            parts.append(t)
+    return ' '.join(parts).strip()
+
+
+def _page_of_image(fname):
+    m = PAGE_IN_NAME.search((fname or '').replace('\\', '/'))
+    return int(m.group(1)) if m else None
+
+
+def options_from_choice_images(item, image_recs):
+    """When choices are in separate images, not lettered in the text layer.
+
+    Uses the last page group of 2-8 OCR'd question images as A, B, C, and so on.
+    Images on earlier pages, if any, stay as exhibits. Requires a lettered owner
+    key and no matrix/dropdown/hotspot/drag-drop stem marker, so visual items
+    are not turned into lettered choices. Returns None when the layout is not
+    reliable enough; the item is then held rather than guessed.
+    """
+    if item.get('options'):
+        return None
+    if not re.search(r'[A-H]', (item.get('answer_raw') or '').upper()):
+        return None
+    import qtypes
+    marks = qtypes.markers(item.get('stem') or '')
+    if any(m in marks for m in ('yes_no', 'dropdown', 'hotspot', 'dragdrop')):
+        return None
+    qrecs = [im for im in image_recs if im.get('role') == 'question' and _image_text(im)]
+    if len(qrecs) < 2:
+        return None
+    by_page = {}
+    unpaged = []
+    for im in qrecs:
+        page = _page_of_image(im.get('file') or '')
+        if page is None:
+            unpaged.append(im)
+        else:
+            by_page.setdefault(page, []).append(im)
+    group = by_page[max(by_page)] if by_page else unpaged
+    if not (2 <= len(group) <= 8):
+        return None
+    opts = {}
+    for i, im in enumerate(group):
+        text = _image_text(im)
+        if not text:
+            return None
+        opts[chr(ord('a') + i)] = text
+    return opts
+
+
 def stem_from_lines(lines, existing_stem=''):
     parts = []
     for l in lines:
@@ -239,6 +296,12 @@ def process_item(rec, media, pdf, cfg, tess_ok):
             if opts:
                 rec['options'] = opts
                 options_filled = True
+    if not rec.get('options'):
+        opts = options_from_choice_images(rec, images)
+        if opts:
+            rec['options'] = opts
+            options_filled = True
+            notes.append('options filled from %s choice images' % len(opts))
         table = table_from_lines(all_q_lines)
         if table:
             rec['ocr_table'] = table

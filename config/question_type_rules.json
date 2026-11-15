@@ -25,6 +25,7 @@
     "exhibit": {
       "patterns": [
         "shown in the following exhibit",
+        "based on the exhibit",
         "refer to the exhibit",
         "refer to the exhibit\\."
       ]
