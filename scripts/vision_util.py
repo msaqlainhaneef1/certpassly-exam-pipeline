@@ -1,5 +1,11 @@
 """Scripted image helpers: answer-marker box detection and Tesseract OCR lines. No AI."""
 import cv2, numpy as np, subprocess, csv, io
+
+# Windows: choco and the UB Mannheim installer put tesseract outside PATH.
+for _d in (os.environ.get('TESSERACT_DIR', ''), r'C:\Program Files\Tesseract-OCR', r'C:\Program Files (x86)\Tesseract-OCR'):
+    if _d and os.name == 'nt' and os.path.isfile(os.path.join(_d, 'tesseract.exe')) and _d not in os.environ.get('PATH', ''):
+        os.environ['PATH'] = _d + os.pathsep + os.environ.get('PATH', '')
+
 def marker_boxes(path, dark=70):
     g = cv2.imread(path, cv2.IMREAD_GRAYSCALE); H, W = g.shape
     m = (g < dark).astype(np.uint8)
