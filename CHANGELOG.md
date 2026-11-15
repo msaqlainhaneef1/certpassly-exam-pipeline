@@ -1,8 +1,16 @@
 # Changelog
 
-## 1.2.0.dev3 (pre-release)
+## 1.2.0
 
-A config-driven fidelity gate now sits on the technical export. No exam-specific rules, no AI, no web.
+Release of the site v2 exam export, the offline technical default path, local OCR, and the fidelity gate. This is the first `v1.2.0` tag. It is not a 1.1.6 patch.
+
+The default command is `certpassly-pipeline --exam CODE --offline`: intake, extract, export, validate_site and package. Search, writing and AI stay on `research` and `verify`. A question is exported only when the fidelity gate can confirm word coverage, OCR, type and key. Held items are listed in `export/fidelity.md` and `export/cannot-convert.json`.
+
+The 15 Nov 2026 (Asia/Karachi) technical runs were: AB-730 48 exported / 44 held of 92; 4A0-AI1 75/5 of 80; ADM-201 231/3 of 234; KCNA 299/1 of 300. Every exported question had 100 percent coverage and passed both site validators. None of those four exams is 100 percent complete. See the README for the table and the ranked gaps.
+
+Documentation (README, SKILL, HANDOVER, `docs/`) describes the two-part workflow, Linux and Windows install, the site schema copy, stage inputs, hold reasons, the push flow and those results. `tests/test_docs.py` checks the hand docs for typographic dashes and emoji.
+
+A config-driven fidelity gate sits on the technical export. No exam-specific rules, no AI, no web. Development notes from 1.2.0.dev0 through 1.2.0.dev3 follow this summary, then the 1.1.x history.
 
 - `config/fidelity.json` (thresholds also mirrored under `config/ocr.json` `fidelity`) requires 100 percent word coverage of the scrubbed PDF text block plus high-confidence image OCR words against every word in the exported question (stem, choices, content blocks, matrix rows and columns, cloze segments and blanks, image alt). Extra words hold the item. Brand and boilerplate come only from the shared denylist, and Correct Answer / Section / Explanation labels are stripped.
 - Image OCR runs twice (two psm or preprocessing settings). Every word must be at or above the per-word threshold (default 90) and overall confidence at or above 95. The two passes must agree on the text. Otherwise the question is held with the low words or the disagreement in the reason.
@@ -10,8 +18,8 @@ A config-driven fidelity gate now sits on the technical export. No exam-specific
 - Answer key certainty: the key must come from the text layer or from a pixel mark that passes two methods, and it must map to existing choice, row or blank ids. The key is never inferred. Items with no certain key are held, not exported as a guessed or empty key.
 - Python and site PHP SchemaValidator checks still run on every exported question.
 - Each exam writes `export/fidelity.json` and `export/fidelity.md` with one line per question: exported or held, coverage percent, OCR minimum word confidence, type rule, key source and reason.
-- Tests: `tests/test_fidelity.py`. Package version is `1.2.0.dev3`. Still a pre-release. Do not merge to main or tag `v1.2.0` from this commit.
-- Docs: README, SKILL, HANDOVER and `docs/` now describe the two-part workflow, Linux and Windows install (poppler, tesseract, `TESSERACT_DIR`), the site schema copy and how to refresh it, stage inputs and the run folder, the fidelity gate and hold reasons, how to add a vendor or type rule, the 15 Nov 2026 four-PDF results, the PC bundle push flow, and ranked gaps. `tests/test_docs.py` checks those files for typographic dashes and emoji.
+- Tests: `tests/test_fidelity.py` and `tests/test_docs.py`. Package version is `1.2.0`.
+- Docs: README, SKILL, HANDOVER and `docs/` describe the two-part workflow, Linux and Windows install (poppler, tesseract, `TESSERACT_DIR`), the site schema copy and how to refresh it, stage inputs and the run folder, the fidelity gate and hold reasons, how to add a vendor or type rule, the 15 Nov 2026 four-PDF results, the PC bundle push flow, and ranked gaps.
 
 
 ## 1.2.0.dev2 (pre-release)

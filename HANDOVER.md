@@ -2,9 +2,9 @@
 
 Full guidance for the CertPassly exam pipeline skill. Read this if you need to run the skill, push a change, or pick up later writing work. Plain English. No typographic dashes.
 
-This file lives on branch `feat/question-format-v2`. The current package version is `1.2.0.dev3` (pre-release). Do not merge this branch to `main` and do not tag `v1.2.0` until the owner agrees. The short reusable guide is [README.md](README.md). Config guides are under [docs/](docs/).
+The current package version is `1.2.0`. The release lives on `main` and on tag `v1.2.0`. The feature work was done on `feat/question-format-v2`. Push `main` and the tag from the owner's PC. Do not force-push. Do not rewrite the tag. The short reusable guide is [README.md](README.md). Config guides are under [docs/](docs/).
 
-## Start here (1.2.0.dev3)
+## Start here (1.2.0)
 
 There are two parts.
 
@@ -135,7 +135,7 @@ Add Poppler's `Library\bin` folder to PATH so `pdftohtml` is found. You can inst
 ```
 git clone https://github.com/msaqlainhaneef1/certpassly-exam-pipeline.git
 cd certpassly-exam-pipeline
-git checkout feat/question-format-v2
+git checkout v1.2.0
 python -m venv .venv
 ```
 
@@ -255,7 +255,7 @@ git bundle create /workspace/deliverables/question-v2/feat-question-format-v2.bu
 sha256sum /workspace/deliverables/question-v2/feat-question-format-v2.bundle
 ```
 
-Copy the bundle to the PC. Do not merge to `main` and do not create tag `v1.2.0` on the box until the owner agrees.
+For the 1.2.0 release, use `/workspace/deliverables/question-v2/release-v1.2.0.bundle` (it contains `main`, `feat/question-format-v2` and tag `v1.2.0`, and requires `57d7e852`). Copy that bundle to the PC.
 
 ### On the PC
 
@@ -264,11 +264,13 @@ Use the existing clone that already has `main` at `57d7e852`. Do not rewrite tag
 ```
 cd $env:TEMP\certpassly-exam-pipeline
 git fetch origin
-git fetch C:\path\to\feat-question-format-v2.bundle feat/question-format-v2:feat/question-format-v2
+git fetch C:\path\to\release-v1.2.0.bundle refs/heads/main:main refs/heads/feat/question-format-v2:feat/question-format-v2 refs/tags/v1.2.0:refs/tags/v1.2.0
+git push origin main
 git push origin feat/question-format-v2
+git push origin v1.2.0
 ```
 
-Push `main` and tag `v1.2.0` only after the owner has approved the release.
+Do not force-push. Do not rewrite the tag.
 
 ### Watch CI
 
@@ -285,7 +287,7 @@ CI matrix (`.github/workflows/tests.yml`), also triggered on `feat/**`:
 - Python 3.11 and Python 3.13
 - Four jobs. All must pass. Linux installs `poppler-utils` and `tesseract-ocr`. Windows installs those with Chocolatey and adds `C:\Program Files\Tesseract-OCR` to PATH.
 
-If CI fails, fix it on a follow-up commit on `feat/question-format-v2` and refresh the bundle. Do not push `main` to "fix CI" while this is still a pre-release.
+If CI fails after the release is pushed, fix it on a follow-up branch, not by rewriting `v1.2.0`.
 
 ### Tags already cut
 
@@ -562,29 +564,21 @@ Do not hardcode an exam or vendor. Do not change site app code in this repo.
 - CHANGELOG and lessons-learned are updated. The release is tagged `v1.2.0` only after CI is green.
 - The site-importer open item can stay open; it is not a v1.2.0 writing blocker, but it must stay listed.
 
-## How to use this branch
+## How to use this release
 
-This branch is documentation and a plan. To review:
-
-```
-git fetch origin docs/handover-v1.2.0-plan
-git checkout docs/handover-v1.2.0-plan
-```
-
-To start the v1.2.0 work, branch from current `main` (v1.1.5), not from this docs branch, unless you first merge the handover with a review:
+`v1.2.0` is the tagged release on `main`. After the owner's PC has pushed the release bundle:
 
 ```
-git checkout main
-git pull --ff-only
-git checkout -b feature/v1.2.0-writing
+git fetch origin
+git checkout v1.2.0
 ```
 
-Then follow section 8. Keep scripts first. Keep one batched AI author step. Do not invent keys. Do not copy competitors. Do not push `main` or tags until the acceptance list is met and the team agrees.
+Section 8 is the later writing-brief plan. It is not part of this tag's technical default path. Keep scripts first. Keep one batched AI author step when you do run part 2. Do not invent keys. Do not copy competitors. Do not rewrite tag `v1.2.0`.
 
 
 ## 9. Question format v2 (this branch)
 
-Branch `feat/question-format-v2` adds site-format v2 next to the unchanged v1 snapshot. This section is the earlier v2 plan. The package version on the branch is now `1.2.0.dev3` (a pre-release, not a tagged release). See sections 10 to 12 for what landed after this note.
+Branch `feat/question-format-v2` added site-format v2 next to the unchanged v1 snapshot. This section is the earlier v2 plan. The package version is now `1.2.0`. See sections 10 to 12 for what landed after this note.
 
 Owner update at 14:30 on 14 Nov 2026 (Asia/Karachi) supersedes the earlier 14:29 note on this branch.
 
@@ -682,7 +676,7 @@ These were found in a read-only review of `wt-merge-1114-fixes2`. v2 stays compa
 ### Next steps
 
 - Site team: close the three reveal bugs, enforce rule 216 in entitlements, and accept the new status fields (including canonical `owner_key`) in the live importer.
-- Skill team: keep building v1 packages for remaining exams. Use `scripts/migrate_v1_to_v2.py` when a bank should be reviewed in the new format. Do not merge this branch to `main` until CI is green and the team agrees. Do not tag `v1.2.0` from this pre-release.
+- Skill team: keep building remaining exams on the technical path. Use `scripts/migrate_v1_to_v2.py` when a v1 bank should be reviewed in the new format. `v1.2.0` is the tagged release of this work.
 - Owner update (14 Nov 2026, 14:30): v2 for everything; no `image_legacy`; no `image_based_choice` shortcut; `owner_key` only in v2 (migrate v1 statuses in the one-time script); trial caps stay in entitlements.
 
 ## 10. Site format v2 export (1.2.0.dev1)
@@ -726,7 +720,7 @@ Demo result on this commit: Data-Con-101 65/65 and AB-730 92/92 pass both valida
 
 External official reference links are kept (Data-Con-101: 65 links, 1 unique host trailhead.salesforce.com; AB-730: 103 links, 13 unique learn.microsoft.com URLs). The site importer rejects those domains until `SITE_FORMAT_LINK_DOMAINS` includes them. Also still open with the site team: SVG as an image file, and confirming the fill-in-the-blank format.
 
-Do not merge this branch to main or tag `v1.2.0` until the owner agrees. v1 import files stay what is live until `SITE_FORMAT_EXAM_V2` is turned on.
+v1 import files stay what is live until `SITE_FORMAT_EXAM_V2` is turned on. `v1.2.0` is the tagged pipeline release of the site v2 export.
 
 ## 11. Technical default path and local OCR (1.2.0.dev2)
 
@@ -753,9 +747,9 @@ certpassly-pipeline research --exam CODE --root WORKSPACE --offline
 certpassly-pipeline verify --exam CODE --root WORKSPACE --offline
 ```
 
-Do not merge this branch to main or tag `v1.2.0` until the owner agrees.
+`v1.2.0` is the tagged release of the technical default path.
 
-## 12. Fidelity gate (1.2.0.dev3)
+## 12. Fidelity gate (1.2.0)
 
 The technical export now runs a config-driven fidelity gate. Settings live in `config/fidelity.json` and the `fidelity` block of `config/ocr.json`. Nothing is hardcoded per exam. The reusable guide is [docs/fidelity.md](docs/fidelity.md).
 
@@ -783,4 +777,4 @@ A question is exported only when all of these pass:
 
 Raise floors, keep pass agreement on, keep unique-type and certain-key checks on. Do not lower 90/95, and do not accept a key from one pixel method, unless you are willing to export unconfirmed text. Record any change in the changelog and re-run real PDFs.
 
-Today's four-PDF counts are in the Start here table. Do not merge this branch to main or tag `v1.2.0` until the owner agrees.
+Today's four-PDF counts are in the Start here table. `v1.2.0` is the tagged release of this gate.

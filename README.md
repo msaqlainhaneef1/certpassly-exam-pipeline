@@ -2,7 +2,7 @@
 
 A scripts-first skill that turns official vendor pages and owner question PDFs into draft, site-ready exam pages and question-import files for CertPassly.
 
-Current version on this branch is `1.2.0.dev3` (pre-release). The pipeline does not read the CertPassly application repository, run artisan, or call GitHub. Site contracts live in `reference/site-format/` (v1 workbooks and the site v2 exam schema).
+Current version is `1.2.0`. The pipeline does not read the CertPassly application repository, run artisan, or call GitHub. Site contracts live in `reference/site-format/` (v1 workbooks and the site v2 exam schema).
 
 Read [reference/lessons-learned.md](reference/lessons-learned.md) and [HANDOVER.md](HANDOVER.md) before you run a new exam. Config details are in [docs/question-type-rules.md](docs/question-type-rules.md), [docs/ocr.md](docs/ocr.md) and [docs/fidelity.md](docs/fidelity.md).
 
@@ -70,7 +70,7 @@ The scripts also look in `C:\Program Files\Tesseract-OCR` and `C:\Program Files 
 ```bash
 git clone https://github.com/msaqlainhaneef1/certpassly-exam-pipeline.git
 cd certpassly-exam-pipeline
-git checkout feat/question-format-v2
+git checkout v1.2.0
 python -m venv .venv
 ```
 
@@ -227,7 +227,7 @@ None of the four exams is 100 percent complete. KCNA is closest (299/300). What 
 
 The box cannot push to GitHub. The owner's Windows PC can (`gh` as `msaqlainhaneef1`). The safe path is a git bundle.
 
-On the box, commit on `feat/question-format-v2` and create a bundle that requires `main` at `57d7e852`:
+On the box, a release bundle is built from `main` at `57d7e852` and includes `main`, `feat/question-format-v2` and tag `v1.2.0`. For a follow-up fix on the feature branch you can still bundle `57d7e852..feat/question-format-v2`:
 
 ```bash
 git bundle create /workspace/deliverables/question-v2/feat-question-format-v2.bundle 57d7e852..feat/question-format-v2
@@ -244,7 +244,7 @@ git push origin feat/question-format-v2
 
 CI (`.github/workflows/tests.yml`) runs on pushes to `main` and `feat/**`, and on pull requests. The matrix is Ubuntu and Windows, Python 3.11 and 3.13 (four jobs). All must pass.
 
-Do not merge this pre-release to `main` and do not tag `v1.2.0` until the owner agrees. Do not force-push. Do not rewrite tags.
+`v1.2.0` is an annotated tag on `main`. Push `main` and the tag from the owner's PC after fetching the release bundle. Do not force-push. Do not rewrite the tag.
 
 ## Known gaps and next improvements
 

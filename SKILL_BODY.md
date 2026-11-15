@@ -2,7 +2,7 @@
 
 Scripts-first skill for draft, site-ready exam pages and question-import files. Official vendor sources plus owner PDFs in; a site v2 exam file, workbook CSVs, simulator settings, page JSON and a validation report out.
 
-Current package version on this branch is `1.2.0.dev3` (pre-release). **Read [reference/lessons-learned.md](reference/lessons-learned.md) before every run.** The lessons below are the short form of that file. Full commands, the run folder layout, the fidelity gate, the 15 Nov 2026 PDF results and the push flow are in [README.md](README.md) and [HANDOVER.md](HANDOVER.md). Config guides: [docs/question-type-rules.md](docs/question-type-rules.md), [docs/ocr.md](docs/ocr.md), [docs/fidelity.md](docs/fidelity.md).
+Current package version is `1.2.0`. **Read [reference/lessons-learned.md](reference/lessons-learned.md) before every run.** The lessons below are the short form of that file. Full commands, the run folder layout, the fidelity gate, the 15 Nov 2026 PDF results and the push flow are in [README.md](README.md) and [HANDOVER.md](HANDOVER.md). Config guides: [docs/question-type-rules.md](docs/question-type-rules.md), [docs/ocr.md](docs/ocr.md), [docs/fidelity.md](docs/fidelity.md).
 
 ## Top rules (repeat these)
 
@@ -109,4 +109,4 @@ The exam header (vendor, certification, name, exam code) comes from `catalog.csv
 - Official reference links are kept in the export. The site rejects them until vendor hosts are added to `SITE_FORMAT_LINK_DOMAINS`.
 - A non-editable `pip install .` is enough for `--help`. Full runs need a clone (`pip install -e .`) or `CERTPASSLY_SKILL_ROOT`.
 - This skill does not publish pages, change site code, or write to the database.
-- Do not merge this pre-release to `main` or tag `v1.2.0` until the owner agrees. Push is from the owner's PC, via a git bundle. The box does not push.
+- `v1.2.0` is tagged on `main`. Push `main` and the tag from the owner's PC, via a git bundle. The box does not push. Do not force-push. Do not rewrite the tag.
