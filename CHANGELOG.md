@@ -11,6 +11,7 @@ A config-driven fidelity gate now sits on the technical export. No exam-specific
 - Python and site PHP SchemaValidator checks still run on every exported question.
 - Each exam writes `export/fidelity.json` and `export/fidelity.md` with one line per question: exported or held, coverage percent, OCR minimum word confidence, type rule, key source and reason.
 - Tests: `tests/test_fidelity.py`. Package version is `1.2.0.dev3`. Still a pre-release. Do not merge to main or tag `v1.2.0` from this commit.
+- Docs: README, SKILL, HANDOVER and `docs/` now describe the two-part workflow, Linux and Windows install (poppler, tesseract, `TESSERACT_DIR`), the site schema copy and how to refresh it, stage inputs and the run folder, the fidelity gate and hold reasons, how to add a vendor or type rule, the 15 Nov 2026 four-PDF results, the PC bundle push flow, and ranked gaps. `tests/test_docs.py` checks those files for typographic dashes and emoji.
 
 
 ## 1.2.0.dev2 (pre-release)

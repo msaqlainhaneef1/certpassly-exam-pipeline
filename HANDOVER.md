@@ -1,48 +1,84 @@
 # HANDOVER.md
 
-Full guidance for the CertPassly exam pipeline skill. Read this if you need to run the skill, push a change, or pick up the v1.2.0 writing work. Plain English. No typographic dashes.
+Full guidance for the CertPassly exam pipeline skill. Read this if you need to run the skill, push a change, or pick up later writing work. Plain English. No typographic dashes.
 
-This document lives on branch `docs/handover-v1.2.0-plan`. It is not a product release. Do not merge it to `main` until the team reviews it.
+This file lives on branch `feat/question-format-v2`. The current package version is `1.2.0.dev3` (pre-release). Do not merge this branch to `main` and do not tag `v1.2.0` until the owner agrees. The short reusable guide is [README.md](README.md). Config guides are under [docs/](docs/).
+
+## Start here (1.2.0.dev3)
+
+There are two parts.
+
+- Part 1 (default, technical): `certpassly-pipeline --exam CODE --root WORKSPACE --offline`. Stages: intake, extract, export, validate_site, package. Scripts only. PDF to one site v2 exam file. No web, no AI, no explanations. The fidelity gate holds anything it cannot confirm.
+- Part 2 (later content path): `certpassly-pipeline research` then `certpassly-pipeline verify`. Search, writing and AI. The only AI stage is `author`.
+
+Exact Linux and Windows commands, tesseract, poppler and `TESSERACT_DIR` are in section 3 and in the README. The site v2 schema comes from site commit `a3009daa5` (schema sha256 `da9331c562a0e08cd156cc5efe6181cb8910ec19c523ff83dc43687190dc728e`). How to refresh it is in section 10 and `reference/site-format/v2/PROVENANCE.md`.
+
+The run folder is the `--root` workspace: `catalog.csv`, `config/`, `owner-files/<CODE>/`, `out/<CODE>/intake/`, `extracted/`, `media/src/`, `export/` (including `fidelity.md` and `cannot-convert.json`), `<CODE>.site-format.v2.json`, and `<CODE>-package.zip`.
+
+How to add a vendor or a type rule, with no hardcoding: section 2 and [docs/question-type-rules.md](docs/question-type-rules.md). How to read holds and tune the gate: section 12 and [docs/fidelity.md](docs/fidelity.md). Push flow and CI: section 4.
+
+### Real test results (15 Nov 2026, Asia/Karachi)
+
+Four owner PDFs were run through part 1 into `/workspace/runs/fid-1115`. Every exported question had 100 percent word coverage. Python and site PHP validators passed on every exported question. None of the four exams is 100 percent complete.
+
+| Exam | Expected | Extracted | Exported | Held | Exported types | Why it is not 100 percent |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| AB-730 | 92 | 92 | 48 | 44 | 37 single_choice, 11 multiple_select | Visual items: low OCR, dual-pass disagreement, or pixel key not certain |
+| 4A0-AI1 | 80 | 80 | 75 | 5 | 75 single_choice | Five code or exhibit images fail the 90/95 OCR floors or pass agreement |
+| ADM-201 | 234 | 234 | 231 | 3 | 165 single_choice, 66 multiple_select | q050, q161, q175: stem asks for 2 or 3 choices, PDF key is one letter. Catalog has no ADM-201 row (header vendor is Vendor) |
+| KCNA | 300 | 300 | 299 | 1 | 299 single_choice | q143: stem says "Which two", PDF Correct Answer is C |
+
+### Known gaps (ranked)
+
+1. Add an ADM-201 row to `catalog.csv` (the sheet lists Plat-Admn-201). Do not invent a vendor or hardcode a mapping.
+2. Ask the site team to add official vendor hosts to `SITE_FORMAT_LINK_DOMAINS`.
+3. Higher resolution page renders for OCR, so more visual items can pass the gate.
+4. An owner review sheet of held items, built from `fidelity.md` and `cannot-convert.json`.
+5. Question domains from the catalog (or official outline) instead of Unassigned.
 
 ## 1. What the skill is and how it works
 
 The skill is a scripts-first pipeline named `certpassly-exam-pipeline`. The command is `certpassly-pipeline`. It builds draft CertPassly exam pages and question import files from official vendor sources and the owner's question PDFs.
 
-It never talks to the site app, artisan, or the site GitHub repo. Site rules are a snapshot under `reference/site-format/v1/`.
+It never talks to the site app, artisan, or the site GitHub repo. Site rules are snapshots under `reference/site-format/` (v1 workbooks, and the site v2 exam schema used by the technical export).
 
 Official vendor brands only (for example Salesforce, Microsoft). CertPassly is the site brand. Never invent questions. Never invent answer keys. Draft records only. Max scripting, min AI.
 
-### Stage order
+The default command is part 1 only (intake, extract, export, validate_site, package). The numbered list below is the full set of stages, including the later research and verify path. Use `--list-stages` to print the same table.
 
-Stages always run in this order. Use `--list-stages` to print the same table.
+### Stage order
 
 1. `catalog` (script). Builds `catalog.csv` and `review.csv` from the owner exam sheet. It can check official exam URLs. That check is skipped when a saved copy already exists.
 2. `intake` (script). Inventories Drive folders, downloads owner files, runs provenance, writes `out/<CODE>/intake/`. Network is for Drive only. Offline skips the download and uses files already in `owner-files/`.
 3. `sources` (script). Fetches and hashes official vendor pages listed in research JSON. Reuses saved copies. JavaScript pages may be rendered with Playwright when a plain fetch has almost no text, or when the vendor sets `render: true`.
 4. `research` (script first). Fills or checks research JSON from official pages using a vendor adapter in `scripts/adapters/`, chosen from `config/vendors.yaml`. AI is allowed only for official facts the adapter lists as gaps, and only with a quote and a source id. This is not the author stage.
-5. `extract` (script). Splits the owner PDF with Poppler, writes item JSON, and writes a visual draft from OCR and marker boxes when it can. No AI. If Tesseract is missing, OCR is skipped and the author stage transcribes later.
+5. `extract` (script). Splits the owner PDF with Poppler, runs local Tesseract OCR, writes item JSON, `extracted/ocr.json` and a visual draft from OCR and marker boxes when it can. No AI. If Tesseract is missing, visual items are held on the technical path (the later author stage can transcribe only on the research path).
 6. `answer_research` (script, pick later). For items with no answer in the owner file, it finds candidate official pages, saves them with sha256, and ranks matching lines. The key is picked in the author batch file `authoring/answer_research.json`. A script then re-checks: official domain, saved copy, verbatim quote. No evidence: the item stays a draft flagged `answer_not_found` and is excluded from scoring. Items are never held just because the owner file had no key, and keys are never invented.
 7. `author` (THE ONLY MARKED AI STAGE). One batched pass. It rewrites explanations, writes original page prose (`page_prose.json`), finishes visual transcription when OCR is not enough, writes `bank_meta.json`, and can pick researched keys in `answer_research.json`. It must not invent questions and must not change stems, options, or keys. `run_pipeline.py` does not call a model. It only checks that the required authoring files are present and stops with instructions if they are not.
 8. `pages` (script). Builds exam pages, plus shared vendor and certification pages, from research JSON and `page_prose.json`. Vendor and cert pages are skipped when their inputs have not changed.
 9. `import` (script). Writes workbook CSVs, sidecars (including `page_meta_extras.csv`), and `simulator_settings.json`.
 10. `bank` (script). Assembles `questions.json`, question import CSVs, media, `CLEANUP-LOG.md`, and `REVIEW.md`. It runs after import so page `sources.csv` is merged, not wiped.
 11. `validate` (script). Refreshes `MANIFEST.json`, then runs `validate.py` and `check_bank.py`. Exit 1 on any failed check.
-12. `package` (script). Zips the exam package plus the shared vendor and certification pages.
+12. `package` (script). Zips the exam package. Shared vendor and certification pages are included when a research JSON exists.
 
-Only step 7 is the marked AI stage. Everything else is a script. Keep AI batched. Do not call a model from the runner.
+The technical default also runs `export` (site v2 exam file plus the fidelity gate) and `validate_site` (Python checker, and the site PHP SchemaValidator when `CERTPASSLY_SITE_VALIDATOR` is set). Those sit between extract and package on part 1.
+
+Only step 7 is the marked AI stage, and it is not on the default path. Everything else is a script. Keep AI batched. Do not call a model from the runner.
 
 ## 2. Folder map
 
 Skill repo root (this repository):
 
 - `SKILL.md` and `SKILL_BODY.md`: the skill text. A test requires them to stay identical.
-- `README.md`: install and quick start.
+- `README.md`: install, two-part workflow, commands, results table and push flow.
+- `docs/`: `question-type-rules.md`, `ocr.md`, `fidelity.md`.
 - `CHANGELOG.md`: version history.
 - `HANDOVER.md`: this file.
 - `pyproject.toml`: package name `certpassly-exam-pipeline`, entry point `certpassly-pipeline`, version.
 - `install.sh` and `install.ps1`: Linux or macOS, and Windows, installers.
 - `config/pipeline.yaml`: brand, disclaimer, denylist, banned phrases, shared-block cap, site format version. Re-read this before catalog, research, author, pages, bank, or validate.
-- `config/vendors.yaml`: which adapter to use, and flags such as Salesforce `render: true`.
+- `config/vendors.yaml`: which adapter to use, and flags such as Salesforce `render: true`. Do not hardcode exam names in adapters.
+- `config/question_type_rules.json`, `config/ocr.json`, `config/fidelity.json`: type rules, OCR and the fidelity gate. No per-exam rules.
 - `config/catalog_overrides.json`: exam-specific labels. Scripts must not hardcode exam names.
 - `scripts/run_pipeline.py`: the orchestrator.
 - `scripts/adapters/generic.py`: Salesforce and the fallback official-page parser.
@@ -50,13 +86,16 @@ Skill repo root (this repository):
 - `scripts/fetch_sources.py`: fetch, hash, sidecars, and `load_sidecar` / `resolve_sidecar_paths`.
 - `scripts/render_page.py`: optional headless Chromium render.
 - `scripts/research_init.py`: scripted research JSON from catalog and official pages.
-- `scripts/extract_owner_pdf.py`: owner PDF split and layout.
+- `scripts/extract_owner_pdf.py`, `scripts/ocr_extract.py`, `scripts/vision_util.py`, `scripts/analyze_visual.py`: owner PDF split, local OCR, pixel marks.
+- `scripts/build_technical_export.py`, `scripts/fidelity.py`, `scripts/qtypes.py`: technical site v2 export and the fidelity gate.
+- `scripts/validate_question_v2.py`, `scripts/validate_site_schema.php`: site v2 checkers.
 - `scripts/answer_research.py`: official-page candidates for items with no owner key.
 - `scripts/build_pages.py`, `scripts/emit_import.py`, `scripts/build_bank.py`: pages, import CSVs, bank.
 - `scripts/validate.py`, `scripts/check_bank.py`, `scripts/check_import_conformance.py`, `scripts/manifest.py`: gates and the site-format contract check.
 - `scripts/drive_fetch.py`, `scripts/drive_inventory.py`, `scripts/drive_crawl.py`: Drive intake.
 - `scripts/build_catalog.py`: catalog from the owner sheet.
-- `reference/site-format/v1/`: the frozen site contract. Includes `question_types.json`, `csv_templates/`, `url_routes.json`, `allowed_statuses.json`, and the simulator schema. The pipeline must use this folder, never a live app checkout.
+- `reference/site-format/v1/`: the frozen v1 workbook contract.
+- `reference/site-format/v2/`: the site exam schema (verbatim copy from site commit `a3009daa5`; see `PROVENANCE.md`). The pipeline must use these folders, never a live app checkout, except a read-only path to `SchemaValidator.php` when you set `CERTPASSLY_SITE_VALIDATOR`.
 - `reference/lessons-learned.md`: lessons from real runs. Read before every exam.
 - `shared/`: shared page blocks, capped by config (default 40 percent of a page body).
 - `tests/`: unit, gate, demo, and regression tests (`test_v110.py`, `test_v114.py`, `test_v115.py`, `test_demo_end_to_end.py`, `test_ab730_regression.py`, and others).
@@ -68,12 +107,35 @@ A workspace (the `--root` folder, not the skill repo) holds `catalog.csv`, `shee
 
 Run these from a machine that has Python 3.10 or newer (3.11 and 3.13 are tested). On Windows use PowerShell and `install.ps1`. Quote paths that contain backslashes.
 
-### Install
+### Install tools
+
+Linux:
+
+```
+sudo apt-get update
+sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-eng
+```
+
+Windows PowerShell (Chocolatey, also used in CI):
+
+```
+choco install poppler tesseract -y
+```
+
+If `tesseract` is not on PATH, set `TESSERACT_DIR` to the folder that contains `tesseract.exe` and restart the shell. The scripts also look in `C:\Program Files\Tesseract-OCR` and `C:\Program Files (x86)\Tesseract-OCR`.
+
+```
+$env:TESSERACT_DIR = "C:\Program Files\Tesseract-OCR"
+```
+
+Add Poppler's `Library\bin` folder to PATH so `pdftohtml` is found. You can install Tesseract from the UB Mannheim installer instead of Chocolatey.
+
+### Install the package
 
 ```
 git clone https://github.com/msaqlainhaneef1/certpassly-exam-pipeline.git
 cd certpassly-exam-pipeline
-git checkout v1.1.5
+git checkout feat/question-format-v2
 python -m venv .venv
 ```
 
@@ -82,7 +144,7 @@ Linux or macOS:
 ```
 source .venv/bin/activate
 pip install -e .
-# optional, only if you must render JavaScript official pages:
+# optional, only if you must render JavaScript official pages in part 2:
 pip install -e ".[render]"
 python -m playwright install chromium
 ```
@@ -91,7 +153,7 @@ Windows PowerShell:
 
 ```
 .\.venv\Scripts\Activate.ps1
-# or use install.ps1
+# or: Set-ExecutionPolicy -Scope Process Bypass; .\install.ps1
 pip install -e .
 ```
 
@@ -102,13 +164,30 @@ certpassly-pipeline --help
 certpassly-pipeline --list-stages
 ```
 
-### Run one exam end to end
+### Run part 1 (technical default)
+
+Linux:
 
 ```
-certpassly-pipeline --exam Data-Con-101 --root C:\path\to\workspace --sheet C:\path\to\workspace\sheet.csv --date 2026-11-11
+certpassly-pipeline --exam CODE --root /path/to/workspace --offline
 ```
 
-`--date` freezes last-updated stamps (also honors `CERTPASSLY_DATE`). Repeat `--exam` for more than one code. Use `--vendor salesforce` for every exam of that vendor, `--all` for the whole catalog, or `--batch` for catalog (sheet) order.
+Windows PowerShell:
+
+```
+certpassly-pipeline --exam CODE --root "C:\path\to\workspace" --offline
+```
+
+Stages: intake, extract, export, validate_site, package. To also run the site PHP checker, set `CERTPASSLY_SITE_VALIDATOR` to the site file `app/Support/SiteFormat/SchemaValidator.php` (read only) and have `php` on PATH.
+
+### Run part 2 (research and verify)
+
+```
+certpassly-pipeline research --exam CODE --root /path/to/workspace --offline
+certpassly-pipeline verify --exam CODE --root /path/to/workspace --offline
+```
+
+`--date` freezes last-updated stamps (also honors `CERTPASSLY_DATE`). Repeat `--exam` for more than one code. Use `--vendor salesforce` for every exam of that vendor, `--all` for the whole catalog, or `--batch` for catalog (sheet) order. Use `--sheet` when you are building the catalog from the owner sheet.
 
 ### Run one stage (repeatable)
 
@@ -116,7 +195,7 @@ certpassly-pipeline --exam Data-Con-101 --root C:\path\to\workspace --sheet C:\p
 certpassly-pipeline --exam Data-Con-101 --root C:\path\to\workspace --sheet C:\path\to\workspace\sheet.csv --stage research --stage extract
 ```
 
-Default is all stages. Failed checks exit with status 1 and later stages do not run.
+On part 1, default is the technical stages. Failed checks exit with status 1 and later stages do not run. Use `--list-stages` to see the technical, research and verify lists.
 
 ### Offline mode
 
@@ -149,13 +228,13 @@ From the skill repo:
 python -m unittest discover -s tests -v
 ```
 
-At v1.1.5 this is 55 tests, exit 0, on Python 3.11 and 3.13. The gold exam suite runs only when `CERTPASSLY_GOLD` is set. It is not collected in CI (0 skipped). Do not put real owner extracts into git. Use the synthetic fixtures under `tests/`.
+The gold exam suite runs only when `CERTPASSLY_GOLD` is set. It is not collected in CI (0 skipped). Do not put real owner extracts into git. Use the synthetic fixtures under `tests/`. `tests/test_docs.py` checks the hand docs for typographic dashes and emoji.
 
 ### Windows notes
 
 - The CLI re-runs itself with `PYTHONUTF8=1` and `-X utf8` when the locale is not UTF-8, and child scripts get `PYTHONUTF8=1`. Official pages stay readable (typographic apostrophes, en dashes in weight ranges).
 - If you invoke `validate.py` (or other scripts) with a bare `python` on Windows, set the same env yourself, or check 02 can fail: the research JSON is UTF-8, Windows default `cp1252` turns U+2019 into mojibake, and the quote is not found on the UTF-8 page. This is a footgun. The CLI already handles it.
-- Install Poppler and put it on PATH. The GitHub-install PC used Poppler 25.07.0. Tesseract may be missing; then OCR is skipped and author transcribes.
+- Install Poppler and Tesseract and put them on PATH. The GitHub-install PC used Poppler 25.07.0. If Tesseract is missing, set `TESSERACT_DIR` or install it; on the technical path visual items are held until OCR can run.
 - Poppler 25.07.0 `pdftohtml -xml` can emit bad `top` values. v1.1.5 already works around that. Do not sort a raw dump by `top` yourself.
 - Sidecars store absolute paths. v1.1.5 remaps them to the file next to the sidecar. Do not hand-edit sidecars as a workaround.
 - In PowerShell, quote paths. Do not use bash `source` unless you are in Git Bash.
@@ -164,55 +243,49 @@ At v1.1.5 this is 55 tests, exit 0, on Python 3.11 and 3.13. The gold exam suite
 
 ## 4. Release and push flow
 
-The box cannot push to the private GitHub repo. The owner's PC can (`gh` as `msaqlainhaneef1`). The safe path is a git bundle.
+The box cannot push to the private GitHub repo. The owner's PC can (`gh` as `msaqlainhaneef1`). The safe path is a git bundle. Prerequisite commit on `main` for this branch is `57d7e852`.
 
 ### On the box (skill repo)
 
 ```
 cd /home/box/agent-data/workflows/certpassly-exam-pipeline
-# commit on a branch if that is the review path; or on main only when a release is agreed
+# stay on feat/question-format-v2
 git status
-# create an annotated tag only for a release, for example:
-# git tag -a v1.1.5 -m "v1.1.5: short summary"
-git bundle create /tmp/my-change.bundle v1.1.5..HEAD
-# or, for this docs branch:
-git bundle create /tmp/handover-v1.2.0-plan.bundle v1.1.5..docs/handover-v1.2.0-plan
+git bundle create /workspace/deliverables/question-v2/feat-question-format-v2.bundle 57d7e852..feat/question-format-v2
+sha256sum /workspace/deliverables/question-v2/feat-question-format-v2.bundle
 ```
 
-Copy the bundle to the PC, for example to `C:\Users\Saqlain\AppData\Local\Temp\`.
+Copy the bundle to the PC. Do not merge to `main` and do not create tag `v1.2.0` on the box until the owner agrees.
 
 ### On the PC
 
-Use the existing clone at `%TEMP%\certpassly-exam-pipeline` if it already has `v1.1.5` or `main`. Do not rewrite tags. Do not force-push.
+Use the existing clone that already has `main` at `57d7e852`. Do not rewrite tags. Do not force-push.
 
 ```
 cd $env:TEMP\certpassly-exam-pipeline
 git fetch origin
-git fetch C:\Users\Saqlain\AppData\Local\Temp\handover-v1.2.0-plan.bundle docs/handover-v1.2.0-plan:docs/handover-v1.2.0-plan
-# for a main release instead, you would: fetch the bundle, checkout main, git merge --ff-only, then
-# git push origin main v1.1.x
-# For this handover, push the branch only:
-git push origin docs/handover-v1.2.0-plan
+git fetch C:\path\to\feat-question-format-v2.bundle feat/question-format-v2:feat/question-format-v2
+git push origin feat/question-format-v2
 ```
 
-Do not push `main`. Do not push tags unless you are cutting a release that was agreed.
+Push `main` and tag `v1.2.0` only after the owner has approved the release.
 
 ### Watch CI
 
 ```
 gh run watch
 # or
-gh run list --branch docs/handover-v1.2.0-plan
+gh run list --branch feat/question-format-v2
 gh run watch <run-id>
 ```
 
-CI matrix (`.github/workflows/`):
+CI matrix (`.github/workflows/tests.yml`), also triggered on `feat/**`:
 
 - `ubuntu-latest` and `windows-latest`
 - Python 3.11 and Python 3.13
-- Four jobs. All must pass.
+- Four jobs. All must pass. Linux installs `poppler-utils` and `tesseract-ocr`. Windows installs those with Chocolatey and adds `C:\Program Files\Tesseract-OCR` to PATH.
 
-If CI fails, fix it on a follow-up commit, bump the version only when you are releasing (`v1.1.6` style), and push again. For this docs branch, fix the branch and push the branch only.
+If CI fails, fix it on a follow-up commit on `feat/question-format-v2` and refresh the bundle. Do not push `main` to "fix CI" while this is still a pre-release.
 
 ### Tags already cut
 
@@ -511,7 +584,7 @@ Then follow section 8. Keep scripts first. Keep one batched AI author step. Do n
 
 ## 9. Question format v2 (this branch)
 
-Branch `feat/question-format-v2` adds site-format v2 next to the unchanged v1 snapshot. Package version on this branch is `1.2.0.dev1` (a pre-release, not a tagged release, and not a 1.1.6 patch).
+Branch `feat/question-format-v2` adds site-format v2 next to the unchanged v1 snapshot. This section is the earlier v2 plan. The package version on the branch is now `1.2.0.dev3` (a pre-release, not a tagged release). See sections 10 to 12 for what landed after this note.
 
 Owner update at 14:30 on 14 Nov 2026 (Asia/Karachi) supersedes the earlier 14:29 note on this branch.
 
@@ -684,16 +757,30 @@ Do not merge this branch to main or tag `v1.2.0` until the owner agrees.
 
 ## 12. Fidelity gate (1.2.0.dev3)
 
-The technical export now runs a config-driven fidelity gate. Settings live in `config/fidelity.json` and the `fidelity` block of `config/ocr.json`. Nothing is hardcoded per exam.
+The technical export now runs a config-driven fidelity gate. Settings live in `config/fidelity.json` and the `fidelity` block of `config/ocr.json`. Nothing is hardcoded per exam. The reusable guide is [docs/fidelity.md](docs/fidelity.md).
 
 A question is exported only when all of these pass:
 
-1. Every word in the scrubbed PDF text block (and high-confidence image OCR words) appears in the exported question, and the export adds no extra words.
+1. Every word in the scrubbed PDF text block (and high-confidence image OCR words) appears in the exported question, and the export adds no extra words. Brand and boilerplate come only from the shared denylist. `Correct Answer`, `Section` and `Explanation` are stripped only as whole lines, not when those words appear in a stem.
 2. Each OCR'd image is run twice (two psm or preprocessing settings). Every word is at or above 90 confidence, overall confidence is at least 95, and both passes agree on the text.
-3. Exactly one type rule matches, and the interaction shape agrees with the answer key.
-4. The answer key comes from the text layer or from two agreeing pixel methods, and maps to existing ids. It is never inferred.
+3. Exactly one type rule matches, and the interaction shape agrees with the answer key (matrix rows equal key rows, choose N wording equals the key count, every cloze blank has a key).
+4. The answer key comes from the text layer or from a pixel mark that passes two methods (`marker_box`, `highlight`, `checked_box`), and maps to existing ids. It is never inferred.
+5. Python and site PHP schema checks run on every exported question.
 
-`export/fidelity.json` and `export/fidelity.md` list every question with exported or held, coverage, OCR minimum word confidence, type rule, key source and reason. Python and site PHP schema checks still run on every exported question.
+`export/fidelity.json` and `export/fidelity.md` list every question with exported or held, coverage, OCR minimum word confidence, type rule, key source and reason. `export/cannot-convert.json` holds the same items with the reason. Exported questions should all show 100 percent coverage.
 
-Do not merge this branch to main or tag `v1.2.0` until the owner agrees.
+### Hold reasons and what to do
 
+| Hold kind | Typical reason text | What to do |
+| --- | --- | --- |
+| Owner key conflict | stem asks for N choices but the key has M | The PDF wording and the Correct Answer line disagree. Do not infer missing letters. Ask the owner to confirm or correct the source. |
+| Low OCR | OCR words below 90, or overall confidence below 95 | Keep the item held. Do not type guessed words. A later extract can use a higher resolution page render. |
+| Dual OCR disagreement | OCR passes disagree | The two passes did not read the same text. Improve the image or the render, then re-run extract. |
+| Pixel key not certain | pixel methods do not agree, or no text key | Two methods must agree, or a text key must map to existing ids. Do not trust one noisy method. |
+| Type ambiguous | no type rule matched, or type rules not unique | Adjust a general rule in `config/question_type_rules.json`, or leave the item for the owner. Never guess the type. |
+
+### How to tune safely
+
+Raise floors, keep pass agreement on, keep unique-type and certain-key checks on. Do not lower 90/95, and do not accept a key from one pixel method, unless you are willing to export unconfirmed text. Record any change in the changelog and re-run real PDFs.
+
+Today's four-PDF counts are in the Start here table. Do not merge this branch to main or tag `v1.2.0` until the owner agrees.
