@@ -1,5 +1,5 @@
 """Scripted image helpers: answer-marker box detection and Tesseract OCR lines. No AI."""
-import cv2, numpy as np, subprocess, csv, io
+import os, cv2, numpy as np, subprocess, csv, io
 
 # Windows: choco and the UB Mannheim installer put tesseract outside PATH.
 for _d in (os.environ.get('TESSERACT_DIR', ''), r'C:\Program Files\Tesseract-OCR', r'C:\Program Files (x86)\Tesseract-OCR'):
