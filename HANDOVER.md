@@ -600,7 +600,7 @@ v2 is that contract. It extends the engine. It is not a rewrite of the website. 
 All of this sits under `reference/site-format/v2/` (v1 is not edited):
 
 - `question.schema.json`: Draft 2020-12 schema. `schema_version` is the const `question.v2`.
-- `question_types.json`: the 30 keys, aliases, and publishable / staging / blocked lists, parsed by script from site `config/question_types.php`.
+- `question_types.json`: the 30 keys, aliases, and publishable / staging / blocked lists, parsed by script from the site file question_types.php.
 - `registry-mismatch.json`: has zero mismatches. The enum is exactly the 30 PHP keys. There is no `image_legacy` type. Old image items are migrated to a real interactive type, not dumped onto `image_based_choice`.
 - `sanitizer-allowlist.json`: allowed HTML tags and attributes, allowed SVG elements and attributes, and differences from `sanitizeSvgContent`.
 - `reveal-rules.md`: learner versus answer, practice versus exam, offline rule 143, free trial rule 216, rule 21, and the three known site key-leak bugs.
