@@ -1,0 +1,82 @@
+{
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-HS",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
+      {
+        "name": "Format examples",
+        "weight": 100
+      }
+    ]
+  },
+  "questions": [
+    {
+      "question_key": "ex-hot-001",
+      "version": 1,
+      "type": "hotspot_single",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Select the region that names the official exam guide."
+              }
+            ]
+          }
+        ],
+        "media": [
+          {
+            "url": "/storage/media/ex-hotspot.png",
+            "alt": "A labelled diagram of two source boxes."
+          }
+        ],
+        "interaction": {
+          "hotspot_regions": [
+            {
+              "id": "h1",
+              "label": "Seller cover page",
+              "shape": "rect",
+              "coords": [
+                0.05,
+                0.05,
+                0.4,
+                0.4
+              ]
+            },
+            {
+              "id": "h2",
+              "label": "Official exam guide",
+              "shape": "rect",
+              "coords": [
+                0.5,
+                0.05,
+                0.4,
+                0.4
+              ]
+            }
+          ]
+        }
+      },
+      "answer": {
+        "answer_key": "h2",
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

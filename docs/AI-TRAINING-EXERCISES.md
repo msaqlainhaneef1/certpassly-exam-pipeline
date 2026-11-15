@@ -30,7 +30,7 @@ certpassly-pipeline --list-stages
 python -m unittest discover -s tests
 ```
 
-Expected: 15 stage rows in this order: catalog, intake, sources, research, extract, textfix, answer_research, intent, author, pages, writing, import, bank, validate, package. Only `author` says `YES` in the AI column (`research` says `parser first`, `textfix` says `decide only`, `answer_research` says `pick only`). The tests end with `OK`.
+Expected: 17 stage rows in this order: catalog, intake, sources, research, extract, export, validate_site, textfix, answer_research, intent, author, pages, writing, import, bank, validate, package. Only `author` says `YES` in the AI column (`research` says `parser first`, `textfix` says `decide only`, `answer_research` says `pick only`). The tests end with `OK`.
 
 ## Level 1: run the demo end to end
 

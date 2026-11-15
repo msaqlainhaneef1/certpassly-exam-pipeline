@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.3.0 (2026-11-15)
+
+Merges the site v2 technical path (OCR, export, fidelity gate) with the 1.2.0 writing brief, extract fixes, package guard and 1.2.1 operator docs that were already on `main`.
+
+The default command is `certpassly-pipeline --exam CODE --offline`: intake, extract, export, validate_site and package. Search, writing and AI stay on `research` and `verify`. A question is exported only when the fidelity gate can confirm word coverage, OCR, type and key. Held items are listed in `export/fidelity.md` and `export/cannot-convert.json`.
+
+The 15 Nov 2026 (Asia/Karachi) technical runs were: AB-730 48 exported / 44 held of 92; 4A0-AI1 75/5 of 80; ADM-201 231/3 of 234; KCNA 299/1 of 300. Every exported question had 100 percent coverage and passed both site validators. None of those four exams is 100 percent complete. See the README for the table and the ranked gaps.
+
+### Technical path (this release)
+
+- Default CLI: `certpassly-pipeline --exam CODE --offline` runs intake, extract, export, validate_site and package. No web, no AI, no explanations.
+- `certpassly-pipeline research` runs catalog, intake, sources, research, extract, textfix, answer_research, intent, author, pages, writing, import and bank (plus intake and extract if needed). `certpassly-pipeline verify` runs the bank validate and package stages.
+- The technical export writes one site v2 exam file. `reference/site-format/v2/question.schema.json` is a verbatim copy of the site schema from worktree commit `a3009daa5` (schema file sha256 `da9331c562a0e08cd156cc5efe6181cb8910ec19c523ff83dc43687190dc728e`). Provenance is in `PROVENANCE.md`.
+- Question type detection is table-driven from `config/question_type_rules.json`. Rules are mutually exclusive (`any`, `none`, `not_all`). Anything the rules cannot represent exactly is held in `export/cannot-convert.json`. The type is never guessed.
+- Local OCR: extract runs Tesseract on images taken from the PDF (`pdftohtml`, and `pdfimages` / `pdftoppm` when needed). Settings live in `config/ocr.json`. Highlighted and checked boxes are detected with simple pixel rules.
+- A config-driven fidelity gate (`config/fidelity.json`, OCR thresholds also under `config/ocr.json` `fidelity`) requires 100 percent word coverage of the scrubbed PDF text plus high-confidence image OCR words, no extra words, two OCR passes that agree (per-word 90, overall 95), exactly one type rule plus a matching interaction shape, and a key from the text layer or from two agreeing pixel methods. The key is never inferred.
+- Each exam writes `export/fidelity.json` and `export/fidelity.md` with one line per question: exported or held, coverage percent, OCR minimum word confidence, type rule, key source and reason.
+- Package zips the exam output without requiring vendor or certification pages. Those pages are included when a research JSON is present. The 1.2.0 package guard still drops raw extracts and scans the zip against the denylist.
+- Exam header (vendor, certification, name, exam code) comes from `catalog.csv` only. Domain falls back to Unassigned. Duration, passing score, last vendor update and simulator settings are omitted on the technical path.
+- Tests: `tests/test_question_v2.py`, `tests/test_technical_path.py`, `tests/test_fidelity.py`, `tests/test_docs.py`.
+- Docs: README, SKILL, HANDOVER, AGENTS and `docs/` describe the two-part workflow, Linux and Windows install (poppler, tesseract, `TESSERACT_DIR`), the site schema copy and how to refresh it, stage inputs and the run folder, the fidelity gate and hold reasons, how to add a vendor or type rule, the 15 Nov 2026 four-PDF results, the writing brief as part 2, the PC bundle push flow, and ranked gaps.
+
+### Kept from 1.2.0 and 1.2.1 (already on main)
+
+- Writing brief, banned AI phrases, search intent, competitor notes as topics only, and the check-then-fix writing loop (part 2).
+- Extract fixes: ligature repair, keyed answer image before an empty "Correct Answer:" line.
+- Bank: DRAG DROP items become `drag_drop`. Key identity gate (validate 12n). Package guard.
+- Research: exam length is never taken from the extra-time rule; discovery prefers the exam's own page and keeps links with a `#fragment`.
+- Operator docs: `AGENTS.md`, `docs/AI-OPERATOR-GUIDE.md`, `docs/AI-TRAINING-EXERCISES.md`, and `tests/test_ai_guide.py`.
+
 ## 1.2.1 (2026-11-11)
 
 Documentation release. No pipeline behavior changed.

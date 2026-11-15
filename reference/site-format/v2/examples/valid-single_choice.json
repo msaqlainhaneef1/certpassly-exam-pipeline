@@ -1,0 +1,94 @@
+{
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-SC",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
+      {
+        "name": "Format examples",
+        "weight": 100
+      }
+    ]
+  },
+  "questions": [
+    {
+      "question_key": "ex-single-001",
+      "version": 1,
+      "type": "single_choice",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Which option names the official passing score source?"
+              }
+            ]
+          }
+        ],
+        "choices": [
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "The seller cover page"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "The official vendor exam guide"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "A forum post"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "An unsourced blog"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "answer": {
+        "answer_key": [
+          1
+        ],
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-DD",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
+      {
+        "name": "Format examples",
+        "weight": 100
+      }
+    ]
+  },
+  "questions": [
+    {
+      "question_key": "ex-drag-001",
+      "version": 1,
+      "type": "drag_drop",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Drag each fact to the correct slot."
+              }
+            ]
+          }
+        ],
+        "interaction": {
+          "drag_slots": [
+            "Passing score",
+            "Skill weights"
+          ]
+        }
+      },
+      "answer": {
+        "answer_key": {
+          "0": "1",
+          "1": "0"
+        },
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

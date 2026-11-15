@@ -1,0 +1,65 @@
+{
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-MT",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
+      {
+        "name": "Format examples",
+        "weight": 100
+      }
+    ]
+  },
+  "questions": [
+    {
+      "question_key": "ex-match-001",
+      "version": 1,
+      "type": "matching",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Match each fact to its official source."
+              }
+            ]
+          }
+        ],
+        "interaction": {
+          "matching_pairs": [
+            [
+              "Passing score",
+              "Official exam guide"
+            ],
+            [
+              "Skill weights",
+              "Official skills outline"
+            ]
+          ]
+        }
+      },
+      "answer": {
+        "answer_key": {
+          "a": "x",
+          "b": "y"
+        },
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

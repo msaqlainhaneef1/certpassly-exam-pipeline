@@ -1,0 +1,77 @@
+{
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-INV2",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
+      {
+        "name": "Format examples",
+        "weight": 100
+      }
+    ]
+  },
+  "questions": [
+    {
+      "question_key": "ex-leak-001",
+      "version": 1,
+      "type": "single_choice",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Which source is official?"
+              }
+            ]
+          }
+        ],
+        "choices": [
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "A"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "B"
+                }
+              ]
+            }
+          ]
+        ],
+        "correct_option_ids": [
+          1
+        ]
+      },
+      "answer": {
+        "answer_key": [
+          1
+        ],
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

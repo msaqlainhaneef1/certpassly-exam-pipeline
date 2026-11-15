@@ -4,122 +4,124 @@ description: >-
   Build site-ready CertPassly exam catalog pages and question-import files from
   official vendor sources and owner PDFs. Use when adding a vendor,
   certification or exam, importing a question bank, or running the exam
-  pipeline. Scripts first; one batched AI author stage; no site-repo or GitHub
-  on the run path.
+  pipeline. Scripts first. The default path is technical only (PDF to the site
+  v2 exam file, no AI). Research, page prose and explanations are a separate
+  command. No site-repo or GitHub on the run path.
 ---
 # CertPassly exam pipeline
 
-Scripts-first skill for draft, site-ready exam pages and question-import files. Official vendor sources plus owner PDFs in; workbook CSVs, simulator settings, page JSON and a validation report out.
+Scripts-first skill for draft, site-ready exam pages and question-import files. Official vendor sources plus owner PDFs in; a site v2 exam file, workbook CSVs, simulator settings, page JSON and a validation report out.
 
-**Read [reference/lessons-learned.md](reference/lessons-learned.md) before every run.** The lessons below are the short form of that file.
-
-**Full manual:** [docs/AI-OPERATOR-GUIDE.md](docs/AI-OPERATOR-GUIDE.md) has every owner rule, every stage in order (inputs, outputs, command, success, failures), the author pass file formats and self-check, runbooks, the release flow, the done checklist and the report template. Train on the demo with [docs/AI-TRAINING-EXERCISES.md](docs/AI-TRAINING-EXERCISES.md). Agents start at [AGENTS.md](AGENTS.md).
+Current package version is `1.3.0`. **Read [reference/lessons-learned.md](reference/lessons-learned.md) before every run.** The lessons below are the short form of that file. Full commands, the run folder layout, the fidelity gate, the 15 Nov 2026 PDF results and the push flow are in [README.md](README.md) and [HANDOVER.md](HANDOVER.md). Config guides: [docs/question-type-rules.md](docs/question-type-rules.md), [docs/ocr.md](docs/ocr.md), [docs/fidelity.md](docs/fidelity.md). AI agents start at [AGENTS.md](AGENTS.md) and the full manual [docs/AI-OPERATOR-GUIDE.md](docs/AI-OPERATOR-GUIDE.md). The writing brief for part 2 is [reference/writing-brief.md](reference/writing-brief.md).
 
 ## Top rules (repeat these)
 
 1. Re-read the latest owner rules and `pipeline.yaml` before each stage. Rules have changed mid-run.
 2. Official vendor brands, product names, certification titles and exam codes are required. CertPassly is the site brand.
 3. Never use seller or competitor brands, social links, phone numbers, emails, or "free update" lines. Never use typographic dashes.
-4. Questions come only from owner PDFs. Exact question types are never merged.
+4. Questions come only from owner PDFs. Exact question types are never merged or guessed.
 5. Never trust cover-page exam facts in an owner file. Duration, pass mark, languages and weights come from a saved official page (URL, sha256, quote). If the vendor does not publish a value, say so.
 6. Do not drop a delivery partner the vendor still names.
-7. VCE and other binary files are skipped and listed in REVIEW.md. Image-only items are flagged for a visual pass, not guessed.
-8. Flagged keys are never changed. Items with no answer in the owner file are never held or dropped: `answer_research` keys them only from saved OFFICIAL vendor pages (status unverified, reviewer needed) or flags them `answer_not_found` (draft, excluded from scoring).
+7. VCE and other binary files are skipped and listed in REVIEW.md. Image-only items are flagged, not guessed. The fidelity gate holds anything it cannot confirm.
+8. Flagged keys are never changed. On the technical path, a key must come from the PDF text or from two agreeing pixel methods, and it must map to existing ids. It is never inferred. On the later research path, items with no owner key are keyed only from saved OFFICIAL vendor pages (status unverified, reviewer needed) or flagged `answer_not_found` (draft, excluded from scoring).
 9. Sheet versus Drive mismatches go to `review.csv`.
 10. Pages stay draft. No Course schema on the practice-test page. Twitter / og:image / last-checked go in `page_meta_extras.csv`.
-11. Batch AI. The only AI stage is `author`. Research uses a vendor adapter first; AI may fill only listed official gaps, each with a quote.
-12. This pipeline never reads the site application, artisan or GitHub. It reads `reference/site-format/` (version from `site_format_version`, default `v1`).
-13. All page prose and explanations follow [reference/writing-brief.md](reference/writing-brief.md): plain English, short sentences, people first, no banned AI phrases. Competitor notes are topics only. Never copy their wording.
-14. Stems and options get spelling, grammar and punctuation fixes only. Never change meaning, the correct answer, or option order. Official vendor product names stay exact. Every change is logged in `text-fixes.json` and gated by the key and option-order identity check (validate 12n).
-15. The package zip never ships raw extracts (`raw.xml`, `cleanups.json`, OCR drafts, `media/src/`) or any denylist term. The package stage scans every file in the zip and fails on a hit.
+11. Batch AI. The only AI stage is `author`, and it is not on the default path. Research uses a vendor adapter first; AI may fill only listed official gaps, each with a quote.
+12. This pipeline never reads the site application, artisan or GitHub. It reads `reference/site-format/` (v1 workbooks, and the site v2 exam schema).
 
 ## When to use
 
 - A new vendor, certification or exam must be prepared for the catalog.
-- An owner question PDF must become an importable bank.
+- An owner question PDF must become a site v2 exam file or an importable bank.
 - You need to rerun validation or rebuild pages after official facts change.
 
-## Install
+## Two-part workflow and install
 
-See the README for Git, pip and zip instructions (`install.sh` / `install.ps1`, including Windows PowerShell). After install:
+See the README for Git, pip and zip install (`install.sh` / `install.ps1`), including Linux `apt-get` and Windows PowerShell install of poppler and tesseract, and the `TESSERACT_DIR` setting.
+
+Part 1 is technical and is the default. Scripts only: PDF to the site v2 exam file. No web, no AI, no explanations.
 
 ```bash
 certpassly-pipeline --help
+certpassly-pipeline --list-stages
 certpassly-pipeline --exam EXAM-CODE --root /path/to/workspace --offline
 ```
 
-Also: `--vendor SLUG`, `--all`, `--batch`, `--stage NAME`, `--date YYYY-MM-DD`, `--list-stages`.
+Stages: intake, extract (local Tesseract OCR), export (site v2 plus the fidelity gate), validate_site, package.
+
+Part 2 is `research` and `verify`: search, writing and AI. `research` also runs `textfix`, `intent` and `writing`. Read [reference/writing-brief.md](reference/writing-brief.md) before the author pass. Search intent is `research/<vendor>/<CODE>.search-intent.json`. Competitor notes (`research/<vendor>/<CODE>.competitor-notes.json`) are topics only.
+
+```bash
+certpassly-pipeline research --exam EXAM-CODE --root /path/to/workspace --offline
+certpassly-pipeline verify --exam EXAM-CODE --root /path/to/workspace --offline
+```
+
+Also: `--vendor SLUG`, `--all`, `--batch`, `--stage NAME`, `--date YYYY-MM-DD`, `--force`.
 
 If the zip does not open from a chat window, copy it to the Desktop and unzip there.
 
+The fidelity gate (`config/fidelity.json` and `config/ocr.json`) exports a question only when word coverage is 100 percent with no extra words, dual OCR agrees at or above 90 per word and 95 overall, exactly one type rule matches and agrees with the key shape, and the answer key comes from text or two agreeing pixel methods. Held items and per-question coverage are written to `export/fidelity.json` and `export/fidelity.md`. Read those files with `export/cannot-convert.json`. Do not infer a missing key or type.
+
 ## Stages
 
-| Stage | AI? | Role |
-| --- | --- | --- |
-| catalog | no | Sheet to `catalog.csv` / `review.csv`. Official URL checks reuse saved copies. With no sheet, an existing `catalog.csv` is kept. |
-| intake | no | Reads owner files from `owner-files/<CODE>/` (or `paths.owner_files` in `pipeline.yaml`), writes `intake/files.json` (sha256, use) and `rights-confirmation.md` from `owner_rights_statement`. PDFs are extracted; VCE and other binaries are skipped. Online, an empty owner folder is filled from the exam's public Drive folder link in `catalog.csv` (`drive_fetch.py`: subfolders, sha256 in `.fetch.json`, resume, clear errors for private/quota/HTML responses). Offline skips the download. |
-| sources | no | With no hand-written research file, `research_init.py discover` finds the official pages from `catalog.csv` (vendor `seed_role` / `discover_sg` / `discover_cp` patterns), saves HTML + visible text + sha256. Plain fetch first; headless Chromium render (optional extra `[render]`) when the text is too short or the vendor sets `render: true`. Reuse saved copies. |
-| research | parser first | `research_init.py build` writes `research/<vendor>/<CODE>.json` (plus vendor/cert files when missing) from the adapter output: every fact has source_id, url, sha256 and a verbatim quote, otherwise "not published by the vendor". Gaps go to `research/gaps.json` for one optional batched gap pass. Hand-written research files are never overwritten. |
-| extract | no | Split the owner PDF (layout detected). Write `layout.json` and `unparsed.json`. |
-| textfix | decide only | `text_fixes.py` proposes spelling, grammar and punctuation fixes for stems and options. Lost fi/fl ligatures, repeated words and stray spaces are fixed by script; a/an and possible typos go to the author batch (`authoring/text_fixes_decisions.json`, accept or reject each, plus optional `extra` grammar fixes). Words on the saved official pages and capitalized words are protected. Applied in the bank stage, logged in `text-fixes.json`, summarized in REVIEW.md and CLEANUP-LOG.md. |
-| answer_research | pick only | No-answer items: candidate OFFICIAL pages (research sources, `authoring/answer_research_urls.json`, site-restricted search on `official_domains`), saved with sha256; matching lines ranked; region boxes proposed by script for image items. Non-official URLs are rejected and logged. |
-| intent | no | `search_intent.py` writes `research/<vendor>/<CODE>.search-intent.json` from research facts only: the main query for each page, people-also-ask questions from official facts and recorded gaps, and which page answers each one. No number is invented. Topic labels from `research/<vendor>/<CODE>.competitor-notes.json` are recorded as topics only, each marked with whether a saved official page supports it. A person may edit the file (set `edited_by_person: true` to keep the edits). |
-| author | YES | The AI stage. Batched: original page prose, rewritten explanations, `bank_meta`, visual transcription where OCR fails. Does not invent questions or change keys or option order; stem and option text changes only through `text_fixes_decisions.json` (spelling, grammar, punctuation). Also writes `answer_research.json` (key, source_url, verbatim quote, confidence) from `answer_research/candidates.json` in the same batch. `run_pipeline` only checks that the files exist. |
-| pages | no | Build exam pages from research + `page_prose`. Insert shared sections by key. Render the five sourced tables (key facts, objectives, study plan, vendor exams, certification requirements) from research when the prose has none. Skip vendor/cert pages when unchanged. |
-| writing | no | `check_writing.py` (no AI) applies the writing brief to the built pages and the explanations. Writes `writing-review.json` and `WRITING-REVIEW.md` (failed checks only) and `authoring/writing_fix_request.json` (only the flagged parts). Exit 1 on flags unless `writing.fail_on_flags` is false. Also runs after every pages rebuild. |
-| import | no | Workbook CSVs, `page_meta_extras.csv`, simulator settings. |
-| bank | no | `questions.json`, question CSVs, media, REVIEW.md, CLEANUP-LOG.md. No-answer items: researched key re-verified by script (official domain, saved copy, verbatim quote) and imported as `researched_unverified` / `key_source=researched_official` / `verification_status=unverified`; no evidence gives `answer_not_found`, listed in REVIEW.md and in `simulator_settings.json` `scoring_excluded_question_keys`. Intake-skipped files are listed in REVIEW.md automatically. |
-| validate | no | Manifest, `validate.py`, `check_bank.py`. Exit 1 on a failed check. |
-| package | no | Zip the exam package plus shared vendor and certification pages. Raw extracts (`package_exclude` in `pipeline.yaml`, plus any file under `extracted/` that still holds a removed seller line) stay in the workspace; a redacted `cleanups.redacted.json` and `PACKAGE-EXCLUDED.json` ship instead. Every file in the zip (nested archives too) is scanned against `brand_denylist` and `contact_patterns`; any hit fails the stage and removes the zip. The report `<zip>.scan.json` names files and rule numbers, never the term. |
+| Stage | AI? | Path | Role |
+| --- | --- | --- | --- |
+| intake | no | technical | Reads owner files from `owner-files/<CODE>/`, writes `out/<CODE>/intake/files.json` and `rights-confirmation.md`. PDFs are extracted; VCE and other binaries are skipped. Online, an empty owner folder can be filled from a public Drive link. Offline skips the download. |
+| extract | no | technical | Splits the owner PDF (layout detected). Runs local Tesseract OCR. Writes `extracted/` (`split.json`, `ocr.json`, `visual_draft.json`, `layout.json`, `unparsed.json`, `raw.xml`) and `media/src/`. |
+| export | no | technical | Builds `<CODE>.site-format.v2.json` from the extract, `catalog.csv` and the type rules. Runs the fidelity gate. Writes `export/` reports. No explanations. |
+| validate_site | no | technical | Python schema checker, and the site PHP SchemaValidator when `CERTPASSLY_SITE_VALIDATOR` is set. |
+| package | no | both | Zip the exam output. Vendor and certification pages are included when a research JSON exists. The package guard drops raw extracts and scans the zip against the denylist. |
+| catalog | no | research | Sheet to `catalog.csv` / `review.csv`. Official URL checks reuse saved copies. |
+| sources | no | research | Finds and hashes official pages from `catalog.csv`. Reuse saved copies. |
+| research | parser first | research | Writes `research/<vendor>/<CODE>.json` from the adapter. Every fact has source_id, url, sha256 and a verbatim quote, or "not published by the vendor". |
+| textfix | decide only | research | Propose spelling, grammar and punctuation fixes for stems and options. Never changes keys or option order. Applied in the bank stage and logged in `text-fixes.json`. |
+| answer_research | pick only | research | No-answer items: candidate official pages only. Non-official URLs are rejected. |
+| intent | no | research | Builds `research/<vendor>/<CODE>.search-intent.json` from research facts. Competitor notes are topics only. |
+| author | YES | research | The AI stage. Batched: page prose, rewritten explanations, `bank_meta`, visual transcription where OCR fails. Does not invent questions. Never change keys or option order; stems and options change only through `text_fixes`. |
+| pages | no | research | Build exam pages from research + `page_prose`. |
+| writing | no | research | Writing check after pages (no AI). Flags banned phrases, long sentences, dashes, missed search-intent questions and competitor overlap. Only flagged parts go back for a fix. |
+| import | no | research | Workbook CSVs, `page_meta_extras.csv`, simulator settings. |
+| bank | no | research | `questions.json`, question CSVs, media, REVIEW.md, CLEANUP-LOG.md. |
+| validate | no | verify | Manifest, `validate.py`, `check_bank.py`. Exit 1 on a failed check. |
 
-## Writing brief, search intent and the check-then-fix loop
+## Vendor adapters and type rules
 
-Read [reference/writing-brief.md](reference/writing-brief.md) before the author stage. It holds the plain-English rules, a short summary of Google's people-first guidance, the banned AI-phrase list with bad and good examples, and the self-check. The phrase list is data in `config/banned_ai_phrases.txt` (a workspace can add its own `config/banned_ai_phrases.txt`).
+`config/vendors.yaml` names the adapter for each vendor slug (`generic` or a module under `scripts/adapters/`). Do not add exam-specific branches in shared scripts. A new exam is a catalog row plus PDFs in `owner-files/<CODE>/`.
 
-- Inputs for the author: the research file, the search-intent file `research/<vendor>/<CODE>.search-intent.json` (built by the `intent` stage), and the optional competitor-notes file `research/<vendor>/<CODE>.competitor-notes.json` from the CertPassly Researcher. Competitor notes are topics only. Cover a topic only when a saved official page supports it; otherwise skip it or say the vendor did not publish it.
-- `build_pages.py` copies each page's main query and assigned questions into the page JSON (`search_intent`). It never reads competitor notes.
-- The `writing` stage flags: banned AI phrases (vendor quotes found word for word on a saved official page are exempt), long sentences, typographic dashes, numbers that are not in the research files, thin pages, a high reading grade, search-intent questions a page does not answer (topic, official answer, source link), invented numbers in the search-intent file, and runs of 8 or more words copied from the competitor notes.
-- Only the flagged parts go back for a fix (`authoring/writing_fix_request.json`). A part that had no flag and was rewritten in a fix round is flagged too. Then rerun `--stage pages --stage writing`. A second check is required: with `writing.validate_gate: true`, validate check 19 fails unless the latest writing check ran on the current files and found zero flags.
-- Open flags stay in `REVIEW.md`. Never mark a record published or verified to clear a flag. The writing check never changes stems, options or keys; only `text_fixes` may correct stem and option text, and only spelling, grammar and punctuation.
-- Settings live under `writing:` in `pipeline.yaml` (`fail_on_flags`, `validate_gate`, `max_sentence_words`, `competitor_overlap_words`, `min_words`, `max_grade`, `answer_window_chars`).
-
-## Vendor adapters
-
-`config/vendors.yaml` names the adapter for each vendor slug (`generic` or a module under `scripts/adapters/`). The generic adapter extracts duration, pass mark, question count, price, languages, delivery, prerequisites, renewal and domains/weights when they are clearly stated, and lists gaps otherwise. Do not add exam-specific branches in shared scripts.
-
-## Shared sections
-
-Reusable blocks under `shared/` (site, vendor, certification, question-type). Templates insert them by key. A block is written only if it does not already exist. A page may not take more than `shared_max_share` (default 40 percent) of its wording from shared blocks. See [reference/shared-sections.md](reference/shared-sections.md).
+Type detection is table-driven in `config/question_type_rules.json`. Add a mutually exclusive rule there (`all`, `any`, `none`, `not_all`). The type must already be in the site registry. The fidelity gate holds the item if zero or more than one rule matches.
 
 ## Site-format
 
-`reference/site-format/v1/` holds the 30 question types and aliases, CSV headers, simulator schema, page fields, slug/URL rules, allowed statuses, and sample import files. Bump or add a version folder; set `site_format_version` in `pipeline.yaml`. An artisan dry run is optional and only for someone who already has application access. It is not on the default path.
+`reference/site-format/v1/` holds the 30 question types, CSV headers, simulator schema and page fields for the older workbook path.
+
+The technical export uses site format v2. `reference/site-format/v2/question.schema.json` is a verbatim copy of the site schema from worktree commit `a3009daa5` (schema sha256 `da9331c562a0e08cd156cc5efe6181cb8910ec19c523ff83dc43687190dc728e`). Provenance is in `PROVENANCE.md`. To refresh it when the site changes, copy the schema again from a read-only site worktree, update the commit and sha256 in `PROVENANCE.md`, and re-run the validators. Do not edit the schema by hand. This skill does not change site code.
+
+The exam header (vendor, certification, name, exam code) comes from `catalog.csv` only. Domain falls back to Unassigned until domains can come from the catalog.
 
 ## Quality
 
-`validate.py` and `check_bank.py` must pass. Lesson gates cover researched keys (official domain, saved sha256, verbatim quote, unverified flag: check 12l), answer_not_found items excluded from scoring and nothing held (12m), text fixes with an unchanged key and option order per item (12n), drag_drop items for DRAG DROP markers (12f), official versus cover facts, skipped VCE files, vendor brand, sidecar meta, owner-file provenance, delivery partner, shared-section share, and banned terms in shared blocks. Meta titles 50-60 characters; descriptions 140-160. Five sourced tables. JSON-LD: BreadcrumbList, credential, Course (study guide only), FAQPage (sourced answers only). No Review or Rating.
+`validate_site` must pass on every exported question. On the later path, `validate.py` and `check_bank.py` must pass. Official brands only. No typographic dashes. Held items stay held until the owner or a safer extract can confirm them.
 
 ## Tests
 
-`python -m unittest discover -s tests -v` (offline, no AI). CI runs it on Linux and Windows with 0 skipped tests.
+`python -m unittest discover -s tests -v` (offline, no AI). CI runs it on Linux and Windows (`feat/**` and `main`) with 0 skipped tests.
 
-- `tests/test_demo_end_to_end.py` builds two synthetic demo workspaces with `tests/demo_kit.py` (one per adapter path: the Microsoft adapter and the generic adapter) and runs every default stage through the CLI with no manual step. Each demo PDF carries seller branding, a social link, a phone, an email and a free-update line (stripping is checked), six items (single choice, multiple select, Yes/No matrix, inline drop-down, one image-only item with no evidence (answer_not_found), one no-answer item keyed by answer_research from a saved official page) and a skipped VCE file.
-- `tests/test_v110.py`: answer_research (researched key + quote, answer_not_found, rejected non-official pick / non-verbatim quote / bad key), Drive download against a local mock (hash, resume, HTML error), render fallback, research JSON generation, and a grep gate for exam literals in scripts.
-- `tests/test_v120.py`: writing brief file, banned-phrase checker (bad and good examples, vendor quotes), search intent from research facts only, intent coverage, competitor overlap, no model calls in the runner, and the full check-then-fix loop on a demo workspace (flags, fix request, unflagged change, second check, identical stems, options and keys).
-- `tests/test_v120_real.py`: fixes found by the real SC-900 run (catalog with nothing to review, keyed answer image before an empty marker, lost ligatures, exam length versus the extra-time rule, drag_drop type, unpublished facts in the key facts table), the package guard (raw extracts excluded, redacted cleanups, zip scan with glued and nested hits, failing package stage), the lost-ligature detector, and text fixes (auto rules, author decisions, protected product names, key identity).
-- Try a demo yourself: `python tests/demo_kit.py microsoft DEMO_DIR` then `certpassly-pipeline --exam DM-101 --root DEMO_DIR --offline --date 2026-11-11` (generic path: profile `salesforce`, exam `Demo-Admn-101`).
-- The gold-package regression on a real finished exam runs only when `CERTPASSLY_GOLD` points at a local gold workspace (real owner extracts are never committed). Without it, the regression is not collected, so it never shows as skipped.
+- `tests/test_technical_path.py` covers type rules, local OCR, the technical exporter, and the default CLI stage list.
+- `tests/test_fidelity.py` covers the fidelity gate.
+- `tests/test_docs.py` checks the hand docs for typographic dashes and emoji.
+- `tests/test_demo_end_to_end.py` builds two synthetic demo workspaces and runs `research` then `verify`.
+- `tests/test_v120.py` covers the writing brief, the banned AI-phrase list, search intent, competitor notes as topics only, and the check-then-fix loop.
+- `tests/test_ai_guide.py` checks that [docs/AI-OPERATOR-GUIDE.md](docs/AI-OPERATOR-GUIDE.md), the training exercises, AGENTS.md and HANDOVER.md match the stage list.
+- Try a demo: `python tests/demo_kit.py microsoft DEMO_DIR` then `certpassly-pipeline --exam DM-101 --root DEMO_DIR --offline --date 2026-11-11` for part 1, or `research` and `verify` for part 2.
 
 ## Limits
 
-- The author stage is not a model call. Someone (or a separate batched job) must write the authoring files. The writing check flags problems; it does not rewrite text.
+- The author stage is not a model call. Someone (or a separate batched job) must write the authoring files. Author is not on the default path.
 - Generic official-page parsing will miss facts that are not stated clearly. Those become gaps, not guesses.
-- Owner PDFs with unusual layouts may leave items in `unparsed.json`.
-- Drive download needs folders shared as "Anyone with the link". Private folders stop with a clear error.
-- Rendering needs `pip install -e ".[render]"` and `python -m playwright install chromium`. Without it, JS-built pages stop with that instruction.
-- `scripts/check_import_conformance.py` checks import files against `reference/site-format/v1`, including `key_source`, `verification_status`, `researched_unverified`, `answer_not_found` and `scoring_excluded_question_keys`. It does not run the live site importer.
-- The site-restricted web search in answer_research may return nothing (search engines block scripts). Then only listed URLs and the exam's official sources are searched; the attempt is logged.
-- Real-exam proof: Data-Con-101 has now run live through every default stage, including one batched author pass (65 short explanations and page prose), pages, import, bank, validate, check_bank and package. 65 imported, 0 held. Official facts (105 minutes, 70 percent, 60 questions, USD 200) come from the saved Salesforce exam guide.
-- Real-exam proof (1.2.0): Microsoft SC-900 from the owner Drive folder ran through every stage: 253 imported, 0 held, 11 owner keys flagged, 2 spelling fixes (lost ligatures), validate and check_bank clean, package scan with 0 denylist hits.
+- Owner PDFs with unusual layouts, low OCR confidence, disagreeing OCR passes, uncertain pixel keys, or a stem that disagrees with the owner key are held in `export/cannot-convert.json`. They are not guessed.
+- Drive download needs folders shared as "Anyone with the link".
+- Rendering official JS pages needs `pip install -e ".[render]"` and `python -m playwright install chromium`.
+- Official reference links are kept in the export. The site rejects them until vendor hosts are added to `SITE_FORMAT_LINK_DOMAINS`.
 - A non-editable `pip install .` is enough for `--help`. Full runs need a clone (`pip install -e .`) or `CERTPASSLY_SKILL_ROOT`.
 - This skill does not publish pages, change site code, or write to the database.
+- `v1.3.0` is the tagged release on `main` (fast-forward from GitHub `13dea6b`). The existing GitHub tag `v1.2.0` is the 11 Nov 2026 writing-brief release; do not rewrite it. Push `main` and tag `v1.3.0` from the owner's PC, via a git bundle. The box does not push. Do not force-push.

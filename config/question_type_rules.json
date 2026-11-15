@@ -1,0 +1,264 @@
+{
+  "version": 1,
+  "default_domain": "Unassigned",
+  "markers": {
+    "yes_no": {
+      "patterns": [
+        "select Yes if the statement is true",
+        "select Yes if the statement is true. Otherwise, select No"
+      ]
+    },
+    "dropdown": {
+      "patterns": [
+        "completes the sentence",
+        "drop-down",
+        "dropdown",
+        "options in the answer area"
+      ]
+    },
+    "multi": {
+      "patterns": [
+        "\\b(which|choose|select) (two|three|four|five)\\b",
+        "Each correct answer presents"
+      ]
+    },
+    "exhibit": {
+      "patterns": [
+        "shown in the following exhibit",
+        "based on the exhibit",
+        "refer to the exhibit",
+        "refer to the exhibit\\."
+      ]
+    },
+    "hotspot": {
+      "patterns": [
+        "^HOTSPOT\\b"
+      ]
+    },
+    "dragdrop": {
+      "patterns": [
+        "DRAG DROP",
+        "drag (each|the) "
+      ]
+    }
+  },
+  "rules": [
+    {
+      "id": "true_false",
+      "type": "true_false",
+      "all": [
+        {
+          "has_options": true
+        },
+        {
+          "option_count": 2
+        },
+        {
+          "option_texts_in": [
+            [
+              "true",
+              "false"
+            ],
+            [
+              "yes",
+              "no"
+            ]
+          ]
+        }
+      ],
+      "reason": "two True/False or Yes/No options"
+    },
+    {
+      "id": "image_based_choice",
+      "type": "image_based_choice",
+      "all": [
+        {
+          "has_options": true
+        },
+        {
+          "marker": "exhibit"
+        },
+        {
+          "has_question_image": true
+        },
+        {
+          "answer_letter_count_max": 1
+        }
+      ],
+      "reason": "lettered options with an exhibit image"
+    },
+    {
+      "id": "multiple_select",
+      "type": "multiple_select",
+      "all": [
+        {
+          "has_options": true
+        }
+      ],
+      "any": [
+        {
+          "answer_letter_count_min": 2
+        },
+        {
+          "marker": "multi"
+        }
+      ],
+      "not_all": [
+        [
+          {
+            "marker": "exhibit"
+          },
+          {
+            "has_question_image": true
+          },
+          {
+            "answer_letter_count_max": 1
+          }
+        ]
+      ],
+      "reason": "more than one answer letter in the owner key, or the stem asks for more than one choice"
+    },
+    {
+      "id": "single_choice",
+      "type": "single_choice",
+      "all": [
+        {
+          "has_options": true
+        },
+        {
+          "answer_letter_count_max": 1
+        }
+      ],
+      "none": [
+        {
+          "option_texts_in": [
+            [
+              "true",
+              "false"
+            ],
+            [
+              "yes",
+              "no"
+            ]
+          ]
+        },
+        {
+          "marker": "multi"
+        },
+        {
+          "markers_any": [
+            "yes_no",
+            "dropdown",
+            "dragdrop"
+          ]
+        }
+      ],
+      "not_all": [
+        [
+          {
+            "marker": "exhibit"
+          },
+          {
+            "has_question_image": true
+          }
+        ]
+      ],
+      "reason": "lettered options; at most one answer letter"
+    },
+    {
+      "id": "yes_no_matrix",
+      "type": "yes_no_matrix",
+      "all": [
+        {
+          "marker": "yes_no"
+        },
+        {
+          "visual_rows_min": 1
+        }
+      ],
+      "reason": "Yes/No statement grid from OCR or layout"
+    },
+    {
+      "id": "inline_dropdown",
+      "type": "inline_dropdown",
+      "all": [
+        {
+          "visual_blanks": 1
+        }
+      ],
+      "reason": "one drop-down in the answer area"
+    },
+    {
+      "id": "multi_blank_dropdown",
+      "type": "multi_blank_dropdown",
+      "all": [
+        {
+          "visual_blanks_min": 2
+        }
+      ],
+      "reason": "two or more drop-downs in the answer area"
+    },
+    {
+      "id": "active_screen",
+      "type": "active_screen",
+      "all": [
+        {
+          "visual_type": "active_screen"
+        }
+      ],
+      "reason": "boxed controls on a mock screen"
+    },
+    {
+      "id": "drag_drop",
+      "type": "drag_drop",
+      "all": [
+        {
+          "marker": "dragdrop"
+        },
+        {
+          "visual_has": "pairs"
+        }
+      ],
+      "reason": "drag and drop pairs from the layout"
+    },
+    {
+      "id": "hotspot_multi",
+      "type": "hotspot_multi",
+      "all": [
+        {
+          "marker": "hotspot"
+        },
+        {
+          "visual_regions_min": 2
+        },
+        {
+          "answer_region_count_min": 2
+        }
+      ],
+      "reason": "hotspot with more than one marked region"
+    },
+    {
+      "id": "hotspot_single",
+      "type": "hotspot_single",
+      "all": [
+        {
+          "marker": "hotspot"
+        },
+        {
+          "visual_regions_min": 1
+        }
+      ],
+      "reason": "hotspot with a single region"
+    }
+  ],
+  "hold": {
+    "no_rule_matched": "no type rule matched the stem, options or layout; type was not guessed",
+    "yes_no_without_rows": "Yes/No marker is present but matrix rows were not read reliably",
+    "dropdown_without_blanks": "drop-down marker is present but blanks were not read reliably",
+    "hotspot_without_regions": "HOTSPOT marker is present but regions were not read reliably",
+    "dragdrop_without_pairs": "DRAG DROP marker is present but pairs were not read reliably",
+    "low_ocr_confidence": "OCR confidence {confidence} is below the minimum {minimum}",
+    "uncertain_answer_marks": "answer marks in the image were not reliable enough to set a key",
+    "missing_tesseract": "a visual item needs OCR but tesseract is not installed"
+  }
+}

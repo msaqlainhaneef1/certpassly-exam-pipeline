@@ -2,7 +2,7 @@ name: tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'feat/**']
   pull_request:
   workflow_dispatch:
 
@@ -31,7 +31,9 @@ jobs:
 
       - name: System tools (Windows)
         if: runner.os == 'Windows'
-        run: choco install poppler tesseract -y --no-progress
+        run: |
+          choco install poppler tesseract -y --no-progress
+          echo "C:\Program Files\Tesseract-OCR" >> $env:GITHUB_PATH
 
       - name: Install package
         run: python -m pip install -e .

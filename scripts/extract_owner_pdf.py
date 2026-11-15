@@ -217,8 +217,10 @@ def split_items(els, layout, deny):
         state = 'stem'
         stem, opts, ans, qimg, aimg, pages = [], [], [], [], [], set()
         seen_marker = False
+        source_lines = []
         if it.get('rest'):
             stem.append(it['rest'])
+            source_lines.append(it['rest'])
         for e in it['els']:
             pages.add(e['page'])
             if e['k'] == 'img':
@@ -254,11 +256,14 @@ def split_items(els, layout, deny):
             if om and (state == 'opts' or len(stem) > 0 or it.get('rest')):
                 state = 'opts'
                 opts.append([om.group(1).lower(), om.group(2) or ''])
+                source_lines.append(t)
                 continue
             if state == 'opts':
                 opts[-1][1] = (opts[-1][1] + ' ' + t).strip()
+                source_lines.append(t)
             else:
                 stem.append(t)
+                source_lines.append(t)
         empty = [o for o in opts if not o[1]]
         if opts and len(empty) == len(opts):
             cleanups.append(dict(question_key=key, field='options',
@@ -270,7 +275,8 @@ def split_items(els, layout, deny):
         rec = dict(question_key=key, source_number=n, marker=f"{layout['start']} {n}",
                    pages=sorted(pages), stem=stem_txt, options={k: v for k, v in opts},
                    answer_raw=' '.join(ans), question_images=qimg, answer_images=aimg,
-                   layout_profile=layout['profile'])
+                   layout_profile=layout['profile'],
+                   source_text='\n'.join(source_lines))
         if seen_marker:
             rec['_answer_marker'] = True
         if not rec['stem'] and not rec['options'] and (qimg or aimg):

@@ -179,27 +179,29 @@ cp "$SKILL/config/vendors.example.yaml" "$WS/config/vendors.yaml"
 
 Then edit `$WS/config/pipeline.yaml`: set `owner_rights_statement` to the owner's statement about the files (one sentence, with the date). Leave the brand, disclaimer and denylist as they are unless the owner changes them.
 
-Success: `certpassly-pipeline --list-stages` prints 15 stages and the test suite ends with `OK`.
+Success: `certpassly-pipeline --list-stages` prints 17 stages and the test suite ends with `OK`.
 
 ## 5. Stage order
 
-Stages always run in this order. `certpassly-pipeline --list-stages` prints the same table. With no `--stage` flag, every stage runs. A failed stage stops the run with a non-zero exit code.
+The full stage list is always in this order. `certpassly-pipeline --list-stages` prints the same table. The default command (no subcommand, no `--stage` flag) is the technical path: `intake`, `extract`, `export`, `validate_site`, `package`. `research` and `verify` run the later content path. A failed stage stops the run with a non-zero exit code.
 
 1. `catalog`
 2. `intake`
 3. `sources`
 4. `research`
 5. `extract`
-6. `textfix`
-7. `answer_research`
-8. `intent`
-9. `author`
-10. `pages`
-11. `writing`
-12. `import`
-13. `bank`
-14. `validate`
-15. `package`
+6. `export`
+7. `validate_site`
+8. `textfix`
+9. `answer_research`
+10. `intent`
+11. `author`
+12. `pages`
+13. `writing`
+14. `import`
+15. `bank`
+16. `validate`
+17. `package`
 
 `textfix` runs right after `extract` (it only proposes); its fixes are applied in `bank`. `author` is the only AI stage; it also decides the `textfix` and `answer_research` proposals.
 
@@ -289,7 +291,24 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
   - A drag-and-drop item typed as a drop-down: the item has a DRAG DROP marker but its picture looks like blanks. Transcribe it as tiles and targets (section 7.4). Gate 12f fails until you do.
   - Raw extracts contain seller lines on purpose (audit). They never ship. See stage 15.
 
-### Stage 6: `textfix`
+### Stage 6: `export`
+
+- AI: no. Script: `scripts/build_technical_export.py`. Default technical path.
+- Inputs: extract output, `catalog.csv`, `config/question_type_rules.json`, `config/fidelity.json`.
+- Outputs: `<CODE>.site-format.v2.json`, `questions.json`, `export/technical_report.json`, `export/cannot-convert.json`, `export/fidelity.json`, `export/fidelity.md`.
+- Command: `certpassly-pipeline --exam CODE --root "$WS" --offline --stage export`
+- Success: every exported question passes the fidelity gate (100 percent coverage, dual OCR, unique type rule, certain key). Held items are listed, not guessed.
+
+### Stage 7: `validate_site`
+
+- AI: no. Scripts: `scripts/validate_question_v2.py` and, when present, `scripts/validate_site_schema.php`. Default technical path.
+- Inputs: the site v2 exam file, the copied schema in `reference/site-format/v2/`, optional `CERTPASSLY_SITE_VALIDATOR`.
+- Outputs: pass or fail on every exported question.
+- Command: `certpassly-pipeline --exam CODE --root "$WS" --offline --stage validate_site`
+- Success: Python schema checker passes, and the site PHP SchemaValidator passes when that class file is present.
+
+
+### Stage 8: `textfix`
 
 - AI: decide only. Script: `scripts/text_fixes.py`.
 - Inputs: `extracted/split.json`, saved official pages (protected words), `text_fixes` in `config/pipeline.yaml`.
@@ -301,7 +320,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
   - The author stage lists `text_fixes_decisions.json (accept or reject N proposals ...)`: decide every undecided id.
   - A fix that would change a capitalized or protected word is rejected later by the bank guard. Do not try to force it.
 
-### Stage 7: `answer_research`
+### Stage 9: `answer_research`
 
 - AI: pick only. Script: `scripts/answer_research.py`.
 - Inputs: items with no key in `split.json`, held image items, research sources, `authoring/answer_research_urls.json` (optional, URLs per item), online search over the vendor's official domains.
@@ -312,7 +331,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
   - Non-official URLs are rejected and logged. That is correct.
   - Offline: only saved pages are used. Items with no evidence become `answer_not_found`.
 
-### Stage 8: `intent`
+### Stage 10: `intent`
 
 - AI: no. Script: `scripts/search_intent.py`.
 - Inputs: research facts, gaps, optional `research/<vendor>/CODE.competitor-notes.json` (topics only).
@@ -320,7 +339,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
 - Command: `certpassly-pipeline --exam CODE --root "$WS" --stage intent`
 - Success: the file exists and every question points to one page. A person may edit it.
 
-### Stage 9: `author`
+### Stage 11: `author`
 
 - AI: YES. This is the only AI stage. Script: `scripts/run_pipeline.py` checks files only.
 - Inputs: everything above, plus `reference/writing-brief.md`.
@@ -329,7 +348,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
 - Success: `author: required files present (explanations, page_prose, bank_meta). AI is not invoked by this script.`
 - Failure: `AUTHOR STAGE (the only AI stage). Files still needed:` followed by the missing files. Write them in one batched pass (section 7) and rerun.
 
-### Stage 10: `pages`
+### Stage 12: `pages`
 
 - AI: no. Scripts: `scripts/build_pages.py`, `scripts/render_page.py`, `scripts/shared_sections.py`.
 - Inputs: research, `authoring/page_prose.json`, `shared/`, search intent.
@@ -338,7 +357,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
 - Success: seven pages built. When `writing` is not also selected, the runner runs the writing check in record mode right after.
 - Failures and fixes: a missing shared block is reported as "shared blocks not on disk yet". Write it under `shared/` or remove the key.
 
-### Stage 11: `writing`
+### Stage 13: `writing`
 
 - AI: no. Script: `scripts/check_writing.py`.
 - Inputs: built pages, author files, research, search intent, competitor notes.
@@ -348,7 +367,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
 - Flags: `banned_ai_phrase`, `long_sentence`, `typographic_dash`, `unsourced_number`, `thin_page`, `reading_grade`, `search_intent_missed`, `search_intent_number`, `competitor_copy`, `unflagged_part_changed`.
 - Fix loop: open `authoring/writing_fix_request.json`, fix only the listed parts (for example `page_prose:exam_hub`), then rerun `--stage pages --stage writing`. The round number goes up. Rewriting a part that was not flagged is itself a flag.
 
-### Stage 12: `import`
+### Stage 14: `import`
 
 - AI: no. Script: `scripts/emit_import.py`.
 - Inputs: research, pages.
@@ -356,7 +375,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
 - Command: `certpassly-pipeline --exam CODE --root "$WS" --stage import`
 - Success: CSVs written; import key columns filled (gate 01b).
 
-### Stage 13: `bank`
+### Stage 15: `bank`
 
 - AI: no. Scripts: `scripts/build_bank.py`, `scripts/text_fixes.py`, `scripts/qtypes.py`.
 - Inputs: `split.json`, `visual_transcription.json`, every author file, `answer_research/result.json`, text fix proposals and decisions.
@@ -368,7 +387,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
   - "text_fixes: author fixes rejected by the guard": your `extra` fix changed a protected word, the meaning or the key. Remove it or keep only the spelling part.
   - Key identity changed: the bank refuses to apply fixes. Find the fix that touched a key or the option order and drop it.
 
-### Stage 14: `validate`
+### Stage 16: `validate`
 
 - AI: no. Scripts: `scripts/manifest.py`, `scripts/gen_site_question_types.py`, `scripts/validate.py`, `scripts/check_bank.py`.
 - Inputs: everything in `out/CODE/`, research, saved sources, `cache/linkcheck.json` (offline).
@@ -378,7 +397,7 @@ SC-900,,https://drive.google.com/drive/folders/FOLDER_ID
 - validate refreshes the manifest. It does not rebuild the bank; after any author change, run `bank` (and `pages`, `writing`, `import`) first.
 - Failures: see section 8 and section 10.
 
-### Stage 15: `package`
+### Stage 17: `package`
 
 - AI: no. Scripts: `scripts/run_pipeline.py` with `scripts/package_guard.py`.
 - Inputs: `out/CODE/`, `out/vendors/<vendor>/`, `out/certifications/<cert>/`, `run.log`, `package_exclude` in config.

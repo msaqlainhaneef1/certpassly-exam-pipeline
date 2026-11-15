@@ -13,7 +13,8 @@ image-only item with no evidence (answer_not_found), and one item with no answer
 A binary .vce file sits next to the PDF so the intake skip path runs.
 
 Usage (CLI):  python tests/demo_kit.py microsoft|salesforce DEST
-Then:         certpassly-pipeline --exam <CODE> --root DEST --offline --date 2026-11-11
+Then:         certpassly-pipeline research --exam <CODE> --root DEST --offline --date 2026-11-11 && certpassly-pipeline verify --exam <CODE> --root DEST --offline --date 2026-11-11
+Technical only: certpassly-pipeline --exam <CODE> --root DEST --offline --date 2026-11-11
 Nothing here is real exam content. All official pages are synthetic stand-ins.
 """
 from __future__ import annotations
