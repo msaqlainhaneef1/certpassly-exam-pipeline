@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.0.dev1 (pre-release)
+
+The pipeline now exports the site's own v2 format, not the earlier pipeline-only schema.
+
+- `reference/site-format/v2/question.schema.json` is a verbatim copy of the site schema from worktree commit `a3009daa5` (schema file sha256 `da9331c562a0e08cd156cc5efe6181cb8910ec19c523ff83dc43687190dc728e`). Provenance is in `PROVENANCE.md`. The earlier one-file-per-question schema is retired under `retired/`.
+- Export and migrate write ONE file per exam: an `exam` section (vendor, certification, exam code, name, duration, passing score, domains, last vendor update, simulator settings) and a `questions` list.
+- Question text is rich_text (paragraphs and lists with bold, italic, code and https links). No raw HTML or SVG, and no `schema_version`, `meta` or `constraints` fields. Each question has a `domain`. Type settings go in `learner.interaction`. Images use an https or `/storage/` URL plus alt text.
+- Answer statuses stay `owner_key`, `researched_official`, `researched_unverified` and `answer_not_found`. `scoring_excluded` and `reviewer_needed` are booleans on `answer`. Answer keys follow the site grader (choice indexes for selection types, row maps for matrices, blank maps for cloze). Cloze option ids are made unique across a question when the v1 bank reuses the same ids on every blank.
+- `scripts/validate_question_v2.py` checks files against the site schema, plus no HTML, no answer fields in the learner part, duplicate question text, and repeated ids. `scripts/validate_site_schema.php` runs the site's `SchemaValidator.php` with no Laravel boot and no database.
+- Tests and bundled examples use the site exam-file shape. Demo migrations: Data-Con-101 65/65 and AB-730 92/92 pass both validators (157 of 157). The 11 AB-730 cannot-convert items are unchanged. External official reference links are kept and counted; the site rejects them until vendor domains are added to `SITE_FORMAT_LINK_DOMAINS`.
+- Package version is `1.2.0.dev1`. Still a pre-release. Do not merge to main or tag `v1.2.0` from this commit.
+
+
 ## 1.2.0.dev0 (pre-release)
 
 Question format v2 is added next to the unchanged v1 snapshot. This is a pre-release of 1.2.0, not a 1.1.6 patch, because it adds a new site-format version. It is not tagged.

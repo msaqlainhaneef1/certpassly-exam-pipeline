@@ -1,68 +1,59 @@
 {
-  "schema_version": "question.v2",
-  "question_key": "ex-drag-001",
-  "version": 1,
-  "type": "drag_drop",
-  "learner": {
-    "stem": {
-      "format": "plain",
-      "text": "Place each file in the correct zone."
-    },
-    "interaction": {
-      "tokens": [
-        {
-          "id": "t1",
-          "text": "exam-guide.html"
-        },
-        {
-          "id": "t2",
-          "text": "owner.pdf"
-        },
-        {
-          "id": "t3",
-          "text": "bank_meta.json"
-        }
-      ],
-      "zones": [
-        {
-          "id": "z1",
-          "text": "official sources"
-        },
-        {
-          "id": "z2",
-          "text": "owner files"
-        },
-        {
-          "id": "z3",
-          "text": "authoring"
-        }
-      ]
-    }
-  },
-  "answer": {
-    "answer_key": {
-      "pairs": {
-        "t1": "z1",
-        "t2": "z2",
-        "t3": "z3"
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-DD",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
+      {
+        "name": "Format examples",
+        "weight": 100
       }
-    },
-    "explanation": {
-      "core": "Toy explanation for a format example. Not a real exam item."
-    },
-    "partial_credit": {
-      "mode": "per_item",
-      "max_points": 1
-    }
+    ]
   },
-  "meta": {
-    "answer_key_status": "owner_key",
-    "key_source": "owner_file",
-    "research_evidence": [],
-    "verification_status": "unverified",
-    "reviewer_needed": false,
-    "question_sources": [],
-    "scoring_excluded": false,
-    "record_status": "draft"
-  }
+  "questions": [
+    {
+      "question_key": "ex-drag-001",
+      "version": 1,
+      "type": "drag_drop",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Drag each fact to the correct slot."
+              }
+            ]
+          }
+        ],
+        "interaction": {
+          "drag_slots": [
+            "Passing score",
+            "Skill weights"
+          ]
+        }
+      },
+      "answer": {
+        "answer_key": {
+          "0": "1",
+          "1": "0"
+        },
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

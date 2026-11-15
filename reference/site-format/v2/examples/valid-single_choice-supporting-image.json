@@ -1,66 +1,90 @@
 {
-  "schema_version": "question.v2",
-  "question_key": "ex-img-001",
-  "version": 1,
-  "type": "single_choice",
-  "learner": {
-    "stem": {
-      "format": "html",
-      "text": "<p>What does the settings page in the exhibit show?</p>"
-    },
-    "media": [
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-SCI",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
       {
-        "id": "shot1",
-        "kind": "image",
-        "alt": "A vendor settings page with a Sources icon in the toolbar.",
-        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "href": "/storage/examples/ui-shot.png",
-        "role": "exhibit",
-        "original_asset": {
-          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "note": "Original UI screenshot kept as supporting media, not as the question."
-        }
+        "name": "Format examples",
+        "weight": 100
       }
-    ],
-    "interaction": {
-      "options": [
-        {
-          "id": "a",
-          "text": "A login form"
-        },
-        {
-          "id": "b",
-          "text": "A settings page with a Sources icon"
-        }
-      ],
-      "choose_n": 1
-    },
-    "constraints": {
-      "choose_n": 1
-    }
+    ]
   },
-  "answer": {
-    "answer_key": {
-      "correct_option_ids": [
-        "b"
-      ]
-    },
-    "explanation": {
-      "core": "Toy example: the question is HTML single_choice; the screenshot is supporting media only. Not a real exam item."
-    },
-    "partial_credit": {
-      "mode": "all_or_nothing",
-      "max_points": 1
+  "questions": [
+    {
+      "question_key": "ex-single-img-001",
+      "version": 1,
+      "type": "single_choice",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Which label matches the official exhibit in the supporting picture?"
+              }
+            ]
+          }
+        ],
+        "choices": [
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "A login form"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "A settings page"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "A blank screen"
+                }
+              ]
+            }
+          ]
+        ],
+        "media": [
+          {
+            "url": "/storage/media/ex-exhibit.png",
+            "alt": "A settings page with two labelled buttons."
+          }
+        ]
+      },
+      "answer": {
+        "answer_key": [
+          1
+        ],
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
     }
-  },
-  "meta": {
-    "answer_key_status": "owner_key",
-    "key_source": "owner_file",
-    "research_evidence": [],
-    "verification_status": "unverified",
-    "reviewer_needed": false,
-    "question_sources": [],
-    "scoring_excluded": false,
-    "record_status": "draft"
-  }
+  ]
 }

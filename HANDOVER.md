@@ -511,7 +511,7 @@ Then follow section 8. Keep scripts first. Keep one batched AI author step. Do n
 
 ## 9. Question format v2 (this branch)
 
-Branch `feat/question-format-v2` adds site-format v2 next to the unchanged v1 snapshot. Package version on this branch is `1.2.0.dev0` (a pre-release, not a tagged release, and not a 1.1.6 patch).
+Branch `feat/question-format-v2` adds site-format v2 next to the unchanged v1 snapshot. Package version on this branch is `1.2.0.dev1` (a pre-release, not a tagged release, and not a 1.1.6 patch).
 
 Owner update at 14:30 on 14 Nov 2026 (Asia/Karachi) supersedes the earlier 14:29 note on this branch.
 
@@ -612,3 +612,45 @@ These were found in a read-only review of `wt-merge-1114-fixes2`. v2 stays compa
 - Skill team: keep building v1 packages for remaining exams. Use `scripts/migrate_v1_to_v2.py` when a bank should be reviewed in the new format. Do not merge this branch to `main` until CI is green and the team agrees. Do not tag `v1.2.0` from this pre-release.
 - Owner update (14 Nov 2026, 14:30): v2 for everything; no `image_legacy`; no `image_based_choice` shortcut; `owner_key` only in v2 (migrate v1 statuses in the one-time script); trial caps stay in entitlements.
 
+## 10. Site format v2 export (1.2.0.dev1)
+
+The site published its own v2 schema (worktree `a3009daa5`). The pipeline now uses that schema as the rule book. The earlier pipeline-only v2 schema is retired.
+
+What changed in the pipeline:
+
+- One file per exam, not one file per question. The exam block carries vendor, certification, exam code, name, duration, passing score, question count (when the vendor publishes one), domains with weights, last vendor update, and simulator settings.
+- Every question has `domain`, `learner` and `answer`. Stems and choices are rich_text blocks. Tables, diagrams, code, exhibits and case studies use `content_blocks`. No raw HTML or SVG, and no `schema_version`, `meta` or `constraints`.
+- `answer.status` uses the same four values as before. `scoring_excluded` must be true when the status is `answer_not_found`. `reviewer_needed` is a boolean. Official https source links stay in `answer.references`.
+- "Choose two" wording stays in the stem. `choose_n` is copied from that wording when present, never from the number of correct answers.
+- Media URLs are `https://` or `/storage/...` with plain-text alt text. Reviewer-only answer-area images stay out of the learner payload.
+- Validation uses the site schema. `scripts/validate_question_v2.py` also checks duplicates, repeated ids, HTML, and learner leaks. `scripts/validate_site_schema.php` calls the site `SchemaValidator` class with no Laravel boot and no database.
+
+Commands:
+
+```
+python scripts/migrate_v1_to_v2.py \
+  --exam-dir /workspace/runs/dc101/out/Data-Con-101 \
+  --out /workspace/deliverables/question-v2/migrated/Data-Con-101 \
+  --cannot-convert /workspace/deliverables/question-v2/cannot-convert
+
+python scripts/migrate_v1_to_v2.py \
+  --exam-dir /path/to/AB-730 \
+  --out /workspace/deliverables/question-v2/migrated/AB-730 \
+  --cannot-convert /workspace/deliverables/question-v2/cannot-convert \
+  --append
+
+python scripts/validate_question_v2.py --dir /workspace/deliverables/question-v2/migrated/Data-Con-101
+python scripts/validate_question_v2.py --dir /workspace/deliverables/question-v2/migrated/AB-730
+
+php scripts/validate_site_schema.php \
+  --schema reference/site-format/v2/question.schema.json \
+  --validator /path/to/site/app/Support/SiteFormat/SchemaValidator.php \
+  /workspace/deliverables/question-v2/migrated/Data-Con-101/Data-Con-101.site-format.v2.json \
+  /workspace/deliverables/question-v2/migrated/AB-730/AB-730.site-format.v2.json
+```
+
+Demo result on this commit: Data-Con-101 65/65 and AB-730 92/92 pass both validators (157 of 157). Types on AB-730: 39 single_choice (including two remapped image items), 25 yes_no_matrix, 13 inline_dropdown, 11 multiple_select, 3 multi_blank_dropdown, 1 active_screen. The 11 cannot-convert AB-730 items are unchanged (q026, q027, q039, q044, q046, q057, q059, q074, q076, q088, q089). They still need owner decisions. New content blocks did not make any of those 11 exact.
+
+External official reference links are kept (Data-Con-101: 65 links, 1 unique host trailhead.salesforce.com; AB-730: 103 links, 13 unique learn.microsoft.com URLs). The site importer rejects those domains until `SITE_FORMAT_LINK_DOMAINS` includes them. Also still open with the site team: SVG as an image file, and confirming the fill-in-the-blank format.
+
+Do not merge this branch to main or tag `v1.2.0` until the owner agrees. v1 import files stay what is live until `SITE_FORMAT_EXAM_V2` is turned on.

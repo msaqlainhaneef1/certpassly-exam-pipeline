@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""One-time migration of a v1 questions.json bank to question format v2 drafts.
+"""One-time migration of a v1 questions.json bank to the site format v2.
 
 Maps v1 answer_key_status values (as_in_source_file and flagged_for_owner) to
-canonical v2 statuses. Converts every item, including old image items, to a
-real v2 HTML or SVG interactive type. Images become supporting or reference
-media only. Does not invent keys or guess image content.
+canonical v2 statuses. Writes ONE exam file that matches the site schema in
+reference/site-format/v2/question.schema.json. Stems and choices are rich_text
+blocks (no raw HTML or SVG). Images become supporting media only, with a
+/storage/ or https URL and alt text. Does not invent keys or guess image content.
 
 Deterministic checks (OCR or pdftotext versus transcription, table cell counts)
 decide whether an image item converted exactly. Anything not exact is written
@@ -167,12 +168,8 @@ def remap_type(item: dict) -> tuple[str, str | None]:
 
 
 def normalize_href(path):
-    pth = (path or "").replace('\\', "/").strip()
-    if not pth:
-        return None
-    if pth.startswith(("https://", "http://", "/", "#")):
-        return pth
-    return "/" + pth.lstrip("./")
+    """Return a site-format media URL (https or /storage/...)."""
+    return ex.site_media_url(path)
 
 
 def normalize_answer_key(key, typ):
@@ -407,7 +404,7 @@ def check_image_conversion(item: dict, images: list[dict], draft: dict | None, t
             'the v1 bank records that the answer key was read visually and could not be confirmed by script: '
             + unconfirmed[0],
             'Owner should confirm the marked answers on the reviewer-only answer-area image. '
-            'Keep the HTML transcription only after that confirmation. Do not invent a key.',
+            'Keep the structured transcription only after that confirmation. Do not invent a key.',
         )
 
     ocr = ocr_text_from_draft(draft)
@@ -435,7 +432,7 @@ def check_image_conversion(item: dict, images: list[dict], draft: dict | None, t
             'the item is a raster UI or hotspot image; an exact SVG transcription of every label and shape is not available, '
             'and region labels are descriptive rather than literal OCR strings',
             'Keep the existing interactive type with the original image as supporting hotspot media and the existing regions. '
-            'Supply an exact SVG only if every label and shape can be transcribed without guesswork. Owner should confirm the region boxes.',
+            'Use a diagram or exhibit block only if every label and shape can be transcribed without guesswork. Owner should confirm the region boxes.',
         )
         return issues
 
@@ -466,7 +463,7 @@ def check_image_conversion(item: dict, images: list[dict], draft: dict | None, t
                 preview = missing[0] if len(missing[0]) <= 160 else missing[0][:157] + '...'
                 issue(
                     f'{len(missing)} transcribed phrase(s) are not confirmed in the image OCR or text layer; first unmatched phrase: {preview}',
-                    'Re-transcribe the unmatched text from the source image and confirm it against OCR or pdftotext. Do not guess missing words. Then keep the real interactive type as HTML.',
+                    'Re-transcribe the unmatched text from the source image and confirm it against OCR or pdftotext. Do not guess missing words. Then keep the real interactive type in the site format.',
                 )
 
     return _dedupe_issues(issues)
@@ -563,46 +560,25 @@ def build_stem_and_interaction(item: dict, typ: str) -> tuple[dict, dict, dict |
 def learner_and_reference_media(images: list[dict]) -> tuple[list[dict], list[dict]]:
     learner = []
     reference = []
-    for i, im in enumerate(images, 1):
-        sha = (im.get('sha256_computed') or im.get('sha256') or '').lower()
-        if len(sha) != 64:
-            continue
-        alt = (im.get('alt') or '').strip() or 'Original source image kept as a reviewer-only reference asset.'
+    for im in images:
+        url = ex.site_media_url(im.get('path') or '')
+        alt = (im.get('alt') or '').strip()
         kind = (im.get('kind') or '').lower()
         vis = (im.get('visibility') or '').lower()
         path = im.get('path') or ''
-        rec = {
-            'id': f'm{i}',
-            'kind': 'svg' if path.lower().endswith('.svg') or kind == 'svg' else 'image',
-            'alt': alt,
-            'sha256': sha,
-            'href': normalize_href(path),
-            'role': 'exhibit' if kind == 'exhibit' else ('diagram' if kind == 'diagram' else 'reference'),
-            'original_asset': {
-                'sha256': sha,
-                'href': normalize_href(path),
-                'note': 'Original image kept as a reference asset.',
-            },
-        }
-        if im.get('width'):
-            rec['width'] = int(im['width'])
-        if im.get('height'):
-            rec['height'] = int(im['height'])
-        if im.get('mime'):
-            rec['mime'] = im['mime']
-            rec['original_asset']['mime'] = im['mime']
-        rec = {k: v for k, v in rec.items() if v is not None}
-        rec['original_asset'] = {k: v for k, v in rec['original_asset'].items() if v is not None}
         is_review = (
             kind in REVIEWER_MEDIA_KINDS
             or vis in {'reviewer_only', 'reviewer'}
             or 'answer-review' in path.lower()
             or 'answer-area' in path.lower()
         )
-        is_exhibit = kind in LEARNER_MEDIA_KINDS or (vis == 'candidate' and 'exhibit' in path.lower())
-        if is_exhibit and not is_review and alt:
+        is_exhibit = kind in LEARNER_MEDIA_KINDS or (vis == 'candidate' and 'exhibit' in path.lower()) or 'exhibit' in path.lower()
+        rec = None
+        if url and alt:
+            rec = {'url': url, 'alt': alt}
+        if rec and is_exhibit and not is_review:
             learner.append(rec)
-        else:
+        elif rec:
             reference.append(rec)
     return learner, reference
 
@@ -610,67 +586,59 @@ def learner_and_reference_media(images: list[dict]) -> tuple[list[dict], list[di
 def migrate_item(item: dict, *, exam_key: str | None, media_rows: list[dict],
                  media_dir: Path | None, src_root: Path | None,
                  draft: dict | None, trans: dict | None,
-                 excluded: set[str]) -> tuple[dict, list[dict]]:
+                 excluded: set[str],
+                 domain_names: dict | None = None) -> tuple[dict, list[dict]]:
     aks, legacy, reviewer_from_status = map_status(item.get('answer_key_status'))
     typ, type_note = remap_type(item)
     images = collect_images(item, media_rows, media_dir, src_root)
     image_item = is_image_item(item, media_rows, draft)
     issues = check_image_conversion(item, images, draft, trans) if image_item else []
 
-    # Build a canonical item for the shared exporter, then replace stem/interaction/media.
     prepared = dict(item)
     prepared['question_type'] = typ
+    prepared['type'] = typ
     prepared['answer_key_status'] = aks
     prepared['legacy_answer_key_status'] = legacy
-    if reviewer_from_status:
+    if reviewer_from_status or issues:
         prepared['human_review_required'] = True
-    doc = ex.export_item(prepared)
-    doc['answer']['answer_key'] = normalize_answer_key(item.get('answer_key'), typ)
-    if exam_key and not doc['meta'].get('exam_key'):
-        doc['meta']['exam_key'] = exam_key
     if item['question_key'] in excluded:
-        doc['meta']['scoring_excluded'] = True
-    stem, interaction, constraints = build_stem_and_interaction(item, typ)
-    doc['type'] = typ
-    doc['learner']['stem'] = stem
-    doc['learner']['interaction'] = interaction
-    if constraints:
-        doc['learner']['constraints'] = constraints
-    elif typ not in ('single_choice', 'true_false'):
-        doc['learner'].pop('constraints', None)
-    learner_media, reference_media = learner_and_reference_media(images)
+        prepared['scoring_flag'] = True
+    doc = ex.export_item(prepared, domain_names=domain_names)
+
+    learner_media, _reference_media = learner_and_reference_media(images)
     if typ in ('active_screen', 'hotspot_single', 'hotspot_multi'):
-        # The raster is supporting interaction media, not the question text.
-        for rec in reference_media:
-            path = (rec.get('href') or '').lower()
+        # Raster is supporting interaction media, not the question text.
+        for rec in _reference_media:
+            path = (rec.get('url') or '').lower()
             if 'answer-review' in path:
                 continue
             if rec.get('alt') and rec not in learner_media:
-                rec = dict(rec)
-                rec['role'] = 'diagram'
                 learner_media.append(rec)
-        if learner_media and not interaction.get('media_id'):
-            interaction['media_id'] = learner_media[0]['id']
-            doc['learner']['interaction'] = interaction
     if learner_media:
-        doc['learner']['media'] = learner_media
-    else:
-        doc['learner'].pop('media', None)
-    if reference_media:
-        doc['meta']['reference_media'] = reference_media
-    if type_note:
-        notes = list(doc['meta'].get('conversion_notes') or [])
-        notes.append(type_note)
-        doc['meta']['conversion_notes'] = notes
-    doc['meta']['conversion_exact'] = not issues
+        # de-dupe by url
+        seen = set()
+        uniq = []
+        for rec in (doc.get('learner', {}).get('media') or []) + learner_media:
+            if rec['url'] in seen:
+                continue
+            seen.add(rec['url'])
+            uniq.append(rec)
+        doc['learner']['media'] = uniq
     if issues:
-        doc['meta']['reviewer_needed'] = True
-        flags = list(doc['meta'].get('flags') or [])
-        flags.append('v2 conversion not exact; see cannot-convert report')
-        doc['meta']['flags'] = flags
+        doc['answer']['reviewer_needed'] = True
     for rec in issues:
         rec['exam_key'] = exam_key or item.get('exam_key') or ''
         rec['v2_type'] = typ
+        if legacy:
+            rec['legacy_answer_key_status'] = legacy
+        if type_note:
+            rec.setdefault('notes', type_note)
+    # stash migration flags for tests / summary (stripped before write)
+    doc['_migration'] = {
+        'legacy_answer_key_status': legacy,
+        'conversion_exact': not issues,
+        'type_note': type_note,
+    }
     return doc, issues
 
 
@@ -766,7 +734,10 @@ def extract_package_zip(zip_path: Path, dest: Path) -> Path:
 
 def migrate_bank(bank_path: Path, out_dir: Path, *, media_csv: Path | None,
                  visual_draft: Path | None, visual_transcription: Path | None,
-                 media_dir: Path | None, src_root: Path | None) -> dict:
+                 media_dir: Path | None, src_root: Path | None,
+                 exams_csv: Path | None = None, domains_csv: Path | None = None,
+                 vendors_csv: Path | None = None, research_path: Path | None = None,
+                 simulator_path: Path | None = None) -> dict:
     bank = load_json(bank_path)
     items = bank.get('questions') or []
     exam_key = bank.get('exam_key')
@@ -778,13 +749,26 @@ def migrate_bank(bank_path: Path, out_dir: Path, *, media_csv: Path | None,
         draft_index = {}
     if not isinstance(trans_index, dict):
         trans_index = {}
+    found = ex.discover_sidecars(bank_path, src_root)
+    exams_csv = exams_csv or found.get('exams_csv')
+    domains_csv = domains_csv or found.get('domains_csv')
+    vendors_csv = vendors_csv or found.get('vendors_csv')
+    simulator_path = simulator_path or found.get('simulator')
+    domain_names = ex.load_domain_names(domains_csv)
+    simulator = load_json(simulator_path) if simulator_path and Path(simulator_path).is_file() else None
+    research = load_json(research_path) if research_path and Path(research_path).is_file() else None
+    exam = ex.build_exam_section(
+        bank, exams_csv=exams_csv, domains_csv=domains_csv,
+        vendors_csv=vendors_csv, research=research, simulator=simulator,
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
     types = Counter()
     statuses = Counter()
     exact = 0
     image_items = 0
     issues: list[dict] = []
-    written = []
+    questions = []
+    legacy_counts = Counter()
     for item in items:
         key = item['question_key']
         doc, item_issues = migrate_item(
@@ -796,6 +780,7 @@ def migrate_bank(bank_path: Path, out_dir: Path, *, media_csv: Path | None,
             draft=draft_index.get(key),
             trans=trans_index.get(key),
             excluded=excluded,
+            domain_names=domain_names,
         )
         if is_image_item(item, media_index.get(key) or [], draft_index.get(key)):
             image_items += 1
@@ -804,28 +789,36 @@ def migrate_bank(bank_path: Path, out_dir: Path, *, media_csv: Path | None,
         else:
             exact += 1
         types[doc['type']] += 1
-        statuses[doc['meta']['answer_key_status']] += 1
-        dest = out_dir / f"{doc['question_key']}.v{doc['version']}.json"
-        dest.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + '\n', encoding='utf-8', newline='\n')
-        written.append(dest)
+        statuses[doc['answer']['status']] += 1
+        mig = doc.pop('_migration', {}) or {}
+        if mig.get('legacy_answer_key_status'):
+            legacy_counts[mig['legacy_answer_key_status']] += 1
+        questions.append(doc)
+    exam_doc = ex.wrap_exam(exam, questions)
+    dest = out_dir / f"{exam['exam_code']}.site-format.v2.json"
+    dest.write_text(json.dumps(exam_doc, indent=2, ensure_ascii=False) + '\n', encoding='utf-8', newline='\n')
+    ext = ex.count_external_references(exam_doc)
     summary = {
         'exam_key': exam_key,
+        'exam_code': exam['exam_code'],
         'source': str(bank_path),
-        'count': len(written),
+        'output': str(dest),
+        'count': len(questions),
         'held_for_review': bank.get('held_for_review') or [],
         'types': dict(types),
-        'answer_key_status': dict(statuses),
+        'answer_status': dict(statuses),
+        'legacy_answer_key_status': dict(legacy_counts),
         'image_items': image_items,
         'converted_exactly': exact,
         'cannot_convert': len({r['question_key'] for r in issues}),
         'cannot_convert_records': len(issues),
-        'record_status': 'draft',
-        'schema_version': 'question.v2',
+        'external_reference_links': len(ext),
+        'external_reference_urls': ext,
     }
     (out_dir / 'migrate-summary.json').write_text(
         json.dumps(summary, indent=2, ensure_ascii=False) + '\n', encoding='utf-8', newline='\n'
     )
-    return {'summary': summary, 'issues': issues, 'written': written}
+    return {'summary': summary, 'issues': issues, 'written': [dest], 'document': exam_doc}
 
 
 def main(argv=None):
@@ -887,9 +880,10 @@ def main(argv=None):
     json_path, md_path = write_cannot_convert(
         args.cannot_convert, result['issues'], args.append, result['summary']
     )
-    print(f"wrote {result['summary']['count']} files to {args.out}")
+    print(f"wrote {result['summary']['count']} questions to {result['summary'].get('output') or args.out}")
     print('types', result['summary']['types'])
-    print('answer_key_status', result['summary']['answer_key_status'])
+    print('answer_status', result['summary']['answer_status'])
+    print('external_reference_links', result['summary'].get('external_reference_links', 0))
     print('image_items', result['summary']['image_items'])
     print('converted_exactly', result['summary']['converted_exactly'])
     print('cannot_convert', result['summary']['cannot_convert'], 'records', result['summary']['cannot_convert_records'])

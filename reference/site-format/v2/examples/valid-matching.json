@@ -1,68 +1,65 @@
 {
-  "schema_version": "question.v2",
-  "question_key": "ex-match-001",
-  "version": 1,
-  "type": "matching",
-  "learner": {
-    "stem": {
-      "format": "plain",
-      "text": "Match each artifact to the stage that produces it."
-    },
-    "interaction": {
-      "left": [
-        {
-          "id": "l1",
-          "text": "catalog.csv"
-        },
-        {
-          "id": "l2",
-          "text": "questions.json"
-        },
-        {
-          "id": "l3",
-          "text": "page_prose.json"
-        }
-      ],
-      "right": [
-        {
-          "id": "r1",
-          "text": "catalog"
-        },
-        {
-          "id": "r2",
-          "text": "bank"
-        },
-        {
-          "id": "r3",
-          "text": "author"
-        }
-      ]
-    }
-  },
-  "answer": {
-    "answer_key": {
-      "pairs": {
-        "l1": "r1",
-        "l2": "r2",
-        "l3": "r3"
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-MT",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
+      {
+        "name": "Format examples",
+        "weight": 100
       }
-    },
-    "explanation": {
-      "core": "Toy explanation for a format example. Not a real exam item."
-    },
-    "partial_credit": {
-      "mode": "per_item",
-      "max_points": 1
-    }
+    ]
   },
-  "meta": {
-    "answer_key_status": "owner_key",
-    "key_source": "owner_file",
-    "research_evidence": [],
-    "verification_status": "unverified",
-    "reviewer_needed": false,
-    "question_sources": [],
-    "scoring_excluded": false,
-    "record_status": "draft"
-  }
+  "questions": [
+    {
+      "question_key": "ex-match-001",
+      "version": 1,
+      "type": "matching",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Match each fact to its official source."
+              }
+            ]
+          }
+        ],
+        "interaction": {
+          "matching_pairs": [
+            [
+              "Passing score",
+              "Official exam guide"
+            ],
+            [
+              "Skill weights",
+              "Official skills outline"
+            ]
+          ]
+        }
+      },
+      "answer": {
+        "answer_key": {
+          "a": "x",
+          "b": "y"
+        },
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

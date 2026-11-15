@@ -1,89 +1,82 @@
 {
-  "schema_version": "question.v2",
-  "question_key": "ex-hot-001",
-  "version": 1,
-  "type": "hotspot_single",
-  "learner": {
-    "stem": {
-      "format": "plain",
-      "text": "Select the region that marks the Sources information icon."
-    },
-    "interaction": {
-      "media_id": "img1",
-      "regions": [
-        {
-          "id": "r1",
-          "shape": "rect",
-          "coords": [
-            10,
-            10,
-            40,
-            40
-          ],
-          "label": "Home"
-        },
-        {
-          "id": "r2",
-          "shape": "rect",
-          "coords": [
-            80,
-            10,
-            40,
-            40
-          ],
-          "label": "Sources"
-        },
-        {
-          "id": "r3",
-          "shape": "rect",
-          "coords": [
-            10,
-            80,
-            40,
-            40
-          ],
-          "label": "Settings"
-        }
-      ]
-    },
-    "media": [
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-HS",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
       {
-        "id": "img1",
-        "kind": "image",
-        "alt": "A settings window with Home, Sources, and Settings icons.",
-        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "href": "/storage/examples/hotspot-demo.png",
-        "role": "exhibit",
-        "original_asset": {
-          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-          "href": "/storage/examples/hotspot-demo-original.png",
-          "note": "Original screenshot kept as a reference asset."
-        }
+        "name": "Format examples",
+        "weight": 100
       }
     ]
   },
-  "answer": {
-    "answer_key": {
-      "region_ids": [
-        "r2"
-      ]
-    },
-    "explanation": {
-      "core": "Toy explanation for a format example. Not a real exam item."
-    },
-    "partial_credit": {
-      "mode": "all_or_nothing",
-      "max_points": 1
+  "questions": [
+    {
+      "question_key": "ex-hot-001",
+      "version": 1,
+      "type": "hotspot_single",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Select the region that names the official exam guide."
+              }
+            ]
+          }
+        ],
+        "media": [
+          {
+            "url": "/storage/media/ex-hotspot.png",
+            "alt": "A labelled diagram of two source boxes."
+          }
+        ],
+        "interaction": {
+          "hotspot_regions": [
+            {
+              "id": "h1",
+              "label": "Seller cover page",
+              "shape": "rect",
+              "coords": [
+                0.05,
+                0.05,
+                0.4,
+                0.4
+              ]
+            },
+            {
+              "id": "h2",
+              "label": "Official exam guide",
+              "shape": "rect",
+              "coords": [
+                0.5,
+                0.05,
+                0.4,
+                0.4
+              ]
+            }
+          ]
+        }
+      },
+      "answer": {
+        "answer_key": "h2",
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
     }
-  },
-  "meta": {
-    "answer_key_status": "owner_key",
-    "key_source": "owner_file",
-    "research_evidence": [],
-    "verification_status": "unverified",
-    "reviewer_needed": false,
-    "question_sources": [],
-    "scoring_excluded": false,
-    "record_status": "draft"
-  }
+  ]
 }

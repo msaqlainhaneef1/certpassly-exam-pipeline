@@ -1,45 +1,89 @@
 {
-  "schema_version": "question.v2",
-  "question_key": "ex-scen-001",
-  "version": 1,
-  "type": "scenario_standalone",
-  "learner": {
-    "stem": {
-      "format": "plain",
-      "text": "A consultant must design a Data 360 segment for a retail campaign. Use the child questions to complete the case."
-    },
-    "interaction": {
-      "child_question_keys": [
-        "ex-single-001",
-        "ex-multi-001"
-      ],
-      "context": "Retail campaign case (toy example)."
-    }
+  "exam": {
+    "vendor": "Example Vendor",
+    "certification": "Example Certification",
+    "exam_code": "EX-SS",
+    "name": "Example exam (format only, not a real exam item)",
+    "domains": [
+      {
+        "name": "Format examples",
+        "weight": 100
+      }
+    ]
   },
-  "answer": {
-    "answer_key": {
-      "note": "Children are graded on their own keys.",
-      "child_keys": [
-        "ex-single-001",
-        "ex-multi-001"
-      ]
-    },
-    "explanation": {
-      "core": "Toy explanation for a format example. Not a real exam item."
-    },
-    "partial_credit": {
-      "mode": "all_or_nothing",
-      "max_points": 1
+  "questions": [
+    {
+      "question_key": "ex-scene-001",
+      "version": 1,
+      "type": "scenario_standalone",
+      "domain": "Format examples",
+      "learner": {
+        "stem": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "A consultant is preparing from the official exam guide. Which source should they trust for the passing score?"
+              }
+            ]
+          }
+        ],
+        "content_blocks": [
+          {
+            "type": "case_study",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "text": "The consultant has a seller cover page and the official vendor exam guide. Only the official guide states the passing score."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "choices": [
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "The seller cover page"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "The official vendor exam guide"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "answer": {
+        "answer_key": [
+          1
+        ],
+        "status": "owner_key",
+        "scoring_excluded": false,
+        "reviewer_needed": false,
+        "explanation": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "text": "Toy explanation for a format example. Not a real exam item."
+              }
+            ]
+          }
+        ]
+      }
     }
-  },
-  "meta": {
-    "answer_key_status": "owner_key",
-    "key_source": "owner_file",
-    "research_evidence": [],
-    "verification_status": "unverified",
-    "reviewer_needed": false,
-    "question_sources": [],
-    "scoring_excluded": false,
-    "record_status": "draft"
-  }
+  ]
 }
