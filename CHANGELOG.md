@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.0.dev3 (pre-release)
+
+A config-driven fidelity gate now sits on the technical export. No exam-specific rules, no AI, no web.
+
+- `config/fidelity.json` (thresholds also mirrored under `config/ocr.json` `fidelity`) requires 100 percent word coverage of the scrubbed PDF text block plus high-confidence image OCR words against every word in the exported question (stem, choices, content blocks, matrix rows and columns, cloze segments and blanks, image alt). Extra words hold the item. Brand and boilerplate come only from the shared denylist, and Correct Answer / Section / Explanation labels are stripped.
+- Image OCR runs twice (two psm or preprocessing settings). Every word must be at or above the per-word threshold (default 90) and overall confidence at or above 95. The two passes must agree on the text. Otherwise the question is held with the low words or the disagreement in the reason.
+- Type certainty: export only when exactly one type rule matches and the interaction shape agrees with the answer key (matrix rows equal key rows, choose-N wording equals the key count, every cloze blank has a key). Type rules in `config/question_type_rules.json` are mutually exclusive (`any`, `none`, `not_all`).
+- Answer key certainty: the key must come from the text layer or from a pixel mark that passes two methods, and it must map to existing choice, row or blank ids. The key is never inferred. Items with no certain key are held, not exported as a guessed or empty key.
+- Python and site PHP SchemaValidator checks still run on every exported question.
+- Each exam writes `export/fidelity.json` and `export/fidelity.md` with one line per question: exported or held, coverage percent, OCR minimum word confidence, type rule, key source and reason.
+- Tests: `tests/test_fidelity.py`. Package version is `1.2.0.dev3`. Still a pre-release. Do not merge to main or tag `v1.2.0` from this commit.
+
+
 ## 1.2.0.dev2 (pre-release)
 
 The default pipeline run is now a technical, offline path from the owner PDF to one site v2 exam file. Search, explanations, page prose and AI stay on a separate command.

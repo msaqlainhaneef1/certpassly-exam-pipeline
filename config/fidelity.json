@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "enabled": true,
+  "require_100_percent_coverage": true,
+  "forbid_extra_words": true,
+  "require_unique_type_rule": true,
+  "require_certain_key": true,
+  "allow_answer_not_found": false,
+  "token_pattern": "[A-Za-z0-9]+",
+  "case_sensitive": false,
+  "ocr": {
+    "min_word_confidence": 90,
+    "min_overall_confidence": 95,
+    "require_pass_agreement": true,
+    "passes": [
+      {"id": "psm3", "psm": 3, "scale": 2, "preprocess": "none"},
+      {"id": "psm6", "psm": 6, "scale": 2, "preprocess": "threshold"}
+    ]
+  },
+  "key": {
+    "text_sources": ["answer_raw"],
+    "pixel_methods": ["marker_box", "highlight", "checked_box"],
+    "min_agreeing_methods": 2
+  },
+  "strip_line_patterns": [
+    "^QUESTION\\s+\\d+\\s*$",
+    "^Question\\s+\\d+\\s*[:.)\\-]?\\s*$",
+    "^Q(?:uestion)?\\s*\\.?\\s*\\d+\\s*[:.)]?\\s*$",
+    "^Correct Answers?:\\s*.*$",
+    "^(?:Answer|ANSWER)\\s*:\\s*.*$",
+    "^Section:.*$",
+    "^Explanation.*$",
+    "^Explanation/Reference:.*$",
+    "^References?:\\s*$"
+  ],
+  "strip_option_prefix": "^[A-H][\\.\\):]\\s*",
+  "strip_labels": [
+    "Correct Answer",
+    "Correct Answers",
+    "Section",
+    "Explanation",
+    "Explanation/Reference",
+    "Reference",
+    "References"
+  ],
+  "use_brand_denylist": true,
+  "use_contact_patterns": true
+}

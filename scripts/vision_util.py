@@ -168,11 +168,16 @@ def mean_confidence(lines):
     return sum(vals) / len(vals)
 
 
-def ocr_lines_configured(path, cfg=None):
-    """OCR one image using settings from config/ocr.json."""
+def ocr_lines_configured(path, cfg=None, psm=None, preprocess=None, scale=None):
+    """OCR one image using settings from config/ocr.json.
+
+    psm, preprocess and scale override the config when given (used for the
+    second fidelity pass). preprocess: none | threshold | invert | invert_threshold.
+    """
     cfg = cfg or load_ocr_config()
-    scale = float(cfg.get('scale') or 2)
-    psm = str(cfg.get('psm') or 3)
+    scale = float(cfg.get('scale') or 2) if scale is None else float(scale)
+    psm = str(cfg.get('psm') or 3) if psm is None else str(psm)
+    preprocess = (preprocess if preprocess is not None else cfg.get('preprocess')) or 'none'
     lang = cfg.get('lang') or 'eng'
     timeout = int(cfg.get('tesseract_timeout_seconds') or 60)
     g = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
@@ -180,7 +185,14 @@ def ocr_lines_configured(path, cfg=None):
         return [], (0, 0), None
     H, W = g.shape
     big = cv2.resize(g, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
-    tmp = path + '.ocr.png'
+    if preprocess == 'threshold':
+        _, big = cv2.threshold(big, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    elif preprocess == 'invert':
+        big = 255 - big
+    elif preprocess == 'invert_threshold':
+        big = 255 - big
+        _, big = cv2.threshold(big, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    tmp = path + '.ocr-%s-%s.png' % (psm, preprocess)
     cv2.imwrite(tmp, big)
     import os, shutil
     if not shutil.which('tesseract'):

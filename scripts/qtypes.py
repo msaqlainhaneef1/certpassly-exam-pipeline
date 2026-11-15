@@ -1,7 +1,9 @@
 """Question-type registry and table-driven type rules.
 
-Rules live in config/question_type_rules.json (not per exam). First matching
-rule wins. If no rule fits exactly, the item is held; the type is never guessed.
+Rules live in config/question_type_rules.json (not per exam). All matching
+rules are recorded. The first match still supplies the type for the bank path;
+the fidelity gate exports only when exactly one rule matches. If no rule fits
+exactly, the item is held; the type is never guessed.
 This module never reads the app repo or a PHP file.
 """
 from __future__ import annotations
@@ -131,6 +133,17 @@ def _condition(cond, item, visual, marks):
         return False
     if 'visual_has' in cond and not vis.get(cond['visual_has']):
         return False
+    if 'option_texts_not_in' in cond:
+        vals = _norm_option_texts(item)
+        banned = {frozenset(group) for group in cond['option_texts_not_in']}
+        if vals in banned:
+            return False
+    if 'not_marker' in cond and cond['not_marker'] in marks:
+        return False
+    if 'not_markers_any' in cond and any(m in marks for m in cond['not_markers_any']):
+        return False
+    if 'not_markers_all' in cond and all(m in marks for m in cond['not_markers_all']):
+        return False
     if 'visual_regions_min' in cond:
         regions = vis.get('regions') or vis.get('hotspot_regions') or []
         if len(regions) < int(cond['visual_regions_min']):
@@ -145,6 +158,31 @@ def _condition(cond, item, visual, marks):
         if n < int(cond['answer_region_count_min']):
             return False
     return True
+
+
+
+def _rule_matches(rule, item, visual, marks):
+    alls = rule.get('all') or []
+    anys = rule.get('any') or []
+    if alls and not all(_condition(c, item, visual, marks) for c in alls):
+        return False
+    if anys and not any(_condition(c, item, visual, marks) for c in anys):
+        return False
+    for cond in (rule.get('none') or []):
+        if _condition(cond, item, visual, marks):
+            return False
+    for group in (rule.get('not_all') or []):
+        if group and all(_condition(c, item, visual, marks) for c in group):
+            return False
+    # A rule with no positive conditions must not match everything.
+    return bool(alls or anys)
+
+
+def matching_rules(item, visual=None, rules=None):
+    """Every rule whose conditions match. Order is the config order."""
+    rules = rules or load_rules()
+    marks = markers(item.get('stem') or '', rules)
+    return [rule for rule in (rules.get('rules') or []) if _rule_matches(rule, item, visual, marks)]
 
 
 def _hold_reasons(rules, item, visual, marks, ocr=None, min_confidence=None):
@@ -192,38 +230,42 @@ def classify_detailed(item, visual=None, ocr=None, rules=None, min_confidence=No
     hard = [n for n in hold_notes if n.startswith('OCR confidence') or 'tesseract is not installed' in n or 'needs OCR' in n]
     if hard and not (item.get('options') or {}):
         return dict(type=None, reason=hard[0], held=True, hold_reasons=hold_notes,
-                    rule_id=None, markers=marks)
-    for rule in rules.get('rules') or []:
-        conds = rule.get('all') or []
-        if conds and all(_condition(c, item, visual, marks) for c in conds):
-            typ = rule.get('type')
-            if typ not in types:
-                reason = 'rule %s names type %s, which is not in the registry' % (rule.get('id'), typ)
-                return dict(type=None, reason=reason, held=True, hold_reasons=hold_notes + [reason],
-                            rule_id=rule.get('id'), markers=marks)
-            # A matching rule still holds when required layout is uncertain.
-            layout_holds = [n for n in hold_notes if typ in n or 'not read reliably' in n or 'not reliable' in n]
-            if typ == 'yes_no_matrix':
-                layout_holds = [n for n in hold_notes if 'matrix rows' in n or 'Yes/No marker' in n]
-            if typ in ('inline_dropdown', 'multi_blank_dropdown'):
-                layout_holds = [n for n in hold_notes if 'blanks' in n]
-            if typ in ('hotspot_single', 'hotspot_multi'):
-                layout_holds = [n for n in hold_notes if 'regions' in n]
-            if typ == 'drag_drop':
-                layout_holds = [n for n in hold_notes if 'pairs' in n]
-            if layout_holds:
-                return dict(type=typ, reason=layout_holds[0], held=True, hold_reasons=hold_notes,
-                            rule_id=rule.get('id'), markers=marks)
-            if ocr and ocr.get('uncertain_marks') and typ in ('yes_no_matrix', 'inline_dropdown', 'multi_blank_dropdown', 'hotspot_single', 'hotspot_multi', 'drag_drop', 'active_screen'):
-                return dict(type=typ, reason=hold_notes[0] if hold_notes else 'uncertain answer marks',
-                            held=True, hold_reasons=hold_notes, rule_id=rule.get('id'), markers=marks)
-            return dict(type=typ, reason=rule.get('reason') or ('rule ' + str(rule.get('id'))),
-                        held=False, hold_reasons=[], rule_id=rule.get('id'), markers=marks)
+                    rule_id=None, matched_rules=[], markers=marks)
+    matched = [rule for rule in (rules.get('rules') or []) if _rule_matches(rule, item, visual, marks)]
+    matched_ids = [rule.get('id') for rule in matched]
+    hard_base = dict(matched_rules=matched_ids, markers=marks)
+    if hard and not (item.get('options') or {}):
+        # already returned above; keep matched_rules on that path too
+        pass
+    for rule in matched:
+        typ = rule.get('type')
+        if typ not in types:
+            reason = 'rule %s names type %s, which is not in the registry' % (rule.get('id'), typ)
+            return dict(type=None, reason=reason, held=True, hold_reasons=hold_notes + [reason],
+                        rule_id=rule.get('id'), **hard_base)
+        # A matching rule still holds when required layout is uncertain.
+        layout_holds = [n for n in hold_notes if typ in n or 'not read reliably' in n or 'not reliable' in n]
+        if typ == 'yes_no_matrix':
+            layout_holds = [n for n in hold_notes if 'matrix rows' in n or 'Yes/No marker' in n]
+        if typ in ('inline_dropdown', 'multi_blank_dropdown'):
+            layout_holds = [n for n in hold_notes if 'blanks' in n]
+        if typ in ('hotspot_single', 'hotspot_multi'):
+            layout_holds = [n for n in hold_notes if 'regions' in n]
+        if typ == 'drag_drop':
+            layout_holds = [n for n in hold_notes if 'pairs' in n]
+        if layout_holds:
+            return dict(type=typ, reason=layout_holds[0], held=True, hold_reasons=hold_notes,
+                        rule_id=rule.get('id'), **hard_base)
+        if ocr and ocr.get('uncertain_marks') and typ in ('yes_no_matrix', 'inline_dropdown', 'multi_blank_dropdown', 'hotspot_single', 'hotspot_multi', 'drag_drop', 'active_screen'):
+            return dict(type=typ, reason=hold_notes[0] if hold_notes else 'uncertain answer marks',
+                        held=True, hold_reasons=hold_notes, rule_id=rule.get('id'), **hard_base)
+        return dict(type=typ, reason=rule.get('reason') or ('rule ' + str(rule.get('id'))),
+                    held=False, hold_reasons=[], rule_id=rule.get('id'), **hard_base)
     reason = (rules.get('hold') or {}).get('no_rule_matched', 'no type rule matched; type was not guessed')
     if hold_notes:
         reason = hold_notes[0]
     return dict(type=None, reason=reason, held=True, hold_reasons=hold_notes or [reason],
-                rule_id=None, markers=marks)
+                rule_id=None, **hard_base)
 
 
 def classify(item, visual=None):

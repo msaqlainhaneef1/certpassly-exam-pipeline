@@ -58,21 +58,100 @@ def raster_page(pdf, dest, page, dpi, prefix='page'):
     return None
 
 
+def _words_from_lines(lines):
+    words = []
+    for l in lines or []:
+        for w in l.get('words') or []:
+            tok = w.get('t') or w.get('text') or ''
+            if not str(tok).strip():
+                continue
+            try:
+                conf = float(w.get('conf'))
+            except (TypeError, ValueError):
+                continue
+            words.append(dict(text=str(tok).strip(), conf=round(conf, 1),
+                              x=w.get('x'), y=w.get('y')))
+        if not l.get('words') and (l.get('text') or '').strip():
+            words.append(dict(text=l['text'].strip(), conf=float(l.get('minconf') or 0)))
+    return words
+
+
+def _norm_ocr_text(text):
+    return ' '.join(re.findall(r'[A-Za-z0-9]+', (text or '').lower()))
+
+
+def ocr_pass(path, cfg, spec):
+    """One OCR pass. spec may override psm, scale and preprocess."""
+    spec = spec or {}
+    pass_cfg = dict(cfg or {})
+    if 'psm' in spec:
+        pass_cfg['psm'] = spec['psm']
+    if 'scale' in spec:
+        pass_cfg['scale'] = spec['scale']
+    preprocess = spec.get('preprocess') or 'none'
+    # Keep every word so the fidelity gate can apply its own threshold.
+    pass_cfg['min_word_confidence'] = 0
+    lines, size, mean = V.ocr_lines_configured(
+        path, pass_cfg, psm=pass_cfg.get('psm'), preprocess=preprocess,
+        scale=pass_cfg.get('scale'))
+    words = _words_from_lines(lines)
+    text = ' '.join(l['text'] for l in lines if (l.get('text') or '').strip())
+    minc = min((w['conf'] for w in words), default=None)
+    return dict(
+        id=spec.get('id') or 'pass',
+        text=text,
+        words=words,
+        lines=lines,
+        size=size,
+        mean_confidence=None if mean is None else round(float(mean), 1),
+        min_confidence=None if minc is None else round(float(minc), 1),
+        psm=pass_cfg.get('psm'),
+        preprocess=preprocess,
+    )
+
+
+def fidelity_passes(cfg):
+    fid = (cfg or {}).get('fidelity') or {}
+    passes = fid.get('passes')
+    if passes:
+        return list(passes)
+    return [dict(id='primary', psm=cfg.get('psm') or 3, scale=cfg.get('scale') or 2, preprocess='none')]
+
+
 def ocr_image(media, fname, cfg, role):
     path = os.path.join(media, fname)
-    rec = dict(file=fname, role=role, lines=[], mean_confidence=None, min_confidence=None, word_count=0, notes=[])
+    rec = dict(file=fname, role=role, lines=[], mean_confidence=None, min_confidence=None,
+               word_count=0, notes=[], words=[], passes={}, agree=True)
     if not os.path.isfile(path):
         rec['notes'].append('image file missing')
-        return rec
-    lines, size, mean = V.ocr_lines_configured(path, cfg)
+        return rec, []
+    passes = fidelity_passes(cfg)
+    primary = None
+    norms = []
+    for spec in passes:
+        result = ocr_pass(path, cfg, spec)
+        pid = result['id']
+        rec['passes'][pid] = dict(text=result['text'], mean_confidence=result['mean_confidence'],
+                                  min_confidence=result['min_confidence'],
+                                  psm=result['psm'], preprocess=result['preprocess'],
+                                  word_count=len(result['words']))
+        norms.append(_norm_ocr_text(result['text']))
+        if primary is None:
+            primary = result
+    lines = (primary or {}).get('lines') or []
+    size = (primary or {}).get('size') or (0, 0)
     rec['size'] = list(size)
     rec['lines'] = [dict(t=l['text'], x=round(l['x'], 3), y=round(l['y'], 3),
                          x1=round(l['x1'], 3), y1=round(l['y1'], 3), c=int(l['minconf']))
                     for l in lines]
-    rec['mean_confidence'] = None if mean is None else round(float(mean), 1)
-    if lines:
-        rec['min_confidence'] = round(min(float(l['minconf']) for l in lines), 1)
-        rec['word_count'] = sum(len(l.get('words') or l['text'].split()) for l in lines)
+    rec['words'] = (primary or {}).get('words') or []
+    rec['mean_confidence'] = (primary or {}).get('mean_confidence')
+    rec['min_confidence'] = (primary or {}).get('min_confidence')
+    rec['word_count'] = len(rec['words'])
+    rec['agree'] = len(set(norms)) <= 1
+    if not rec['agree']:
+        rec['notes'].append('OCR passes disagree')
+    rec['text'] = (primary or {}).get('text') or ''
     return rec, lines
 
 
@@ -310,10 +389,11 @@ def process_item(rec, media, pdf, cfg, tess_ok):
     if rec.get('question_images') != qimg and qimg:
         rec['question_images'] = qimg
 
+    item_agree = all(im.get('agree', True) for im in images) if images else True
     item_ocr = dict(question_key=rec['question_key'], images=images, confidence=mean,
                     min_confidence=minc, marks=marks, notes=notes, missing_tesseract=False,
                     stem_filled_from_ocr=stem_filled, options_filled_from_ocr=options_filled,
-                    table=table, uncertain_marks=uncertain)
+                    table=table, uncertain_marks=uncertain, agree=item_agree)
     rec['ocr_confidence'] = mean
     rec['ocr_min_confidence'] = minc
     return item_ocr, rec

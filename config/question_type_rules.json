@@ -31,10 +31,15 @@
       ]
     },
     "hotspot": {
-      "patterns": ["^HOTSPOT\\b"]
+      "patterns": [
+        "^HOTSPOT\\b"
+      ]
     },
     "dragdrop": {
-      "patterns": ["DRAG DROP", "drag (each|the) "]
+      "patterns": [
+        "DRAG DROP",
+        "drag (each|the) "
+      ]
     }
   },
   "rules": [
@@ -42,9 +47,24 @@
       "id": "true_false",
       "type": "true_false",
       "all": [
-        {"has_options": true},
-        {"option_count": 2},
-        {"option_texts_in": [["true", "false"], ["yes", "no"]]}
+        {
+          "has_options": true
+        },
+        {
+          "option_count": 2
+        },
+        {
+          "option_texts_in": [
+            [
+              "true",
+              "false"
+            ],
+            [
+              "yes",
+              "no"
+            ]
+          ]
+        }
       ],
       "reason": "two True/False or Yes/No options"
     },
@@ -52,70 +72,152 @@
       "id": "image_based_choice",
       "type": "image_based_choice",
       "all": [
-        {"has_options": true},
-        {"marker": "exhibit"},
-        {"has_question_image": true},
-        {"answer_letter_count_max": 1}
+        {
+          "has_options": true
+        },
+        {
+          "marker": "exhibit"
+        },
+        {
+          "has_question_image": true
+        },
+        {
+          "answer_letter_count_max": 1
+        }
       ],
       "reason": "lettered options with an exhibit image"
     },
     {
-      "id": "multiple_select_from_key",
+      "id": "multiple_select",
       "type": "multiple_select",
       "all": [
-        {"has_options": true},
-        {"answer_letter_count_min": 2}
+        {
+          "has_options": true
+        }
       ],
-      "reason": "more than one answer letter in the owner key"
-    },
-    {
-      "id": "multiple_select_from_stem",
-      "type": "multiple_select",
-      "all": [
-        {"has_options": true},
-        {"marker": "multi"}
+      "any": [
+        {
+          "answer_letter_count_min": 2
+        },
+        {
+          "marker": "multi"
+        }
       ],
-      "reason": "stem asks for more than one choice"
+      "not_all": [
+        [
+          {
+            "marker": "exhibit"
+          },
+          {
+            "has_question_image": true
+          },
+          {
+            "answer_letter_count_max": 1
+          }
+        ]
+      ],
+      "reason": "more than one answer letter in the owner key, or the stem asks for more than one choice"
     },
     {
       "id": "single_choice",
       "type": "single_choice",
-      "all": [{"has_options": true}],
+      "all": [
+        {
+          "has_options": true
+        },
+        {
+          "answer_letter_count_max": 1
+        }
+      ],
+      "none": [
+        {
+          "option_texts_in": [
+            [
+              "true",
+              "false"
+            ],
+            [
+              "yes",
+              "no"
+            ]
+          ]
+        },
+        {
+          "marker": "multi"
+        },
+        {
+          "markers_any": [
+            "yes_no",
+            "dropdown",
+            "dragdrop"
+          ]
+        }
+      ],
+      "not_all": [
+        [
+          {
+            "marker": "exhibit"
+          },
+          {
+            "has_question_image": true
+          }
+        ]
+      ],
       "reason": "lettered options; at most one answer letter"
     },
     {
       "id": "yes_no_matrix",
       "type": "yes_no_matrix",
       "all": [
-        {"marker": "yes_no"},
-        {"visual_rows_min": 1}
+        {
+          "marker": "yes_no"
+        },
+        {
+          "visual_rows_min": 1
+        }
       ],
       "reason": "Yes/No statement grid from OCR or layout"
     },
     {
       "id": "inline_dropdown",
       "type": "inline_dropdown",
-      "all": [{"visual_blanks": 1}],
+      "all": [
+        {
+          "visual_blanks": 1
+        }
+      ],
       "reason": "one drop-down in the answer area"
     },
     {
       "id": "multi_blank_dropdown",
       "type": "multi_blank_dropdown",
-      "all": [{"visual_blanks_min": 2}],
+      "all": [
+        {
+          "visual_blanks_min": 2
+        }
+      ],
       "reason": "two or more drop-downs in the answer area"
     },
     {
       "id": "active_screen",
       "type": "active_screen",
-      "all": [{"visual_type": "active_screen"}],
+      "all": [
+        {
+          "visual_type": "active_screen"
+        }
+      ],
       "reason": "boxed controls on a mock screen"
     },
     {
       "id": "drag_drop",
       "type": "drag_drop",
       "all": [
-        {"marker": "dragdrop"},
-        {"visual_has": "pairs"}
+        {
+          "marker": "dragdrop"
+        },
+        {
+          "visual_has": "pairs"
+        }
       ],
       "reason": "drag and drop pairs from the layout"
     },
@@ -123,9 +225,15 @@
       "id": "hotspot_multi",
       "type": "hotspot_multi",
       "all": [
-        {"marker": "hotspot"},
-        {"visual_regions_min": 2},
-        {"answer_region_count_min": 2}
+        {
+          "marker": "hotspot"
+        },
+        {
+          "visual_regions_min": 2
+        },
+        {
+          "answer_region_count_min": 2
+        }
       ],
       "reason": "hotspot with more than one marked region"
     },
@@ -133,8 +241,12 @@
       "id": "hotspot_single",
       "type": "hotspot_single",
       "all": [
-        {"marker": "hotspot"},
-        {"visual_regions_min": 1}
+        {
+          "marker": "hotspot"
+        },
+        {
+          "visual_regions_min": 1
+        }
       ],
       "reason": "hotspot with a single region"
     }

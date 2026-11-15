@@ -9,6 +9,8 @@ and catalog.csv. Writes:
   {exam}.site-format.v2.json
   export/technical_report.json
   export/cannot-convert.json
+  export/fidelity.json
+  export/fidelity.md
   questions.json  (minimal technical bank for a later research pass)
 
 Exam header comes from the catalog only. Explanation is omitted. Items with
@@ -25,6 +27,7 @@ import paths
 import qtypes
 import export_question_v2 as E
 import vision_util as V
+import fidelity
 
 DEFAULT_DOMAIN = 'Unassigned'
 
@@ -75,18 +78,18 @@ def letter_indexes(answer_raw, n_options):
 
 
 def alt_for(item, ocr_item, fname):
+    """Alt text must come from OCR words only. Never invent a caption."""
     lines = []
+    words = []
     for im in (ocr_item or {}).get('images') or []:
         if im.get('file') == fname:
             lines = [ln.get('t') for ln in (im.get('lines') or []) if (ln.get('t') or '').strip()]
+            words = [w.get('text') for w in (im.get('words') or []) if (w.get('text') or '').strip()]
+            if im.get('text'):
+                words = words or [im.get('text')]
             break
-    text = ' '.join(lines).strip()
-    if text:
-        return text[:180]
-    stem = (item.get('stem') or '').strip()
-    if stem:
-        return 'Supporting exhibit for this question.'
-    return 'Supporting exhibit from the owner file.'
+    text = ' '.join(words).strip() or ' '.join(lines).strip()
+    return text or None
 
 
 def media_list(item, exam_code, ocr_item):
@@ -95,7 +98,11 @@ def media_list(item, exam_code, ocr_item):
         url = E.site_media_url(f'{exam_code}/media/{os.path.basename(fn)}')
         if not url:
             continue
-        out.append({'url': url, 'alt': alt_for(item, ocr_item, fn)})
+        alt = alt_for(item, ocr_item, fn)
+        if not alt:
+            # Invented captions would fail the extra-word coverage check.
+            continue
+        out.append({'url': url, 'alt': alt})
     return out
 
 
@@ -291,7 +298,7 @@ def strip_private(learner):
     return learner
 
 
-def export_one(item, visual, ocr_item, exam_code, domain, min_conf):
+def export_one(item, visual, ocr_item, exam_code, domain, min_conf, fid_cfg=None, deny=None):
     result = qtypes.classify_detailed(item, visual, ocr=ocr_item, min_confidence=min_conf)
     hold = {
         'question_key': item.get('question_key'),
@@ -301,45 +308,58 @@ def export_one(item, visual, ocr_item, exam_code, domain, min_conf):
         'rule_id': result.get('rule_id'),
         'markers': result.get('markers') or [],
         'suggested_type': result.get('type'),
+        'matched_rules': result.get('matched_rules') or [],
     }
-    if result['held'] or not result['type']:
-        return None, hold, result
+    q = None
+    if not (result['held'] or not result['type']):
+        typ = result['type']
+        learner, interaction, err = build_learner(typ, item, visual, ocr_item, exam_code)
+        if err:
+            hold['reason'] = err
+        else:
+            key, complete = build_answer_key(typ, item, visual, learner)
+            learner = strip_private(learner)
+            has_owner_key = bool((item.get('answer_raw') or '').strip()) or complete
+            visual_types = ('yes_no_matrix', 'inline_dropdown', 'multi_blank_dropdown', 'hotspot_single', 'hotspot_multi', 'drag_drop')
+            if typ in visual_types:
+                has_owner_key = complete
+            if typ in ('yes_no_matrix', 'inline_dropdown', 'multi_blank_dropdown') and not complete:
+                hold['reason'] = 'answer marks in the image were not reliable enough to set a key'
+            else:
+                status = 'owner_key' if has_owner_key else 'answer_not_found'
+                if not has_owner_key:
+                    key = empty_key(typ)
+                answer = {
+                    'answer_key': key,
+                    'status': status,
+                }
+                if status == 'answer_not_found':
+                    answer['scoring_excluded'] = True
+                    answer['reviewer_needed'] = True
+                else:
+                    answer['scoring_excluded'] = False
+                    answer['reviewer_needed'] = False
+                q = {
+                    'question_key': item['question_key'],
+                    'version': 1,
+                    'type': typ,
+                    'domain': domain,
+                    'learner': learner,
+                    'answer': answer,
+                }
 
-    typ = result['type']
-    learner, interaction, err = build_learner(typ, item, visual, ocr_item, exam_code)
-    if err:
-        hold['reason'] = err
-        return None, hold, result
-    key, complete = build_answer_key(typ, item, visual, learner)
-    learner = strip_private(learner)
-    has_owner_key = bool((item.get('answer_raw') or '').strip()) or complete
-    if typ in ('yes_no_matrix', 'inline_dropdown', 'multi_blank_dropdown', 'hotspot_single', 'hotspot_multi', 'drag_drop'):
-        has_owner_key = complete
-        if typ in ('yes_no_matrix', 'inline_dropdown', 'multi_blank_dropdown') and not complete:
-            hold['reason'] = 'answer marks in the image were not reliable enough to set a key'
-            return None, hold, result
-    status = 'owner_key' if has_owner_key else 'answer_not_found'
-    if not has_owner_key:
-        key = empty_key(typ)
-    answer = {
-        'answer_key': key,
-        'status': status,
-    }
-    if status == 'answer_not_found':
-        answer['scoring_excluded'] = True
-        answer['reviewer_needed'] = True
-    else:
-        answer['scoring_excluded'] = False
-        answer['reviewer_needed'] = False
-    q = {
-        'question_key': item['question_key'],
-        'version': 1,
-        'type': typ,
-        'domain': domain,
-        'learner': learner,
-        'answer': answer,
-    }
-    return q, None, result
+    gate = None
+    if fid_cfg and fid_cfg.get('enabled', True):
+        gate = fidelity.evaluate(item, q, result, ocr_item, visual, fid_cfg, deny=deny)
+        hold['fidelity'] = gate
+        if not gate['ok']:
+            hold['reason'] = gate['reason'] or hold['reason']
+            return None, hold, result, gate
+        return q, None, result, gate
+
+    if q is None:
+        return None, hold, result, None
+    return q, None, result, None
 
 
 def technical_question_record(item, typ, result, ocr_item, answer, held):
@@ -393,23 +413,49 @@ def main(argv=None):
         min_conf = float(min_conf) if min_conf is not None else None
     except (TypeError, ValueError):
         min_conf = 40.0
+    try:
+        fid_cfg = fidelity.load_fidelity_config()
+    except FileNotFoundError:
+        fid_cfg = None
+    deny = fidelity.make_deny(fid_cfg) if fid_cfg else None
 
     questions = []
     held = []
     bank_qs = []
     by_type = {}
+    fid_rows = []
     for key in sorted(split, key=lambda k: (split[k].get('source_number') or 0, k)):
         item = split[key]
         vis = visual.get(key)
         ocr_item = ocr_items.get(key) or {}
-        q, hold, result = export_one(item, vis, ocr_item, exam, domain, min_conf)
+        q, hold, result, gate = export_one(item, vis, ocr_item, exam, domain, min_conf, fid_cfg=fid_cfg, deny=deny)
+        fid_row = {
+            'question_key': key,
+            'status': 'exported' if q and not hold else 'held',
+            'coverage_percent': None if not gate else gate.get('coverage_percent'),
+            'ocr_min_word_confidence': None if not gate else gate.get('ocr_min_word_confidence'),
+            'type_rule': None if not gate else gate.get('type_rule'),
+            'key_source': None if not gate else gate.get('key_source'),
+            'reason': '' if not gate else (gate.get('reason') or ''),
+            'type': (q or {}).get('type') or result.get('type'),
+        }
+        if gate:
+            fid_row.update({k: gate.get(k) for k in (
+                'missing_words', 'extra_words', 'ocr_overall_confidence',
+                'ocr_agree', 'type_rules')})
         if hold:
+            if not fid_row['reason']:
+                fid_row['reason'] = hold.get('reason') or ''
+            if not fid_row['type_rule']:
+                fid_row['type_rule'] = hold.get('rule_id')
             held.append(hold)
             bank_qs.append(technical_question_record(item, result.get('type'), result, ocr_item, None, True))
+            fid_rows.append(fid_row)
             continue
         questions.append(q)
         by_type[q['type']] = by_type.get(q['type'], 0) + 1
         bank_qs.append(technical_question_record(item, q['type'], result, ocr_item, q['answer'], False))
+        fid_rows.append(fid_row)
 
     exam_sec = exam_header(row, exam, len(questions))
     doc = E.wrap_exam(exam_sec, questions)
@@ -428,6 +474,7 @@ def main(argv=None):
         'held': len(held),
         'total': len(split),
         'by_type': by_type,
+        'fidelity_items': fid_rows,
         'site_file': dest,
         'tesseract': ocr.get('tesseract') or '',
         'tesseract_note': ocr.get('tesseract_note'),
@@ -458,6 +505,8 @@ def main(argv=None):
     with open(os.path.join(out, 'questions.json'), 'w', encoding='utf-8') as fh:
         json.dump(bank, fh, indent=2, ensure_ascii=False)
         fh.write('\n')
+    if fid_cfg and fid_cfg.get('enabled', True):
+        fidelity.write_reports(out, exam, fid_rows)
     print('technical export: %s detected=%s held=%s types=%s file=%s' % (
         exam, len(questions), len(held), by_type, dest))
     return 0

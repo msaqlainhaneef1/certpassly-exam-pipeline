@@ -20,13 +20,16 @@ class TestTypeRules(unittest.TestCase):
     def test_true_false_and_single_and_multi(self):
         r = self.Q.classify_detailed(dict(stem='The sky is blue.', options={'a': 'True', 'b': 'False'}, answer_raw='A'))
         self.assertEqual((r['type'], r['held'], r['rule_id']), ('true_false', False, 'true_false'))
+        self.assertEqual(r.get('matched_rules'), ['true_false'])
         r = self.Q.classify_detailed(dict(stem='Which service stores keys?', options={'a': 'Vault', 'b': 'Notes', 'c': 'Theme'}, answer_raw='A'))
         self.assertEqual((r['type'], r['held']), ('single_choice', False))
+        self.assertEqual(r.get('matched_rules'), ['single_choice'])
         r = self.Q.classify_detailed(dict(
             stem='Which two settings reduce risk? Choose two.',
             options={'a': 'MFA', 'b': 'Shared', 'c': 'Policy'},
             answer_raw='AC'))
-        self.assertEqual((r['type'], r['held'], r['rule_id']), ('multiple_select', False, 'multiple_select_from_key'))
+        self.assertEqual((r['type'], r['held'], r['rule_id']), ('multiple_select', False, 'multiple_select'))
+        self.assertEqual(r.get('matched_rules'), ['multiple_select'])
         # stem marker only, empty key: still multiple_select, not a guess at the letters
         r = self.Q.classify_detailed(dict(
             stem='Which two settings reduce risk? Choose two.',
@@ -143,7 +146,7 @@ class TestTechnicalExport(unittest.TestCase):
         (tmp / 'catalog.csv').write_text(hdr + '\nExample Vendor,example,,EX-DEMO,,ready,,,EX-DEMO\n', encoding='utf-8')
         return tmp, exam
 
-    def test_export_detects_keys_and_holds_nothing_for_lettered_items(self):
+    def test_export_detects_keys_and_holds_items_without_a_certain_key(self):
         import build_technical_export as B
         import paths
         items = [
@@ -162,24 +165,27 @@ class TestTechnicalExport(unittest.TestCase):
             self.assertEqual(doc['exam']['certification'], 'EX-DEMO')
             self.assertEqual(doc['exam']['name'], 'EX-DEMO')
             self.assertNotIn('simulator_settings', doc['exam'])
-            self.assertEqual(len(doc['questions']), 3)
+            self.assertEqual(len(doc['questions']), 2)
             types = [q['type'] for q in doc['questions']]
-            self.assertEqual(types, ['single_choice', 'multiple_select', 'single_choice'])
+            self.assertEqual(types, ['single_choice', 'multiple_select'])
             self.assertEqual(doc['questions'][0]['answer']['answer_key'], [0])
             self.assertEqual(doc['questions'][0]['answer']['status'], 'owner_key')
             self.assertEqual(doc['questions'][1]['answer']['answer_key'], [0, 2])
             self.assertEqual(doc['questions'][1]['learner']['interaction']['choose_n'], 2)
-            q3 = doc['questions'][2]
-            self.assertEqual(q3['answer']['status'], 'answer_not_found')
-            self.assertTrue(q3['answer']['scoring_excluded'])
-            self.assertTrue(q3['answer']['reviewer_needed'])
-            self.assertNotIn('explanation', q3['answer'])
-            self.assertEqual(q3['domain'], 'Unassigned')
+            self.assertEqual(doc['questions'][0]['domain'], 'Unassigned')
+            self.assertNotIn('explanation', doc['questions'][0]['answer'])
             report = json.loads((tmp / 'out' / exam / 'export' / 'technical_report.json').read_text(encoding='utf-8'))
-            self.assertEqual((report['detected'], report['held'], report['total']), (3, 0, 3))
+            self.assertEqual((report['detected'], report['held'], report['total']), (2, 1, 3))
             self.assertEqual(report['items'][0]['ocr_confidence'], 90.0)
             held = json.loads((tmp / 'out' / exam / 'export' / 'cannot-convert.json').read_text(encoding='utf-8'))
-            self.assertEqual(held, [])
+            self.assertEqual(len(held), 1)
+            self.assertIn('key', (held[0].get('reason') or '').lower())
+            fid = json.loads((tmp / 'out' / exam / 'export' / 'fidelity.json').read_text(encoding='utf-8'))
+            self.assertEqual((fid['exported'], fid['held'], fid['total']), (2, 1, 3))
+            self.assertEqual(fid['items'][0]['coverage_percent'], 100)
+            self.assertEqual(fid['items'][0]['status'], 'exported')
+            self.assertEqual(fid['items'][2]['status'], 'held')
+            self.assertTrue((tmp / 'out' / exam / 'export' / 'fidelity.md').is_file())
         finally:
             paths.set_root(os.getcwd())
             shutil.rmtree(tmp, ignore_errors=True)

@@ -682,3 +682,18 @@ certpassly-pipeline verify --exam CODE --root WORKSPACE --offline
 
 Do not merge this branch to main or tag `v1.2.0` until the owner agrees.
 
+## 12. Fidelity gate (1.2.0.dev3)
+
+The technical export now runs a config-driven fidelity gate. Settings live in `config/fidelity.json` and the `fidelity` block of `config/ocr.json`. Nothing is hardcoded per exam.
+
+A question is exported only when all of these pass:
+
+1. Every word in the scrubbed PDF text block (and high-confidence image OCR words) appears in the exported question, and the export adds no extra words.
+2. Each OCR'd image is run twice (two psm or preprocessing settings). Every word is at or above 90 confidence, overall confidence is at least 95, and both passes agree on the text.
+3. Exactly one type rule matches, and the interaction shape agrees with the answer key.
+4. The answer key comes from the text layer or from two agreeing pixel methods, and maps to existing ids. It is never inferred.
+
+`export/fidelity.json` and `export/fidelity.md` list every question with exported or held, coverage, OCR minimum word confidence, type rule, key source and reason. Python and site PHP schema checks still run on every exported question.
+
+Do not merge this branch to main or tag `v1.2.0` until the owner agrees.
+
