@@ -102,7 +102,7 @@ Skill repo root (this repository):
 - `scripts/drive_fetch.py`, `scripts/drive_inventory.py`, `scripts/drive_crawl.py`: Drive intake.
 - `scripts/build_catalog.py`: catalog from the owner sheet.
 - `reference/site-format/v1/`: the frozen v1 workbook contract.
-- `reference/site-format/v2/`: the site exam schema (verbatim copy from site commit `a3009daa5`; see `PROVENANCE.md`). The pipeline must use these folders, never a live app checkout, except a read-only path to `SchemaValidator.php` when you set `CERTPASSLY_SITE_VALIDATOR`.
+- `reference/site-format/v2/`: the site exam schema (verbatim copy from site commit `a3009daa5`; see `reference/site-format/v2/PROVENANCE.md`). The pipeline must use these folders, never a live app checkout, except a read-only path to `SchemaValidator.php` when you set `CERTPASSLY_SITE_VALIDATOR`.
 - `reference/lessons-learned.md`: lessons from real runs. Read before every exam.
 - `shared/`: shared page blocks, capped by config (default 40 percent of a page body).
 - `tests/`: unit, gate, demo, and regression tests (`test_v110.py`, `test_v114.py`, `test_v115.py`, `test_demo_end_to_end.py`, `test_ab730_regression.py`, and others).

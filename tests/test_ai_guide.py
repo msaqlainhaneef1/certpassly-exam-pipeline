@@ -85,7 +85,7 @@ class StageNames(unittest.TestCase):
         self.assertEqual(re.findall(r'`([a-z_]+)`', line.split('. ', 1)[0]), STAGES)
 
     def test_exercise_stage_order_matches(self):
-        m = re.search(r'15 stage rows in this order: ([a-z_, ]+)\.', read(EXERCISES))
+        m = re.search(r'\d+ stage rows in this order: ([a-z_, ]+)\.', read(EXERCISES))
         self.assertEqual([s.strip() for s in m.group(1).split(',')], STAGES)
 
     def test_only_author_is_ai_yes(self):
