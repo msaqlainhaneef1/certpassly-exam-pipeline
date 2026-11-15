@@ -374,7 +374,7 @@ v1.1.5 re-verify (2026-11-11, Asia/Karachi):
 - Site banned-term hits: 0
 - PC package sha256 `1c423d3b32ebfad6b38a5728ab4ffa7c2f78995f42d6c64bc60f239bd884718a` (239639 bytes)
 - Compare vs box outputs: 29 raw sha256 matches, 92 raw diffs, 0 only-PC, 0 only-box. Of the 92, 84 are CRLF versus LF only, including `questions.json`. `import/questions.csv` is a raw byte match. The other 8 are expected: Windows absolute paths, validate clock text, Poppler 25.07.0 versus 25.03.0 raw XML and cover cleanups, manifest hashes, one certification boilerplate sentence, and the package zip as a whole
-- Proof write-up: `C:\Users\Saqlain\OneDrive\Apps\Desktop\certpassly-git-verify\` and `/workspace/deliverables/git-verify/` (`GIT-VERIFY.md`, `live.log`, `compare-results.json`, the PC package zip)
+- Proof write-up: `C:\Users\Saqlain\OneDrive\Apps\Desktop\certpassly-git-verify\` and `/workspace/deliverables/git-verify/` (GIT-VERIFY.md, live.log, compare-results.json, the PC package zip)
 
 Live Drive re-fetch was not run in that verify. The site's live importer was not run. Site code was not changed.
 
