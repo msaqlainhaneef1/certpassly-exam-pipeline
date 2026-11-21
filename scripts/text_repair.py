@@ -13,6 +13,27 @@ import os, re
 LIGS = ('ffi', 'ffl', 'fi', 'fl', 'ff')
 _DATA = None
 _KNOWN = set()
+_COMPLETE = set()
+
+# Typographic ligatures some PDF text layers emit as single code points.
+TYPING_LIGATURES = {
+    "ﬀ": "ff",
+    "ﬁ": "fi",
+    "ﬂ": "fl",
+    "ﬃ": "ffi",
+    "ﬄ": "ffl",
+}
+
+
+def expand_typographic_ligatures(text: str) -> str:
+    """Expand fi/fl/ff typographic ligatures to ASCII letters. No words added or dropped."""
+    raw = text or ""
+    if not raw:
+        return raw
+    for lig, letters in TYPING_LIGATURES.items():
+        if lig in raw:
+            raw = raw.replace(lig, letters)
+    return raw
 
 
 def _load(path=None):
@@ -20,7 +41,7 @@ def _load(path=None):
     if _DATA is not None and path is None:
         return _DATA
     path = path or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config', 'ligature_words.txt')
-    sec, lig, keep, known = None, set(), set(), set()
+    sec, lig, keep, known, complete = None, set(), set(), set(), set()
     if os.path.exists(path):
         for line in open(path, encoding='utf-8'):
             line = line.strip()
@@ -29,9 +50,17 @@ def _load(path=None):
             if line.startswith('['):
                 sec = line.strip('[]')
                 continue
-            (lig if sec == 'ligature_words' else keep if sec == 'keep_short' else known if sec == 'known_words' else set()).add(line.lower())
-    global _KNOWN
+            target = {
+                "ligature_words": lig,
+                "keep_short": keep,
+                "known_words": known,
+                "complete_words": complete,
+            }.get(sec)
+            if target is not None:
+                target.add(line.lower())
+    global _KNOWN, _COMPLETE
     _KNOWN = known
+    _COMPLETE = complete
     _DATA = (lig, keep)
     return _DATA
 
@@ -48,11 +77,20 @@ def _join(a: str, b: str, lig_words):
     return None
 
 
+def _protected_token(token: str, lig_words, keep) -> bool:
+    """True when a token already reads as a complete word and must not get a leading ligature."""
+    tl = (token or "").lower()
+    if not tl:
+        return True
+    return tl in keep or tl in lig_words or tl in _KNOWN or tl in _COMPLETE
+
+
 def repair(text: str, data=None):
     """Return (fixed_text, [(before, after), ...])."""
     lig_words, keep = data or _load()
     if not text or not lig_words:
         return text, []
+    text = expand_typographic_ligatures(text)
     changes = []
 
     # Glyph lost inside a word: "De ne", "O ce", "con gure". Second part is lower case.
@@ -76,7 +114,7 @@ def repair(text: str, data=None):
 
     def lead(m):
         t = m.group(1)
-        if t.lower() in keep or t.lower() in lig_words:
+        if _protected_token(t, lig_words, keep):
             return t
         j = _join('', t, lig_words)
         if j:

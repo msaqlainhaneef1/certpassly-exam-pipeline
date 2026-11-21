@@ -3457,3 +3457,34 @@ species
 tracked
 tracking
 true
+
+# Tokens that already read as complete words. lead() must never prefix
+# a ligature onto these, even when ligature+token is itself a ligature word
+# (fireplace = fi + replace, fish = fi + sh). Includes common inflections.
+[complete_words]
+ash
+ashes
+aunt
+ax
+elder
+elders
+lip
+lips
+nest
+nests
+oats
+owed
+owing
+replace
+replaced
+replaces
+replacing
+sh
+shy
+sting
+stings
+stung
+utter
+utters
+uttered
+uttering

@@ -102,9 +102,17 @@ class LostLigatureRepair(unittest.TestCase):
             self.assertEqual(got,want,src); self.assertTrue(ch,src)
 
     def test_real_words_are_left_alone(self):
-        for src in ['a re is lit','do the work now','the risk is low','Yes or No','use SSO on the app','the best one']:
+        for src in ['a re is lit','do the work now','the risk is low','Yes or No','use SSO on the app','the best one',
+                    'They replace human operations','It replaces default certificates',
+                    'kubectl replace deployment/my-app','Add a build.sh script.',
+                    'the shy cat','the nest is empty']:
             got,ch=self.T.repair(src)
             self.assertEqual(got,src); self.assertEqual(ch,[])
+
+
+    def test_typographic_ligatures_expand_consistently(self):
+        raw = "A speci\ufb01c \ufb01le and a \ufb02ow"
+        self.assertEqual(self.T.expand_typographic_ligatures(raw), "A specific file and a flow")
 
     def test_extract_logs_each_repair_in_cleanups(self):
         import extract_owner_pdf as E, site_settings

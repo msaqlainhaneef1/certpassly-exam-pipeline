@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import paths
 import site_settings
 import extract_owner_pdf as X
+import text_repair
 
 DEFAULT_TOKEN = r'[A-Za-z0-9]+'
 
@@ -87,7 +88,7 @@ def make_deny(cfg=None):
 def tokenize(text, cfg=None):
     cfg = cfg or {}
     pat = cfg.get('token_pattern') or DEFAULT_TOKEN
-    raw = text or ''
+    raw = text_repair.expand_typographic_ligatures(text or '')
     if not cfg.get('case_sensitive'):
         raw = raw.lower()
     return re.findall(pat, raw)
